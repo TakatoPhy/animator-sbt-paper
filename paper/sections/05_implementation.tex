@@ -25,9 +25,11 @@ The proposed system uses the following components:
   \item \textbf{Production management client:} Progressive Web Application (PWA)
     built with a standard web framework, providing cut management,
     deadline tracking, and income calculation features for freelance animators.
-  \item \textbf{Wallet management:} Embedded wallets via account abstraction
+  \item \textbf{Wallet management (production target):} Embedded wallets via account abstraction
     (ERC-4337), eliminating the need for animators to install
     wallet software or manage private keys.
+    The current prototype uses standard externally owned accounts (EOAs);
+    ERC-4337 integration is planned for the production deployment.
 \end{itemize}
 
 % ----- 5.2 Smart Contract -----
@@ -64,6 +66,22 @@ function _beforeTokenTransfer(
 Additionally, the \texttt{approve()} and \texttt{setApprovalForAll()} functions
 are overridden to revert unconditionally, preventing any approval-based transfer mechanisms.
 This ensures that SBTs cannot be transferred through any ERC-721--compliant interface.
+
+\subsubsection{Why Not ERC-5192?}
+
+The ERC-5192 standard~\cite{daubenschuetz2022erc5192} defines a minimal interface
+for soulbound NFTs by adding a \texttt{locked()} query function.
+We chose not to implement ERC-5192 for two reasons:
+(1)~ERC-5192 only \textit{signals} non-transferability via an event
+but does not enforce it at the contract level---our approach enforces
+soulbinding in \texttt{\_beforeTokenTransfer}, making transfers
+physically impossible rather than merely discouraged;
+(2)~ERC-5192 does not address approval-based transfer vectors
+(\texttt{approve}, \texttt{setApprovalForAll}),
+which our contract explicitly blocks.
+Future versions may add ERC-5192 compatibility
+(the \texttt{locked()} view function) alongside our enforcement mechanism
+to improve interoperability with SBT-aware tooling.
 
 \subsubsection{Role-Based Access Control}
 

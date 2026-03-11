@@ -108,6 +108,18 @@ $22{,}962 \times 500 = 11.5$~MB---trivially small for IPFS.
 On-chain storage is minimal (token ID, owner address, URI string),
 at approximately 200 bytes per token.
 
+\subsubsection{On-Chain Query Cost}
+
+The \texttt{tokensOfOwner()} function performs a linear scan
+across all minted tokens ($O(n)$ where $n$ is the total token count).
+While acceptable at the current scale (tens of thousands of tokens),
+this becomes inefficient as $n$ grows:
+at 100{,}000 tokens, the function may exceed RPC node timeout limits
+for \texttt{eth\_call} queries.
+A production deployment should add an owner-to-token-ID mapping
+for $O(1)$ lookups, or rely on off-chain indexing
+(e.g., The Graph) for portfolio queries.
+
 \subsubsection{Growth Projection}
 
 Assuming a 10.6\% CAGR in the anime market~\cite{mordor2026anime}
@@ -137,11 +149,18 @@ defined in \cref{subsec:formalization}:
     to the underlying work log data.
     No contact with the original studio is required.
 
-  \item \textbf{R3 (Persistence):} \textit{Satisfied.}
-    On-chain data persists as long as the Polygon network operates.
-    IPFS metadata is content-addressed and can be re-pinned by any party
-    with a copy, surviving individual service shutdowns.
-    Even if TOONIQ ceases operations, the on-chain records remain accessible.
+  \item \textbf{R3 (Persistence):} \textit{Partially satisfied.}
+    On-chain data (token ownership, issuance timestamp) persists
+    as long as the Polygon network operates.
+    However, the detailed metadata stored on IPFS depends on
+    continued pinning by at least one party.
+    If the pinning service subscription lapses and no other node
+    holds a copy, the metadata becomes inaccessible
+    despite the on-chain record remaining intact.
+    This is a known limitation of IPFS-based storage;
+    mitigation strategies include multi-provider pinning,
+    community-operated IPFS nodes, and Arweave-based
+    permanent storage as a fallback.
 
   \item \textbf{R4 (Portability):} \textit{Satisfied.}
     The SBT is bound to the animator's wallet address,
@@ -181,8 +200,14 @@ in future work:
   \item \textbf{Self-reported data:}
     The SBT metadata is derived from self-reported work logs in the PMC.
     Without a co-signing mechanism (e.g., studio confirmation),
-    the system cannot prevent fabricated claims.
-    We discuss potential mitigation strategies in \cref{sec:discussion}.
+    the system cannot independently verify the truth of contribution claims---only
+    their existence and integrity.
+    We discuss the trust model and mitigation strategies in \cref{sec:discussion}.
+  \item \textbf{IPFS metadata persistence:}
+    Detailed SBT metadata resides on IPFS, which requires active pinning
+    to remain accessible. If all pinning providers stop hosting the data,
+    the on-chain token record persists but the contribution details
+    become unrecoverable.
   \item \textbf{Adoption assumptions:}
     The simulation assumes uniform adoption across the industry.
     In practice, adoption will be uneven and influenced by

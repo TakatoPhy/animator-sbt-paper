@@ -74,7 +74,21 @@ that enhances (rather than substitutes for) trust-based relationships.
 \subsection{Trust Model and Abuse Prevention}
 \label{subsec:trust}
 
+\textbf{It is important to acknowledge a fundamental limitation:}
 AnimatorSBT's current trust model relies on self-reported work logs.
+The blockchain guarantees that a \textit{claim was recorded at a specific time
+by a specific issuer}, but it does not independently verify
+that the claimed work was actually performed.
+In other words, the SBT certifies the existence and immutability
+of a contribution claim, not the truth of that claim.
+This distinction is critical for understanding the system's
+current trust boundary.
+
+Without studio co-signing, AnimatorSBT-issued SBTs are
+functionally \textit{self-attestations with cryptographic integrity}---
+more reliable than verbal claims (due to timestamping, immutability,
+and evidence hashing) but less authoritative than
+mutually verified credentials.
 This introduces potential abuse vectors that must be addressed:
 
 \textbf{Fabricated contributions.}
