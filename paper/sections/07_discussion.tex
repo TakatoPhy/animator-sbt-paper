@@ -1,3 +1,159 @@
 % Discussion
-% TODO: Draft
 
+This section examines the practical challenges of deploying AnimatorSBT
+in the anime industry (\cref{subsec:adoption_barriers}),
+discusses the trust model and potential abuse vectors (\cref{subsec:trust}),
+considers legal and regulatory implications (\cref{subsec:legal}),
+and explores generalizability to other creative industries (\cref{subsec:generalizability}).
+
+% ----- 7.1 Adoption Barriers -----
+\subsection{Adoption Barriers}
+\label{subsec:adoption_barriers}
+
+While AnimatorSBT is designed for minimal friction (R5),
+several non-technical barriers may impede real-world adoption:
+
+\textbf{Blockchain skepticism.}
+The anime industry's workforce skews toward traditional craft skills
+rather than digital technology.
+The association of blockchain with cryptocurrency speculation and NFT scams
+may generate initial resistance.
+Our design mitigates this by making the blockchain layer invisible
+to end users---animators interact only with the familiar PMC interface.
+However, marketing and communication strategies must carefully position
+the technology as a ``digital certificate'' rather than an ``NFT'' or ``crypto token''
+to avoid triggering negative associations.
+
+\textbf{Studio cooperation.}
+While AnimatorSBT can function without studio cooperation
+(animators self-report their contributions through the PMC),
+studio endorsement would significantly increase the credibility of issued SBTs.
+A co-signing mechanism, where studios countersign contribution claims,
+would transform the SBT from a self-attestation to a verified credential.
+However, studios may resist transparency in subcontracting arrangements,
+as it would expose the depth of outsourcing chains
+that the industry has historically kept opaque.
+
+\textbf{Network effects.}
+The value of AnimatorSBT increases with adoption:
+verifiers (studios hiring freelancers) will only check SBTs
+if a critical mass of animators holds them.
+This creates a chicken-and-egg problem common to credentialing platforms.
+We propose addressing this through a phased rollout:
+(1)~integrate SBT issuance into the existing PMC user base,
+(2)~partner with progressive studios willing to recognize SBTs in hiring,
+and (3)~expand to the broader industry as demonstrated value accumulates.
+
+\textbf{Cultural norms.}
+Japanese business culture emphasizes relationships and trust
+built through personal networks (\textit{kone}).
+A cryptographic verification system may be perceived as undermining
+this relationship-based hiring model.
+We argue that AnimatorSBT complements rather than replaces personal networks:
+it provides a baseline of verifiable facts
+that enhances (rather than substitutes for) trust-based relationships.
+
+% ----- 7.2 Trust Model and Abuse Prevention -----
+\subsection{Trust Model and Abuse Prevention}
+\label{subsec:trust}
+
+AnimatorSBT's current trust model relies on self-reported work logs.
+This introduces potential abuse vectors that must be addressed:
+
+\textbf{Fabricated contributions.}
+An animator could create false work log entries in the PMC
+to mint SBTs for work they did not perform.
+We propose three mitigation layers:
+
+\begin{enumerate}
+  \item \textbf{Studio co-signing (recommended):}
+    Extend the smart contract with a two-party confirmation mechanism
+    where the studio (or production manager) countersigns the SBT.
+    This transforms the SBT from a self-attestation into a mutually verified record.
+  \item \textbf{Peer attestation:}
+    Allow other animators who worked on the same production to attest
+    to a colleague's contribution, creating a social verification layer.
+  \item \textbf{Statistical anomaly detection:}
+    The Issuance Service can flag statistically improbable claims
+    (e.g., an animator claiming 500 cuts in a single week)
+    for manual review before minting.
+\end{enumerate}
+
+\textbf{Sybil attacks.}
+A malicious actor could create multiple wallets to fabricate a diverse portfolio.
+Account abstraction mitigates this partially by linking wallet creation
+to PMC registration, but a determined attacker could create multiple PMC accounts.
+Integration with a decentralized identity protocol (e.g., Proof of Humanity,
+Worldcoin) could provide stronger Sybil resistance in future iterations.
+
+\textbf{Issuer key compromise.}
+If the Issuance Service's private key is compromised,
+an attacker could mint arbitrary SBTs.
+The AccessControl pattern mitigates this:
+the admin role (held by TOONIQ) can revoke the compromised issuer role
+and assign a new key, and all fraudulently minted SBTs can be revoked on-chain.
+
+% ----- 7.3 Legal and Regulatory Considerations -----
+\subsection{Legal and Regulatory Considerations}
+\label{subsec:legal}
+
+\textbf{Personal data protection.}
+AnimatorSBT stores contribution metadata (project title, role, task count, period)
+on IPFS with a reference on-chain.
+Under Japan's Act on the Protection of Personal Information (APPI),
+work history linked to an identifiable individual constitutes personal data.
+The use of pseudonymous wallet addresses provides a degree of separation,
+but the combination of project title, role, and time period
+may be sufficient to identify an individual in practice.
+The nullable studio field and selective disclosure mechanisms
+described in \cref{subsec:privacy} provide partial mitigation,
+but a formal data protection impact assessment is recommended
+before production deployment.
+
+\textbf{Token classification.}
+AnimatorSBT tokens are non-transferable and carry no monetary value.
+Under Japan's Financial Instruments and Exchange Act
+and the Payment Services Act,
+non-transferable tokens that cannot be traded on secondary markets
+are generally not classified as crypto-assets or securities.
+However, regulatory clarity on SBTs specifically is still evolving,
+and legal counsel should be consulted for production deployment.
+
+\textbf{Labor law implications.}
+The Fair Trade Commission's December 2025 report~\citep{jftc2025anime}
+found that unilateral price determination without negotiation
+may violate the Subcontract Act.
+AnimatorSBT could serve as an evidence tool in such disputes,
+as the \texttt{evidence\_hash} provides a timestamped record of
+work performed and its scope.
+However, the legal admissibility of on-chain evidence in Japanese courts
+has not been established through precedent.
+
+% ----- 7.4 Generalizability -----
+\subsection{Generalizability to Other Creative Industries}
+\label{subsec:generalizability}
+
+While AnimatorSBT is designed for the anime industry,
+the underlying framework is applicable to any project-based creative industry
+where freelancers face similar attribution challenges:
+
+\begin{itemize}
+  \item \textbf{Video game development:}
+    Game credits face similar issues with outsourced QA testers,
+    localization staff, and contract artists often going uncredited.
+  \item \textbf{Film and television (live action):}
+    Below-the-line crew members, particularly in visual effects,
+    frequently work through layers of subcontractors.
+  \item \textbf{Music production:}
+    Session musicians, ghost producers, and uncredited songwriters
+    lack standardized contribution records.
+  \item \textbf{Architecture and design:}
+    Junior architects and designers contribute substantially
+    to projects credited to senior partners.
+\end{itemize}
+
+The AnimatorSBT metadata schema (\cref{tab:metadata}) can be adapted
+to these domains by modifying the \texttt{role} enum and
+adjusting the \texttt{task\_count} semantics.
+The smart contract, issuance service, and verification portal
+require no domain-specific modifications.

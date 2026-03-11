@@ -1,3 +1,81 @@
 % Conclusion and Future Work
-% TODO: Draft
 
+% ----- Conclusion -----
+
+This paper presented \textbf{AnimatorSBT}, a blockchain-based contribution
+certification framework that addresses the systemic invisibility
+of freelance animators' work in the Japanese anime industry.
+By integrating Soulbound Token issuance into an existing production management tool,
+AnimatorSBT creates immutable, verifiable, and portable records
+of individual contributions at the granular level of production tasks.
+
+Our analysis identified a clear research gap:
+while SBTs have been applied to healthcare, education, and agriculture,
+and blockchain has been explored for creative IP management,
+no prior work addresses individual-level contribution certification
+in anime production workflows.
+We formalized the contribution invisibility problem,
+defined five requirements for an ideal solution (completeness, verifiability,
+persistence, portability, and minimal friction),
+and demonstrated that AnimatorSBT satisfies all five.
+
+The prototype implementation on Polygon PoS demonstrated
+the economic viability of the approach:
+minting a single contribution certificate costs approximately \$0.002,
+and full industry adoption (all freelance animators in Japan)
+would cost only \$274 per year---representing $0.000011\%$
+of the industry's annual revenue.
+This confirms that the technological and economic barriers
+to blockchain-based credentialing have been effectively eliminated
+by Layer~2 scaling solutions.
+
+% ----- Future Work -----
+
+Several directions for future work emerge from this research:
+
+\begin{enumerate}
+  \item \textbf{User study:}
+    Conduct a formal usability evaluation with practicing animators
+    and production managers to assess perceived value, trust,
+    and willingness to adopt.
+    This study should include both freelancers (SBT recipients)
+    and studios (potential verifiers/co-signers).
+
+  \item \textbf{Studio co-signing protocol:}
+    Design and implement a two-party confirmation mechanism
+    where studios endorse animator contribution claims,
+    transforming self-attested SBTs into mutually verified credentials.
+    This requires careful incentive design to ensure studios
+    are motivated to participate.
+
+  \item \textbf{Interoperability with W3C Verifiable Credentials:}
+    Extend AnimatorSBT to comply with the W3C Verifiable Credentials
+    Data Model~2.0, enabling interoperability with the broader
+    decentralized identity ecosystem and potential integration
+    with government-issued digital identity systems.
+
+  \item \textbf{Cross-industry deployment:}
+    Adapt the framework to adjacent creative industries
+    (video games, film VFX, music production)
+    to validate generalizability and identify domain-specific requirements.
+
+  \item \textbf{On-chain analytics:}
+    Develop aggregate analytics tools that leverage anonymized SBT data
+    to study industry workforce dynamics---role distribution,
+    project duration patterns, and career trajectories---providing
+    data-driven insights for industry policy.
+
+  \item \textbf{Integration with reputation systems:}
+    Explore how accumulated SBTs can inform reputation scores
+    that assist studios in identifying reliable freelancers,
+    while preserving animator privacy through zero-knowledge proofs
+    (e.g., ``this animator has completed $>$100 cuts across $>$5 productions''
+    without revealing specific projects).
+\end{enumerate}
+
+AnimatorSBT represents a step toward a more transparent and equitable
+anime production ecosystem---one where every creative contribution
+is recorded, verifiable, and owned by the person who made it.
+As the anime industry continues its global expansion,
+tools that protect and empower the individual creators
+at the foundation of this growth become not just valuable, but essential.
