@@ -1,0 +1,30 @@
+# LaTeX
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.pdf
+
+# OS
+.DS_Store
+
+# Editor
+*.swp
+*.swo
+*~
+
+# Node (for contracts)
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Zotero export (keep .bib only)
+*.json.bak

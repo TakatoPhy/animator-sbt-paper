@@ -1,0 +1,83 @@
+\documentclass[12pt,a4paper]{article}
+
+% ===== Packages =====
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{geometry}
+\usepackage{natbib}
+\usepackage{url}
+\usepackage{tikz}
+\usepackage{subcaption}
+
+\geometry{margin=1in}
+
+% ===== Metadata =====
+\title{Soulbound Tokens for Anime Production:\\A Blockchain-Based Contribution Certification Framework\\for Freelance Animators}
+
+\author{
+  TOONIQ LLC\\
+  Tokyo, Japan\\
+  \texttt{support@tooniq.co.jp}
+}
+
+\date{\today}
+
+% ===== Document =====
+\begin{document}
+
+\maketitle
+
+% ----- Abstract -----
+\begin{abstract}
+\input{sections/00_abstract}
+\end{abstract}
+
+\textbf{Keywords:} Soulbound Token, Blockchain, Anime Production, Freelance, Credential Verification, Decentralized Identity
+
+% ----- Main Sections -----
+\section{Introduction}
+\label{sec:introduction}
+\input{sections/01_introduction}
+
+\section{Background and Related Work}
+\label{sec:related_work}
+\input{sections/02_related_work}
+
+\section{Problem Statement}
+\label{sec:problem}
+\input{sections/03_problem_statement}
+
+\section{Proposed Framework: AnimatorSBT}
+\label{sec:framework}
+\input{sections/04_framework}
+
+\section{Prototype Implementation}
+\label{sec:implementation}
+\input{sections/05_implementation}
+
+\section{Evaluation}
+\label{sec:evaluation}
+\input{sections/06_evaluation}
+
+\section{Discussion}
+\label{sec:discussion}
+\input{sections/07_discussion}
+
+\section{Conclusion and Future Work}
+\label{sec:conclusion}
+\input{sections/08_conclusion}
+
+% ----- References -----
+\bibliographystyle{plainnat}
+\bibliography{../references/references}
+
+\end{document}
