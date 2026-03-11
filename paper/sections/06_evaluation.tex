@@ -1,3 +1,172 @@
 % Evaluation
-% TODO: Draft
 
+We evaluate AnimatorSBT along three dimensions:
+economic viability through cost simulation (\cref{subsec:cost_sim}),
+scalability analysis (\cref{subsec:scalability}),
+and a qualitative assessment against the requirements defined in \cref{subsec:formalization}.
+
+% ----- 6.1 Cost Simulation -----
+\subsection{Cost Simulation}
+\label{subsec:cost_sim}
+
+We simulated the annual operating cost of AnimatorSBT across five adoption scenarios,
+ranging from a single-studio pilot to full industry adoption.
+The simulation uses industry statistics from JAniCA~(2023) and NAFCA~(2024)
+for workforce parameters, and gas costs measured on the Polygon PoS testnet
+(30~gwei gas price, MATIC = \$0.50).
+
+\subsubsection{Parameters}
+
+The simulation assumes the following industry parameters based on public data:
+
+\begin{itemize}
+  \item Total animation creators: $\sim$5{,}500 (JAniCA 2023 survey base)
+  \item Freelance ratio: 47.3\%--69.6\% (JAniCA 2023 / 2019)
+  \item Average projects per animator per year: 6
+  \item Batch minting with batch size of 10 (default)
+  \item Revocation rate: 1\% of issued SBTs
+  \item IPFS pinning: Free tier for $\leq$500 files; \$20/month for larger deployments
+\end{itemize}
+
+\subsubsection{Results}
+
+\Cref{tab:cost_scenarios} presents the simulation results.
+
+\begin{table}[ht]
+\centering
+\caption{Annual cost simulation across five adoption scenarios.
+All costs in USD at Polygon PoS rates (30 gwei, MATIC = \$0.50).}
+\label{tab:cost_scenarios}
+\small
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+\textbf{Scenario} & \textbf{Animators} & \textbf{SBTs/year} & \textbf{Annual Cost} & \textbf{Per Animator} \\
+\midrule
+Pilot (1 studio)              & 50    & 300     & \$0.49    & \$0.010 \\
+Early adoption (10 studios)   & 500   & 3{,}000   & \$244     & \$0.489 \\
+Moderate (50\% freelancers)   & 1{,}300 & 7{,}800   & \$252     & \$0.194 \\
+Full adoption (low est.)      & 2{,}601 & 15{,}606  & \$263     & \$0.101 \\
+Full adoption (high est.)     & 3{,}828 & 22{,}962  & \$274     & \$0.072 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The results reveal a striking finding:
+\textbf{even at full industry adoption (all freelance animators in Japan),
+the total annual operating cost is approximately \$274}---less than
+the cost of a single dinner in Tokyo.
+This represents $0.000011\%$ of the anime production industry's
+annual revenue of \textyen 362.1 billion (\$2.41 billion)~\citep{tdb2025anime}.
+
+The cost is dominated by IPFS pinning fees (\$240/year),
+not blockchain transaction costs.
+On-chain minting costs account for only \$34 at full adoption,
+confirming that Layer~2 blockchains have reduced gas fees
+to a point where per-transaction costs are economically negligible.
+
+The per-animator cost decreases with scale due to fixed IPFS costs
+being distributed across more users.
+At full adoption, the cost is approximately \$0.07 per animator per year---
+equivalent to less than one minute of work at the median hourly wage
+of \textyen 1{,}111~\citep{nafca2024labor}.
+
+% ----- 6.2 Scalability -----
+\subsection{Scalability Analysis}
+\label{subsec:scalability}
+
+\subsubsection{Transaction Throughput}
+
+Polygon PoS processes approximately 65{,}000 transactions per day
+with a block time of 2 seconds.
+At full adoption, AnimatorSBT would generate approximately 22{,}962 minting
+transactions per year, or roughly 63 per day.
+This represents less than 0.1\% of Polygon's daily capacity,
+indicating that the system operates well within the network's limits.
+
+\subsubsection{Storage}
+
+Each SBT metadata JSON file is approximately 500 bytes.
+At full adoption, annual metadata storage is approximately
+$22{,}962 \times 500 = 11.5$~MB---trivially small for IPFS.
+On-chain storage is minimal (token ID, owner address, URI string),
+at approximately 200 bytes per token.
+
+\subsubsection{Growth Projection}
+
+Assuming a 10.6\% CAGR in the anime market~\citep{mordor2026anime}
+and proportional workforce growth,
+the system would need to handle approximately 42{,}000 SBTs per year by 2031
+(roughly 115 per day).
+This remains well within Polygon's capacity
+and would cost approximately \$300--400 annually.
+
+% ----- 6.3 Requirements Evaluation -----
+\subsection{Requirements Satisfaction}
+\label{subsec:requirements_eval}
+
+We evaluate AnimatorSBT against the five requirements
+defined in \cref{subsec:formalization}:
+
+\begin{description}
+  \item[R1 -- Completeness:]
+    \textit{Satisfied.}
+    Any animator using the PMC can receive an SBT regardless of their
+    position in the subcontracting hierarchy.
+    The issuance is triggered by work log data in the PMC,
+    not by studio approval or credit committee decisions.
+
+  \item[R2 -- Verifiability:]
+    \textit{Satisfied.}
+    Third parties can verify SBTs by querying the public blockchain.
+    The \texttt{evidence\_hash} provides a cryptographic link
+    to the underlying work log data.
+    No contact with the original studio is required.
+
+  \item[R3 -- Persistence:]
+    \textit{Satisfied.}
+    On-chain data persists as long as the Polygon network operates.
+    IPFS metadata is content-addressed and can be re-pinned by any party
+    with a copy, surviving individual service shutdowns.
+    Even if TOONIQ ceases operations, the on-chain records remain accessible.
+
+  \item[R4 -- Portability:]
+    \textit{Satisfied.}
+    The SBT is bound to the animator's wallet address,
+    which they control via account abstraction.
+    The animator can present their wallet address (or a derived identifier)
+    to any verifier, independent of any specific platform.
+
+  \item[R5 -- Minimal Friction:]
+    \textit{Satisfied.}
+    The animator's workflow is unchanged---they continue recording work
+    in the PMC as before.
+    SBT issuance is automatic upon project milestones.
+    No wallet management, gas fee payment, or blockchain knowledge is required.
+\end{description}
+
+% ----- 6.4 Limitations -----
+\subsection{Limitations}
+\label{subsec:eval_limitations}
+
+The current evaluation has several limitations that should be addressed
+in future work:
+
+\begin{itemize}
+  \item \textbf{No user study:}
+    We have not yet conducted a formal user study with practicing animators.
+    The cost simulation and requirements analysis provide theoretical validation,
+    but real-world usability and perceived value remain to be evaluated.
+  \item \textbf{Gas price volatility:}
+    The cost estimates assume a fixed gas price of 30~gwei and MATIC price of \$0.50.
+    While Polygon PoS gas prices are historically stable,
+    significant price fluctuations could affect cost projections.
+  \item \textbf{Self-reported data:}
+    The SBT metadata is derived from self-reported work logs in the PMC.
+    Without a co-signing mechanism (e.g., studio confirmation),
+    the system cannot prevent fabricated claims.
+    We discuss potential mitigation strategies in \cref{sec:discussion}.
+  \item \textbf{Adoption assumptions:}
+    The simulation assumes uniform adoption across the industry.
+    In practice, adoption will be uneven and influenced by
+    network effects, studio policies, and cultural factors.
+\end{itemize}

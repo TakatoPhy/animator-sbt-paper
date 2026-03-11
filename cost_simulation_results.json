@@ -1,0 +1,67 @@
+[
+  {
+    "scenario": "Pilot (1 studio)",
+    "num_animators": 50,
+    "sbt_per_animator_year": 6,
+    "total_sbts_year": 300,
+    "cost_per_sbt_usd": 0.0015,
+    "mint_cost_usd": 0.44,
+    "deploy_cost_usd": 0.042,
+    "ipfs_cost_year_usd": 0.0,
+    "revoke_cost_usd": 0.0022,
+    "total_annual_usd": 0.49,
+    "cost_per_animator_year_usd": 0.0097
+  },
+  {
+    "scenario": "Early Adoption (10 studios)",
+    "num_animators": 500,
+    "sbt_per_animator_year": 6,
+    "total_sbts_year": 3000,
+    "cost_per_sbt_usd": 0.0015,
+    "mint_cost_usd": 4.41,
+    "deploy_cost_usd": 0.042,
+    "ipfs_cost_year_usd": 240.0,
+    "revoke_cost_usd": 0.0216,
+    "total_annual_usd": 244.47,
+    "cost_per_animator_year_usd": 0.4889
+  },
+  {
+    "scenario": "Moderate (50% freelancers)",
+    "num_animators": 1300,
+    "sbt_per_animator_year": 6,
+    "total_sbts_year": 7800,
+    "cost_per_sbt_usd": 0.0015,
+    "mint_cost_usd": 11.47,
+    "deploy_cost_usd": 0.042,
+    "ipfs_cost_year_usd": 240.0,
+    "revoke_cost_usd": 0.0562,
+    "total_annual_usd": 251.56,
+    "cost_per_animator_year_usd": 0.1935
+  },
+  {
+    "scenario": "Full (all freelancers, low est.)",
+    "num_animators": 2601,
+    "sbt_per_animator_year": 6,
+    "total_sbts_year": 15606,
+    "cost_per_sbt_usd": 0.0015,
+    "mint_cost_usd": 22.95,
+    "deploy_cost_usd": 0.042,
+    "ipfs_cost_year_usd": 240.0,
+    "revoke_cost_usd": 0.1123,
+    "total_annual_usd": 263.1,
+    "cost_per_animator_year_usd": 0.1012
+  },
+  {
+    "scenario": "Full (all freelancers, high est.)",
+    "num_animators": 3827,
+    "sbt_per_animator_year": 6,
+    "total_sbts_year": 22962,
+    "cost_per_sbt_usd": 0.0015,
+    "mint_cost_usd": 33.76,
+    "deploy_cost_usd": 0.042,
+    "ipfs_cost_year_usd": 240.0,
+    "revoke_cost_usd": 0.1649,
+    "total_annual_usd": 273.96,
+    "cost_per_animator_year_usd": 0.0716
+  }
+]
