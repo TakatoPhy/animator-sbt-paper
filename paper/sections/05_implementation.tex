@@ -4,7 +4,7 @@ This section presents the technical specification of the AnimatorSBT framework,
 including the technology stack (\cref{subsec:stack}),
 the smart contract design (\cref{subsec:contract}),
 the prototype implementation deployed on a public testnet (\cref{subsec:prototype}),
-and the planned integration with the production management client (\cref{subsec:integration}).
+and the integration design with an existing production management client (\cref{subsec:integration}).
 
 % ----- 5.1 Technology Stack -----
 \subsection{Technology Stack}
@@ -179,31 +179,43 @@ the Keccak-256 hash from the IPFS metadata and comparing it
 to the stored \texttt{evidence\_hash} field.
 
 % ----- 5.4 Integration with Production Management Client -----
-\subsection{Planned Integration with Production Management Client}
+\subsection{Integration with Production Management Client}
 \label{subsec:integration}
 
-The planned integration between the PMC and the AnimatorSBT system
-follows the issuance flow described in \cref{subsec:flow}.
+AnimatorSBT is designed for integration with
+\textit{Pocket Seishin},\footnote{Available
+at \url{https://pocket-seishin.vercel.app}.}
+a Progressive Web Application developed by the authors
+for freelance animators to manage cuts and finances.
+The application is publicly deployed and has active users.
+Cut-level work logs are stored locally on the animator's device,
+preserving privacy by default;
+SBT issuance would occur only with the animator's explicit consent.
+
+The planned integration follows the issuance flow
+described in \cref{subsec:flow}.
 The key integration points are:
 
 \begin{enumerate}
   \item \textbf{Wallet provisioning:}
-    When a new animator registers on the PMC, an embedded wallet will be created
-    using account abstraction. The wallet address will be stored in the PMC's
-    user profile and used as the \texttt{to} parameter for SBT minting.
+    When a new animator registers on Pocket Seishin,
+    an embedded wallet will be created using account abstraction.
+    The wallet address will be stored in the user profile
+    and used as the \texttt{to} parameter for SBT minting.
     The animator will not be required to interact with the wallet directly.
   \item \textbf{Work log aggregation:}
-    The PMC already records cut-level task data (assignment, status transitions,
-    completion timestamps) as part of its core functionality.
-    The Issuance Service will query this data via the PMC's API
+    Pocket Seishin already records cut-level task data
+    (assignment, status transitions, completion timestamps)
+    as part of its core functionality.
+    Upon user consent, this locally stored data will be used
     to construct the SBT metadata.
   \item \textbf{Evidence hash computation:}
     The Issuance Service will compute a Keccak-256 hash of the serialized work log
     entries for the certification period.
     This hash will be included in the SBT metadata (\texttt{evidence\_hash} field)
-    and can later be verified against the PMC's stored data.
+    and can later be verified against the user's local data.
   \item \textbf{Certificate display:}
-    The PMC's profile page will include an ``SBT Certificates'' section
+    Pocket Seishin's profile page will include an ``SBT Certificates'' section
     that renders the animator's issued tokens with project title,
     role, task count, and a link to the Verification Portal.
 \end{enumerate}
