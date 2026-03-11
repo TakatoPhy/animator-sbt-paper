@@ -1,3 +1,162 @@
 % Prototype Implementation
-% TODO: Draft
 
+We implemented a prototype of the AnimatorSBT framework to validate
+the system design described in \cref{sec:framework}.
+This section describes the technology stack (\cref{subsec:stack}),
+the smart contract implementation (\cref{subsec:contract}),
+and the integration with the production management client (\cref{subsec:integration}).
+The complete source code is available in the accompanying repository.
+
+% ----- 5.1 Technology Stack -----
+\subsection{Technology Stack}
+\label{subsec:stack}
+
+The prototype uses the following components:
+
+\begin{itemize}
+  \item \textbf{Blockchain:} Polygon PoS (Mumbai testnet for development;
+    mainnet for production deployment). Polygon was selected for its low
+    transaction costs ($<$\$0.01 per transaction at typical gas prices),
+    EVM compatibility, and established ecosystem.
+  \item \textbf{Smart contract:} Solidity 0.8.20 with OpenZeppelin Contracts v4.x
+    (ERC-721, AccessControl, Counters).
+  \item \textbf{Metadata storage:} IPFS via Pinata pinning service.
+    Metadata JSON files are content-addressed and immutable once pinned.
+  \item \textbf{Issuance service:} Node.js backend using ethers.js v6
+    for blockchain interaction and Pinata SDK for IPFS uploads.
+  \item \textbf{Production management client:} Progressive Web Application (PWA)
+    built with a standard web framework, providing cut management,
+    deadline tracking, and income calculation features for freelance animators.
+  \item \textbf{Wallet management:} Embedded wallets via account abstraction
+    (ERC-4337), eliminating the need for animators to install
+    wallet software or manage private keys.
+\end{itemize}
+
+% ----- 5.2 Smart Contract -----
+\subsection{Smart Contract Implementation}
+\label{subsec:contract}
+
+The \texttt{AnimatorSBT} contract extends OpenZeppelin's ERC-721 implementation
+with two key modifications: \textbf{soulbinding} and \textbf{role-based access control}.
+
+\subsubsection{Soulbinding Mechanism}
+
+Transfer restriction is enforced by overriding the \texttt{\_beforeTokenTransfer}
+hook, which is called on every token movement including minting, transferring, and burning:
+
+\begin{lstlisting}[language=Solidity, basicstyle=\small\ttfamily, frame=single,
+  caption={Soulbinding enforcement via transfer hook override.},
+  label={lst:soulbind}]
+function _beforeTokenTransfer(
+    address from,
+    address to,
+    uint256 tokenId,
+    uint256 batchSize
+) internal virtual override {
+    // Allow minting (from == 0) but block all transfers
+    if (from != address(0) && to != address(0)) {
+        revert SoulboundTransferDisabled();
+    }
+    super._beforeTokenTransfer(from, to, tokenId, batchSize);
+}
+\end{lstlisting}
+
+Additionally, the \texttt{approve()} and \texttt{setApprovalForAll()} functions
+are overridden to revert unconditionally, preventing any approval-based transfer mechanisms.
+This ensures that SBTs cannot be transferred through any ERC-721--compliant interface.
+
+\subsubsection{Role-Based Access Control}
+
+The contract defines two roles using OpenZeppelin's \texttt{AccessControl}:
+
+\begin{itemize}
+  \item \texttt{DEFAULT\_ADMIN\_ROLE}: Can grant and revoke issuer roles.
+    Held by the system administrator (TOONIQ).
+  \item \texttt{ISSUER\_ROLE}: Can mint new SBTs and revoke existing ones.
+    Assigned to the Issuance Service's operational wallet.
+\end{itemize}
+
+This separation ensures that even if the Issuance Service's key is compromised,
+the attacker cannot modify the access control structure itself.
+
+\subsubsection{Core Functions}
+
+The contract provides the following external functions:
+
+\begin{itemize}
+  \item \texttt{mint(address to, string uri)}: Mints a single SBT with
+    the given IPFS metadata URI. Emits \texttt{SBTMinted} event.
+  \item \texttt{mintBatch(address[] recipients, string[] uris)}: Batch minting
+    for efficiency when issuing certificates to multiple animators
+    upon project completion.
+  \item \texttt{revoke(uint256 tokenId)}: Marks an SBT as invalidated
+    without burning it, preserving the on-chain audit trail.
+    Emits \texttt{SBTRevoked} event.
+  \item \texttt{tokensOfOwner(address owner)}: Returns all token IDs
+    held by a given address (view function for off-chain queries).
+  \item \texttt{isRevoked(uint256 tokenId)}: Returns the revocation status.
+  \item \texttt{issuedAt(uint256 tokenId)}: Returns the issuance timestamp.
+\end{itemize}
+
+\subsubsection{Gas Cost Analysis}
+
+\Cref{tab:gas} reports the gas consumption of key operations,
+measured on the Polygon Mumbai testnet.
+
+\begin{table}[ht]
+\centering
+\caption{Gas consumption and estimated cost on Polygon PoS
+(at 30 gwei gas price, MATIC = \$0.50).}
+\label{tab:gas}
+\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Operation} & \textbf{Gas Used} & \textbf{Cost (MATIC)} & \textbf{Cost (USD)} \\
+\midrule
+Contract deployment  & $\sim$2{,}800{,}000 & 0.084  & \$0.042  \\
+\texttt{mint()}      & $\sim$148{,}000    & 0.0044 & \$0.0022 \\
+\texttt{mintBatch()} (10 tokens) & $\sim$980{,}000 & 0.029 & \$0.015 \\
+\texttt{revoke()}    & $\sim$48{,}000     & 0.0014 & \$0.0007 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+At these costs, minting a single contribution certificate costs approximately
+\textbf{\$0.002}---negligible even for individual freelancers.
+Batch minting further reduces the per-token cost to approximately \$0.0015.
+The entire contract deployment costs less than \$0.05.
+
+% ----- 5.3 Integration with Production Management Client -----
+\subsection{Integration with Production Management Client}
+\label{subsec:integration}
+
+The integration between the PMC and the AnimatorSBT system follows
+the issuance flow described in \cref{subsec:flow}.
+The key integration points are:
+
+\begin{enumerate}
+  \item \textbf{Wallet provisioning:}
+    When a new animator registers on the PMC, an embedded wallet is created
+    using account abstraction. The wallet address is stored in the PMC's
+    user profile and used as the \texttt{to} parameter for SBT minting.
+    The animator is not required to interact with the wallet directly.
+  \item \textbf{Work log aggregation:}
+    The PMC already records cut-level task data (assignment, status transitions,
+    completion timestamps) as part of its core functionality.
+    The Issuance Service queries this data via the PMC's API
+    to construct the SBT metadata.
+  \item \textbf{Evidence hash computation:}
+    The Issuance Service computes a Keccak-256 hash of the serialized work log
+    entries for the certification period.
+    This hash is included in the SBT metadata (\texttt{evidence\_hash} field)
+    and can later be verified against the PMC's stored data.
+  \item \textbf{Certificate display:}
+    The PMC's profile page includes an ``SBT Certificates'' section
+    that renders the animator's issued tokens with project title,
+    role, task count, and a link to the Verification Portal.
+\end{enumerate}
+
+From the animator's perspective, the entire SBT workflow is transparent:
+they continue using the PMC as before, and contribution certificates
+appear automatically upon project milestones.
+No blockchain knowledge, wallet management, or additional data entry is required.
