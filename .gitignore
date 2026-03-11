@@ -26,5 +26,13 @@ __pycache__/
 *.pyc
 .venv/
 
+# Env (secrets)
+.env
+
+# Hardhat
+cache/
+artifacts/
+typechain-types/
+
 # Zotero export (keep .bib only)
 *.json.bak

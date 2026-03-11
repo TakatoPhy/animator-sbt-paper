@@ -12,8 +12,8 @@ and a qualitative assessment against the requirements defined in \cref{subsec:fo
 We simulated the annual operating cost of AnimatorSBT across five adoption scenarios,
 ranging from a single-studio pilot to full industry adoption.
 The simulation uses industry statistics from JAniCA~(2023) and NAFCA~(2024)
-for workforce parameters, and gas costs estimated from typical ERC-721 operations on Polygon PoS
-(30~gwei gas price, MATIC = \$0.50).
+for workforce parameters, and gas costs \textbf{measured} from our Hardhat test suite on Polygon PoS
+(30~gwei gas price, POL = \$0.22, March 2026 rate).
 
 \subsubsection{Parameters}
 
@@ -35,7 +35,8 @@ The simulation assumes the following industry parameters based on public data:
 \begin{table}[ht]
 \centering
 \caption{Annual cost simulation across five adoption scenarios.
-All costs in USD at Polygon PoS rates (30 gwei, MATIC = \$0.50).}
+All costs in USD at Polygon PoS rates (30 gwei, POL = \$0.22, March 2026).
+Gas values are measured from the Hardhat test suite.}
 \label{tab:cost_scenarios}
 \footnotesize
 \setlength{\tabcolsep}{3pt}
@@ -43,11 +44,11 @@ All costs in USD at Polygon PoS rates (30 gwei, MATIC = \$0.50).}
 \toprule
 \textbf{Scenario} & \textbf{Anim.} & \textbf{SBTs/yr} & \textbf{Cost/yr} & \textbf{Per Anim.} \\
 \midrule
-Pilot (1 studio)      & 50    & 300      & \$0.49  & \$0.010 \\
-Early (10 studios)    & 500   & 3{,}000  & \$244   & \$0.489 \\
-Moderate (50\%)       & 1{,}300 & 7{,}800 & \$252  & \$0.194 \\
-Full (low est.)       & 2{,}601 & 15{,}606 & \$263 & \$0.101 \\
-Full (high est.)      & 3{,}828 & 22{,}968 & \$274 & \$0.072 \\
+Pilot (1 studio)      & 50    & 300      & \$0.22  & \$0.004 \\
+Early (10 studios)    & 500   & 3{,}000  & \$242   & \$0.484 \\
+Moderate (50\%)       & 1{,}300 & 7{,}800 & \$245  & \$0.189 \\
+Full (low est.)       & 2{,}601 & 15{,}606 & \$251 & \$0.096 \\
+Full (high est.)      & 3{,}827 & 22{,}962 & \$256 & \$0.067 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -65,29 +66,24 @@ Full (high est.)      & 3{,}828 & 22{,}968 & \$274 & \$0.072 \\
 
 The results reveal a striking finding:
 \textbf{even at full industry adoption (all freelance animators in Japan),
-the total annual operating cost is approximately \$274}---less than
+the total annual operating cost is approximately \$256}---less than
 the cost of a single dinner in Tokyo.
 This represents $0.000011\%$ of the anime production industry's
-annual revenue of \textyen 362.1 billion (\$2.41 billion)~\cite{tdb2025anime}.\footnote{Costs are computed
-at MATIC = \$0.50 (mid-2024 rate). At the March 2026 rate of
-${\sim}$\$0.10, on-chain minting costs at full adoption would decrease
-to approximately \$7/year. However, total costs remain dominated
-by USD-denominated IPFS pinning fees (\$240/year),
-yielding a total of ${\sim}$\$247/year.}
+annual revenue of \textyen 362.1 billion (\$2.41 billion)~\cite{tdb2025anime}.
 
-The sharp increase from the Pilot scenario (\$0.49) to the Early scenario (\$244)
+The sharp increase from the Pilot scenario (\$0.22) to the Early scenario (\$242)
 is not driven by blockchain costs but by the IPFS pinning fee threshold:
 the Pilot's 300 SBTs fall within Pinata's free tier ($\leq$500 files),
 whereas the Early scenario's 3{,}000 SBTs require a paid plan at \$20/month (\$240/year)~\cite{pinata2026pricing}.
 More broadly, the cost is dominated by IPFS pinning fees,
 not blockchain transaction costs.
-On-chain minting costs account for only \$34 at full adoption,
+On-chain minting costs account for only \$16 at full adoption,
 confirming that Layer~2 blockchains have reduced gas fees
 to a point where per-transaction costs are economically negligible.
 
 The per-animator cost decreases with scale due to fixed IPFS costs
 being distributed across more users.
-At full adoption, the cost is approximately \$0.07 per animator per year---
+At full adoption, the cost is approximately \$0.067 per animator per year---
 equivalent to less than one minute of work at the median hourly wage
 of \textyen 1{,}111~\cite{nafca2024labor}.
 
@@ -99,7 +95,7 @@ of \textyen 1{,}111~\cite{nafca2024labor}.
 
 Polygon PoS processes approximately 3--8 million transactions per day
 with a block time of approximately 2 seconds~\cite{gangwal2023layer2}.
-At full adoption, AnimatorSBT would generate approximately 22{,}968 minting
+At full adoption, AnimatorSBT would generate approximately 22{,}962 minting
 transactions per year, or roughly 63 per day.
 This represents less than 0.002\% of Polygon's daily capacity,
 indicating that the system operates well within the network's limits.
@@ -108,7 +104,7 @@ indicating that the system operates well within the network's limits.
 
 Each SBT metadata JSON file is approximately 500 bytes.
 At full adoption, annual metadata storage is approximately
-$22{,}968 \times 500 = 11.5$~MB---trivially small for IPFS.
+$22{,}962 \times 500 = 11.5$~MB---trivially small for IPFS.
 On-chain storage is minimal (token ID, owner address, URI string),
 at approximately 200 bytes per token.
 
@@ -168,12 +164,18 @@ The current evaluation has several limitations that should be addressed
 in future work:
 
 \begin{itemize}
+  \item \textbf{Testnet deployment only:}
+    The prototype has been deployed on the Polygon Amoy testnet,
+    not on mainnet.
+    While gas costs are measured accurately (the EVM execution
+    is identical), a mainnet deployment would be required
+    for production use.
   \item \textbf{No user study:}
     We have not yet conducted a formal user study with practicing animators.
-    The cost simulation and requirements analysis provide theoretical validation,
+    The cost simulation and measured gas data provide quantitative validation,
     but real-world usability and perceived value remain to be evaluated.
   \item \textbf{Gas price volatility:}
-    The cost estimates assume a fixed gas price of 30~gwei and MATIC price of \$0.50.
+    The cost estimates assume a fixed gas price of 30~gwei and POL price of \$0.22.
     While Polygon PoS gas prices are historically stable,
     significant price fluctuations could affect cost projections.
   \item \textbf{Self-reported data:}

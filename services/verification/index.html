@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AnimatorSBT Verification Portal</title>
+  <script src="https://cdn.ethers.io/lib/ethers-6.13.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f1117;
+      color: #e1e1e6;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle { color: #888; margin-bottom: 2rem; }
+    .search-box {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+    input {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      background: #1a1b23;
+      border: 1px solid #2d2e3a;
+      border-radius: 8px;
+      color: #e1e1e6;
+      font-size: 1rem;
+      outline: none;
+    }
+    input:focus { border-color: #6366f1; }
+    button {
+      padding: 0.75rem 1.5rem;
+      background: #6366f1;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover { background: #5558e6; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .status { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+    .status.error { background: #2d1b1b; border: 1px solid #f87171; color: #f87171; }
+    .status.info { background: #1b2d1b; border: 1px solid #4ade80; color: #4ade80; }
+    .status.loading { background: #1b1b2d; border: 1px solid #818cf8; color: #818cf8; }
+    .sbt-card {
+      background: #1a1b23;
+      border: 1px solid #2d2e3a;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .sbt-card.revoked { border-color: #f87171; opacity: 0.7; }
+    .sbt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .token-id { font-size: 1.2rem; font-weight: bold; color: #a855f7; }
+    .badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .badge.active { background: #064e3b; color: #34d399; }
+    .badge.revoked { background: #450a0a; color: #f87171; }
+    .field { margin-bottom: 0.75rem; }
+    .field-label { font-size: 0.8rem; color: #888; margin-bottom: 0.25rem; }
+    .field-value { font-size: 0.9rem; word-break: break-all; }
+    .evidence-hash { font-family: monospace; font-size: 0.8rem; }
+    .verify-btn {
+      display: inline-block;
+      padding: 0.4rem 0.8rem;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      color: #94a3b8;
+      font-size: 0.8rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+    .verify-btn:hover { background: #334155; }
+    .verified { color: #4ade80; }
+    .config {
+      background: #1a1b23;
+      border: 1px solid #2d2e3a;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 2rem;
+    }
+    .config summary { cursor: pointer; color: #888; }
+    .config-fields { display: grid; gap: 0.5rem; margin-top: 0.5rem; }
+    .config-fields input { font-size: 0.85rem; }
+    .config-fields label { font-size: 0.8rem; color: #888; }
+    .no-results { text-align: center; color: #666; padding: 3rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>AnimatorSBT Verification</h1>
+    <p class="subtitle">Verify anime production contribution credentials on Polygon</p>
+
+    <details class="config">
+      <summary>Network Configuration</summary>
+      <div class="config-fields">
+        <label>RPC URL</label>
+        <input type="text" id="rpcUrl" value="https://rpc-amoy.polygon.technology" />
+        <label>Contract Address</label>
+        <input type="text" id="contractAddr" placeholder="0x..." />
+      </div>
+    </details>
+
+    <div class="search-box">
+      <input type="text" id="walletInput" placeholder="Enter wallet address (0x...)" />
+      <button id="searchBtn" onclick="searchSBTs()">Verify</button>
+    </div>
+
+    <div id="statusArea"></div>
+    <div id="resultsArea"></div>
+  </div>
+
+  <script>
+    // Minimal ABI for read-only verification
+    const ABI = [
+      "function balanceOf(address owner) view returns (uint256)",
+      "function tokensOfOwner(address owner) view returns (uint256[])",
+      "function tokenURI(uint256 tokenId) view returns (string)",
+      "function isRevoked(uint256 tokenId) view returns (bool)",
+      "function issuedAt(uint256 tokenId) view returns (uint256)",
+      "function totalMinted() view returns (uint256)",
+      "function name() view returns (string)",
+      "function symbol() view returns (string)",
+    ];
+
+    function showStatus(msg, type) {
+      document.getElementById("statusArea").innerHTML =
+        `<div class="status ${type}">${msg}</div>`;
+    }
+
+    function clearStatus() {
+      document.getElementById("statusArea").innerHTML = "";
+    }
+
+    async function searchSBTs() {
+      const address = document.getElementById("walletInput").value.trim();
+      const rpcUrl = document.getElementById("rpcUrl").value.trim();
+      const contractAddr = document.getElementById("contractAddr").value.trim();
+      const resultsArea = document.getElementById("resultsArea");
+
+      if (!contractAddr) {
+        showStatus("Please set the contract address in Network Configuration.", "error");
+        return;
+      }
+
+      if (!ethers.isAddress(address)) {
+        showStatus("Invalid wallet address.", "error");
+        return;
+      }
+
+      const btn = document.getElementById("searchBtn");
+      btn.disabled = true;
+      showStatus("Querying blockchain...", "loading");
+      resultsArea.innerHTML = "";
+
+      try {
+        const provider = new ethers.JsonRpcProvider(rpcUrl);
+        const contract = new ethers.Contract(contractAddr, ABI, provider);
+
+        const tokenIds = await contract.tokensOfOwner(address);
+
+        if (tokenIds.length === 0) {
+          clearStatus();
+          resultsArea.innerHTML = '<div class="no-results">No SBTs found for this address.</div>';
+          btn.disabled = false;
+          return;
+        }
+
+        showStatus(`Found ${tokenIds.length} SBT(s) for this address.`, "info");
+
+        let html = "";
+        for (const tokenId of tokenIds) {
+          const [uri, revoked, issued] = await Promise.all([
+            contract.tokenURI(tokenId),
+            contract.isRevoked(tokenId),
+            contract.issuedAt(tokenId),
+          ]);
+
+          const issuedDate = new Date(Number(issued) * 1000).toISOString();
+          const revokedClass = revoked ? "revoked" : "";
+          const badgeClass = revoked ? "revoked" : "active";
+          const badgeText = revoked ? "Revoked" : "Active";
+
+          // Try to fetch metadata from IPFS
+          let metadata = null;
+          let metadataHtml = "";
+          if (uri.startsWith("ipfs://")) {
+            const cid = uri.replace("ipfs://", "");
+            try {
+              const resp = await fetch(`https://gateway.pinata.cloud/ipfs/${cid}`);
+              if (resp.ok) {
+                metadata = await resp.json();
+                metadataHtml = `
+                  <div class="field">
+                    <div class="field-label">Project</div>
+                    <div class="field-value">${metadata.attributes?.project || "N/A"}</div>
+                  </div>
+                  <div class="field">
+                    <div class="field-label">Role</div>
+                    <div class="field-value">${metadata.attributes?.role || "N/A"}</div>
+                  </div>
+                  <div class="field">
+                    <div class="field-label">Task Count</div>
+                    <div class="field-value">${metadata.attributes?.task_count || "N/A"}</div>
+                  </div>
+                  <div class="field">
+                    <div class="field-label">Studio</div>
+                    <div class="field-value">${metadata.attributes?.studio_name || "N/A"}</div>
+                  </div>
+                  <div class="field">
+                    <div class="field-label">Period</div>
+                    <div class="field-value">${metadata.attributes?.start_date || "?"} — ${metadata.attributes?.end_date || "?"}</div>
+                  </div>
+                  <div class="field">
+                    <div class="field-label">Evidence Hash</div>
+                    <div class="field-value evidence-hash">${metadata.evidence_hash || "N/A"}</div>
+                    <button class="verify-btn" onclick="verifyHash(this, '${cid}')">Verify Hash</button>
+                  </div>
+                `;
+              }
+            } catch (e) {
+              metadataHtml = '<div class="field"><div class="field-value">Could not fetch IPFS metadata</div></div>';
+            }
+          }
+
+          html += `
+            <div class="sbt-card ${revokedClass}">
+              <div class="sbt-header">
+                <span class="token-id">SBT #${tokenId.toString()}</span>
+                <span class="badge ${badgeClass}">${badgeText}</span>
+              </div>
+              <div class="field">
+                <div class="field-label">Token URI</div>
+                <div class="field-value">${uri}</div>
+              </div>
+              <div class="field">
+                <div class="field-label">Issued At</div>
+                <div class="field-value">${issuedDate}</div>
+              </div>
+              ${metadataHtml}
+            </div>
+          `;
+        }
+
+        resultsArea.innerHTML = html;
+      } catch (err) {
+        showStatus(`Error: ${err.message}`, "error");
+      }
+
+      btn.disabled = false;
+    }
+
+    async function verifyHash(btn, cid) {
+      try {
+        btn.textContent = "Verifying...";
+        const resp = await fetch(`https://gateway.pinata.cloud/ipfs/${cid}`);
+        const metadata = await resp.json();
+
+        // Recompute evidence_hash from attributes
+        const recomputed = ethers.keccak256(
+          ethers.toUtf8Bytes(JSON.stringify(metadata.attributes))
+        );
+
+        if (recomputed === metadata.evidence_hash) {
+          btn.textContent = "Hash Verified";
+          btn.classList.add("verified");
+          btn.style.borderColor = "#4ade80";
+        } else {
+          btn.textContent = "Hash Mismatch!";
+          btn.style.color = "#f87171";
+          btn.style.borderColor = "#f87171";
+        }
+      } catch (e) {
+        btn.textContent = "Verification failed";
+        btn.style.color = "#f87171";
+      }
+    }
+
+    // Allow Enter key to trigger search
+    document.getElementById("walletInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") searchSBTs();
+    });
+  </script>
+</body>
+</html>

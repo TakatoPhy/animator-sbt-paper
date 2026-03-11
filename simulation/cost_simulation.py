@@ -32,16 +32,16 @@ AVG_ANIMATORS_PER_PRODUCTION = 15
 # (multiple projects, each generating 1 SBT)
 AVG_PROJECTS_PER_ANIMATOR_YEAR = 6
 
-# ===== Cost Parameters (Polygon PoS, measured) =====
+# ===== Cost Parameters (Polygon PoS, measured on Amoy testnet) =====
 
 GAS_PRICE_GWEI = 30
-MATIC_PRICE_USD = 0.50
+MATIC_PRICE_USD = 0.22  # POL price March 2026
 
-# Gas costs (from prototype measurement)
-GAS_DEPLOY = 2_800_000
-GAS_MINT_SINGLE = 148_000
-GAS_MINT_BATCH_10 = 980_000
-GAS_REVOKE = 48_000
+# Gas costs (measured via Hardhat test suite, optimizer 200 runs)
+GAS_DEPLOY = 1_824_117
+GAS_MINT_SINGLE = 135_505  # avg across test runs (range: 110,287 - 144,631)
+GAS_MINT_BATCH_10 = 1_039_581
+GAS_REVOKE = 50_027
 
 # IPFS pinning (Pinata free tier: 500 files, paid: $20/mo for 50GB)
 IPFS_COST_PER_FILE_USD = 0.0  # Free tier covers small JSON files

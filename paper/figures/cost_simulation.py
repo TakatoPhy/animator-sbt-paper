@@ -18,11 +18,11 @@ plt.rcParams.update({
     'figure.dpi': 300,
 })
 
-# ---------- data ----------
-scenarios = ['Pilot\n(50)', 'Early\n(500)', 'Moderate\n(1,300)', 'Full Low\n(2,601)', 'Full High\n(3,828)']
-annual_cost = [0.49, 244, 252, 263, 274]
-n_animators = [50, 500, 1300, 2601, 3828]
-cost_per_animator = [0.010, 0.489, 0.194, 0.101, 0.072]
+# ---------- data (measured gas, POL=$0.22, March 2026) ----------
+scenarios = ['Pilot\n(50)', 'Early\n(500)', 'Moderate\n(1,300)', 'Full Low\n(2,601)', 'Full High\n(3,827)']
+annual_cost = [0.22, 242, 245, 251, 256]
+n_animators = [50, 500, 1300, 2601, 3827]
+cost_per_animator = [0.004, 0.484, 0.189, 0.096, 0.067]
 
 # gradient: light blue -> dark blue
 colors = ['#a6cee3', '#6baed6', '#3182bd', '#1f6fbd', '#08519c']

@@ -3,9 +3,8 @@
 This section presents the technical specification of the AnimatorSBT framework,
 including the technology stack (\cref{subsec:stack}),
 the smart contract design (\cref{subsec:contract}),
+the prototype implementation deployed on a public testnet (\cref{subsec:prototype}),
 and the planned integration with the production management client (\cref{subsec:integration}).
-The system has not yet been deployed; the design and cost estimates
-presented here serve as a feasibility assessment for future implementation.
 
 % ----- 5.1 Technology Stack -----
 \subsection{Technology Stack}
@@ -102,33 +101,84 @@ The contract provides the following external functions:
 \subsubsection{Gas Cost Analysis}
 
 \Cref{tab:gas} reports the gas consumption of key operations,
-estimated based on typical ERC-721 gas consumption on Polygon PoS.
+\textbf{measured} on the Hardhat test environment with the Solidity optimizer
+enabled (200 runs).
 
 \begin{table}[ht]
 \centering
-\caption{Gas consumption and estimated cost on Polygon PoS
-(30 gwei, MATIC = \$0.50).}
+\caption{Measured gas consumption and estimated cost on Polygon PoS
+(30 gwei, POL = \$0.22, March 2026).}
 \label{tab:gas}
 \footnotesize
 \setlength{\tabcolsep}{3pt}
 \begin{tabular}{@{}lrrr@{}}
 \toprule
-\textbf{Operation} & \textbf{Gas} & \textbf{MATIC} & \textbf{USD} \\
+\textbf{Operation} & \textbf{Gas} & \textbf{POL} & \textbf{USD} \\
 \midrule
-Deploy            & $\sim$2.8M  & 0.084  & \$0.042  \\
-\texttt{mint()}   & $\sim$148K  & 0.0044 & \$0.0022 \\
-\texttt{mintBatch(10)} & $\sim$980K & 0.029 & \$0.015 \\
-\texttt{revoke()} & $\sim$48K   & 0.0014 & \$0.0007 \\
+Deploy            & 1{,}824{,}117  & 0.0547  & \$0.0120  \\
+\texttt{mint()}   & 135{,}505      & 0.0041  & \$0.0009  \\
+\texttt{mintBatch(10)} & 1{,}039{,}581 & 0.0312 & \$0.0069 \\
+\texttt{revoke()} & 50{,}027       & 0.0015  & \$0.0003  \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 At these costs, minting a single contribution certificate costs approximately
-\textbf{\$0.002}---negligible even for individual freelancers.
-Batch minting further reduces the per-token cost to approximately \$0.0015.
-The entire contract deployment costs less than \$0.05.
+\textbf{\$0.0009}---negligible even for individual freelancers.
+Batch minting reduces the per-token cost to approximately \$0.0007.
+The entire contract deployment costs approximately \$0.012.
 
-% ----- 5.3 Integration with Production Management Client -----
+% ----- 5.3 Prototype Implementation -----
+\subsection{Prototype Implementation}
+\label{subsec:prototype}
+
+To validate the design, we implemented a working prototype consisting of three components:
+the smart contract deployed on a public testnet, an Issuance Service, and a Verification Portal.
+
+\subsubsection{Testnet Deployment}
+
+The \texttt{AnimatorSBT} contract was deployed on the Polygon Amoy testnet
+(Chain ID: 80002) at address
+\texttt{0x2cC3\allowbreak{}1B9E\allowbreak{}FBD5\allowbreak{}dDfB\allowbreak{}5456\allowbreak{}EE4c\allowbreak{}76A0\allowbreak{}fcBC\allowbreak{}A5EE\allowbreak{}E117}
+(block 35{,}058{,}633).\footnote{The deployment transaction and all subsequent
+interactions are publicly verifiable at
+\url{https://amoy.polygonscan.com/address/0x2cC31B9EFBD5dDfB5456EE4c76A0fcBCA5EEE117}.}
+A comprehensive test suite of 35 unit tests was developed using Hardhat,
+covering deployment, minting, batch minting, soulbinding enforcement,
+revocation, view functions, and access control.
+All tests pass successfully.
+An end-to-end demonstration of the Tanaka scenario
+(\cref{subsec:flow}) was executed on the testnet,
+successfully minting an SBT with IPFS-hosted metadata
+and verifying all on-chain state (balance, token URI, revocation status).
+
+\subsubsection{Issuance Service}
+
+A Node.js-based Issuance Service was implemented using ethers.js~v6
+and the Pinata SDK.
+The service performs the complete issuance workflow:
+(1)~constructing metadata JSON conforming to the schema in \cref{tab:metadata},
+(2)~computing the \texttt{evidence\_hash} (Keccak-256 of the serialized attributes),
+(3)~uploading the metadata to IPFS via Pinata,
+and (4)~calling \texttt{AnimatorSBT.mint()} with the resulting IPFS~URI.
+
+An end-to-end demonstration script recreates the Tanaka scenario
+described in \cref{subsec:flow}:
+a key animator completes 25~cuts on Episode~7, and the system
+issues an SBT recording the contribution with a verifiable evidence hash.
+
+\subsubsection{Verification Portal}
+
+A lightweight Verification Portal was implemented as a static HTML page
+using ethers.js (loaded from CDN), requiring no server-side infrastructure.
+The portal accepts a wallet address, queries the contract's \texttt{tokensOfOwner()}
+function, retrieves each SBT's metadata from IPFS,
+and displays the contribution details including project, role, task count, and dates.
+The portal also supports evidence hash verification by recomputing
+the Keccak-256 hash from the IPFS metadata and comparing it
+to the stored \texttt{evidence\_hash} field.
+
+% ----- 5.4 Integration with Production Management Client -----
 \subsection{Planned Integration with Production Management Client}
 \label{subsec:integration}
 
