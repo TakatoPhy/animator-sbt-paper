@@ -1,8 +1,5 @@
-\documentclass[12pt,a4paper]{article}
+\documentclass[conference]{IEEEtran}
 
-% ===== Packages =====
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
 \usepackage{booktabs}
@@ -12,40 +9,33 @@
 \usepackage{listings}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
-\usepackage{geometry}
-\usepackage{natbib}
+\usepackage{cite}
 \usepackage{url}
 \usepackage{tikz}
 \usepackage{subcaption}
 \usepackage{orcidlink}
 
-\geometry{margin=1in}
-
-% ===== Metadata =====
-\title{Soulbound Tokens for Anime Production:\\A Blockchain-Based Contribution Certification Framework\\for Freelance Animators}
+\title{Soulbound Tokens for Anime Production: A Blockchain-Based Contribution Certification Framework for Freelance Animators}
 
 \author{
-  Takato Oki\,\orcidlink{0009-0001-8009-4929} \and Yuto Yamaguchi\\
-  TOONIQ LLC\\
+  \IEEEauthorblockN{Takato Oki\,\orcidlink{0009-0001-8009-4929} and Yuto Yamaguchi}
+  \IEEEauthorblockA{TOONIQ LLC\\
   Tokyo, Japan\\
-  \texttt{support@tooniq.co.jp}
+  support@tooniq.co.jp}
 }
 
-\date{\today}
-
-% ===== Document =====
 \begin{document}
 
 \maketitle
 
-% ----- Abstract -----
 \begin{abstract}
 \input{sections/00_abstract}
 \end{abstract}
 
-\textbf{Keywords:} Soulbound Token, Blockchain, Anime Production, Freelance, Credential Verification, Decentralized Identity
+\begin{IEEEkeywords}
+Soulbound Token, Blockchain, Anime Production, Freelance, Credential Verification, Decentralized Identity
+\end{IEEEkeywords}
 
-% ----- Main Sections -----
 \section{Introduction}
 \label{sec:introduction}
 \input{sections/01_introduction}
@@ -78,8 +68,7 @@
 \label{sec:conclusion}
 \input{sections/08_conclusion}
 
-% ----- References -----
-\bibliographystyle{plainnat}
+\bibliographystyle{IEEEtran}
 \bibliography{../references/references}
 
 \end{document}

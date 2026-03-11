@@ -11,7 +11,7 @@ and blockchain applications in the creative and gig economies (\cref{subsec:bloc
 \label{subsec:anime_workflow}
 
 Anime production follows a multi-stage pipeline that typically involves dozens of specialized roles
-distributed across multiple studios~\citep{animechain2024whitepaper}.
+distributed across multiple studios~\cite{animechain2024whitepaper}.
 A single 24-minute television episode may require over 3{,}000 individual drawings
 and the coordination of key animators (\textit{genga}), in-between animators (\textit{douga}),
 color designers (\textit{shiage}), background artists, compositors, and directors,
@@ -22,7 +22,7 @@ The pipeline is broadly divided into three phases:
 \textbf{production} (layout, key animation, in-betweening, coloring, background painting),
 and \textbf{post-production} (compositing, editing, sound design).
 Each phase involves handoffs between specialized staff, and it is common practice for studios to
-\textbf{partially or fully outsource} individual episodes or specific tasks to subcontractors~\citep{nippon2024anime}.
+\textbf{partially or fully outsource} individual episodes or specific tasks to subcontractors~\cite{nippon2024anime}.
 
 This multi-layered subcontracting structure creates a critical attribution problem.
 When an episode is partially outsourced, individual animators may be credited alongside in-house staff.
@@ -35,55 +35,55 @@ rendering their contributions invisible to the broader industry.
 \subsection{Freelance Animator Labor Conditions}
 \label{subsec:labor}
 
-Japan's anime production market reached a record \textyen 362.1 billion in 2024~\citep{tdb2025anime},
+Japan's anime production market reached a record \textyen 362.1 billion in 2024~\cite{tdb2025anime},
 and the global anime market is projected to grow at a compound annual growth rate of 10.6\%,
-reaching USD~49.6 billion by 2031~\citep{mordor2026anime}.
+reaching USD~49.6 billion by 2031~\cite{mordor2026anime}.
 Despite this commercial success, the labor conditions of individual creators remain precarious.
 
 An exceptionally large share of the anime workforce consists of freelancers.
 The Japan Animation Creators Association (JAniCA) reported that 47.3\% of animation creators
 were self-employed or freelance in 2023, down from 69.6\% in 2019 but still approximately
-six times the national average of 7.6\%~\citep{janica2023survey}.
+six times the national average of 7.6\%~\cite{janica2023survey}.
 The Japan Anime Film Culture Association (NAFCA) found in its 2024 survey that
 the median monthly working hours for anime industry workers was 225 hours (maximum: 336 hours),
-compared to the national average of 162.3 hours~\citep{nafca2024survey}.
+compared to the national average of 162.3 hours~\cite{nafca2024survey}.
 Furthermore, 37.7\% of respondents reported monthly anime-related income below \textyen 200{,}000
 (approximately USD~1{,}300), and the median hourly wage was \textyen 1{,}111---barely
-above the 2024 national minimum wage average of \textyen 1{,}004~\citep{nafca2024labor}.
+above the 2024 national minimum wage average of \textyen 1{,}004~\cite{nafca2024labor}.
 
 In-between animators (\textit{douga}) earned an average annual income of
-\textyen 2.632 million, while key animators (\textit{genga}) earned \textyen 3.998 million~\citep{janica2023survey}.
+\textyen 2.632 million, while key animators (\textit{genga}) earned \textyen 3.998 million~\cite{janica2023survey}.
 These figures are particularly striking given that a single in-between frame
 is typically compensated at approximately \textyen 200 (less than USD~2),
-and each frame can require over an hour of work~\citep{adler2020blood}.
+and each frame can require over an hour of work~\cite{adler2020blood}.
 
 In December 2025, Japan's Fair Trade Commission published an investigation into
 the transaction environment for creators in the anime production industry,
 finding that unilateral price determination without negotiation may constitute a legal violation
-under the Subcontract Act~\citep{jftc2025anime}.
+under the Subcontract Act~\cite{jftc2025anime}.
 The Freelance Protection Act, enacted in November 2024,
 introduced new protections for independent contractors,
-but its impact on the anime industry remains to be seen~\citep{meti2025anime}.
+but its impact on the anime industry remains to be seen~\cite{meti2025anime}.
 
 % ----- 2.3 Soulbound Tokens and Decentralized Identity -----
 \subsection{Soulbound Tokens and Decentralized Identity}
 \label{subsec:sbt}
 
-\citet{buterin2022decentralized} introduced the concept of \textbf{Soulbound Tokens (SBTs)}---non-transferable
+Weyl et al.~\cite{buterin2022decentralized} introduced the concept of \textbf{Soulbound Tokens (SBTs)}---non-transferable
 tokens bound to a specific blockchain address (a ``Soul'')---as a primitive for encoding
 commitments, credentials, and affiliations in a decentralized society.
 Unlike conventional NFTs, SBTs cannot be sold or transferred,
 making them suitable for representing earned credentials rather than speculative assets.
 The original motivation drew from World of Warcraft's ``soulbound'' items,
-which become permanently bound to a player upon acquisition~\citep{buterin2022soulbound}.
+which become permanently bound to a player upon acquisition~\cite{buterin2022soulbound}.
 
 Since their introduction, SBTs have been explored across several domains.
-\citet{kakebayashi2023sbt} provided a comprehensive study of SBT implementations and
+Kakebayashi and Beverley~\cite{kakebayashi2023sbt} provided a comprehensive study of SBT implementations and
 their potential as a social identity layer.
 In healthcare, SBTs have been proposed for privacy-aware medical record authentication,
 enabling interoperable patient data sharing across facilities
-while maintaining decentralized control~\citep{sbt_health2024}.
-\citet{sbt_credential_framework2023} developed a framework for privacy-preserving
+while maintaining decentralized control~\cite{sbt_health2024}.
+the authors~\cite{sbt_credential_framework2023} developed a framework for privacy-preserving
 credential issuance and verification using SBTs.
 In agriculture, SBTs have been explored for identity management and asset validation
 across supply chains.
@@ -93,14 +93,14 @@ and \textbf{Decentralized Identifiers (DIDs)}.
 VCs are cryptographically signed digital credentials that can be verified without
 contacting the original issuer,
 following a three-party model of issuers, holders, and verifiers.
-\citet{did_survey2024} provide a comprehensive survey of DID and VC architectures.
-\citet{almarri2025decentralized} implemented a decentralized certificate issuance and
-verification system on Ethereum, while \citet{zhang2025zkbar} proposed a zero-knowledge
+the authors~\cite{did_survey2024} provide a comprehensive survey of DID and VC architectures.
+Al-Marri et al.~\cite{almarri2025decentralized} implemented a decentralized certificate issuance and
+verification system on Ethereum, while Zhang et al.~\cite{zhang2025zkbar} proposed a zero-knowledge
 proof-enabled system for academic records.
 
 \textbf{Critically, no existing work applies SBTs or VCs specifically to
 anime production workflows or to the credentialing of freelance animators.}
-The closest work is the Animechain.ai whitepaper~\citep{animechain2024whitepaper},
+The closest work is the Animechain.ai whitepaper~\cite{animechain2024whitepaper},
 which proposes blockchain-based anime production management with AI integration,
 but does not address individual-level contribution certification using SBTs
 and has not been published as a peer-reviewed or preprint academic paper.
@@ -111,11 +111,11 @@ and has not been published as a peer-reviewed or preprint academic paper.
 
 The application of blockchain technology to the creative industries has been examined
 from multiple perspectives.
-\citet{blockchain_creative2023} surveyed the state of blockchain in creative industries,
+the authors~\cite{blockchain_creative2023} surveyed the state of blockchain in creative industries,
 identifying opportunities in rights management, provenance tracking, and direct
 creator-to-consumer distribution.
 The World Economic Forum highlighted blockchain's potential for transparent
-royalty distribution and intellectual property protection~\citep{wef2017creative}.
+royalty distribution and intellectual property protection~\cite{wef2017creative}.
 
 In the broader gig economy, blockchain has been proposed as a tool for
 automated payment via smart contracts, reputation management,
@@ -129,11 +129,11 @@ a direct application of blockchain to creative freelancer credentialing.
 Unlike traditional portfolios, which show completed work but cannot prove
 the creator's specific role, constraints, or the authenticity of their contribution,
 blockchain-based credentials can carry verifiable evidence links,
-criteria, and a verification method~\citep{sbt_credentials_digital2024}.
+criteria, and a verification method~\cite{sbt_credentials_digital2024}.
 
 The Four Pillars research group argued specifically that ``Anime Needs Web3,''
 identifying IP tokenization, creator compensation transparency,
-and fan engagement as key opportunity areas~\citep{fourpillars2025anime}.
+and fan engagement as key opportunity areas~\cite{fourpillars2025anime}.
 However, their analysis focused on IP-level tokenization (e.g., fractional ownership
 of anime franchises) rather than individual creator-level contribution certification.
 
