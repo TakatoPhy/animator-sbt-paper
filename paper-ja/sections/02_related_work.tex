@@ -1,0 +1,194 @@
+% Background and Related Work
+
+本節では、4つの領域にわたる関連文献を調査する。
+アニメ制作ワークフローの構造（\cref{subsec:anime_workflow}）、
+フリーランスアニメーターの労働環境（\cref{subsec:labor}）、
+ソウルバウンドトークン（Soulbound Token, SBT）と分散型アイデンティティ（Decentralized Identity）（\cref{subsec:sbt}）、
+およびクリエイティブ経済・ギグエコノミーにおけるブロックチェーン応用（\cref{subsec:blockchain_creative}）である。
+
+% ----- 2.1 Anime Production Workflow -----
+\subsection{アニメ制作ワークフロー}
+\label{subsec:anime_workflow}
+
+アニメ制作は、通常、複数のスタジオにまたがる数十の専門的役割を含む
+多段階のパイプラインに沿って進行する~\cite{condry2013soul, animechain2024whitepaper}。
+1話24分のテレビアニメには、3{,}000枚以上の個別の作画が必要となる場合があり、
+原画（\textit{genga}）、動画（\textit{douga}）、
+仕上げ（\textit{shiage}）、背景美術、撮影、演出など
+多数の専門スタッフの連携が求められる。
+
+パイプラインは大きく3つのフェーズに分けられる。
+\textbf{プリプロダクション}（企画、脚本、絵コンテ、キャラクターデザイン、美術設定）、
+\textbf{プロダクション}（レイアウト、原画、動画、仕上げ、背景美術）、
+および\textbf{ポストプロダクション}（撮影、編集、音響）である。
+各フェーズは専門スタッフ間の受け渡しを伴い、
+スタジオが個々のエピソードや特定のタスクを下請けに
+\textbf{部分的または全面的に外注}することは一般的な慣行である~\cite{nippon2024anime}。
+
+この多層的な下請け構造は、重大な帰属表示の問題を生み出す。
+エピソードが部分的に外注される場合、個々のアニメーターは社内スタッフとともにクレジットされることがある。
+しかし、エピソード全体が\textit{グロス}下請け（\textit{gurosu}）に出される場合、
+個々のアニメーターではなく下請けスタジオのみがクレジットに記載される場合がある。
+極端なケースでは、二次・三次の下請け業者は完全にクレジットされず、
+その貢献は業界全体から不可視となる。
+
+% ----- 2.2 Freelance Animator Labor Conditions -----
+\subsection{フリーランスアニメーターの労働環境}
+\label{subsec:labor}
+
+日本のアニメ制作市場は2024年に過去最高の3{,}621億円に達し~\cite{tdb2025anime}、
+世界のアニメ市場は年平均成長率10.6\%で成長し、
+2031年までに496億ドルに達すると予測されている~\cite{mordor2026anime}。
+この商業的成功にもかかわらず、個々のクリエイターの労働環境は依然として不安定である。
+Okeda and Koike~\cite{okeda2011animators}は、JAniCAの調査データに基づき、
+アニメーターの労働環境に関する初の体系的な評価を行った。
+
+アニメ労働力の極めて大きな割合をフリーランスが占めている。
+日本アニメーター・演出協会（JAniCA）の報告によれば、
+2023年時点でアニメーション制作者の47.3\%が個人事業主またはフリーランスであり、
+2019年の69.6\%からは低下したものの、全国平均の7.6\%と比較して
+依然として約6倍の水準にある~\cite{janica2023survey}。
+日本アニメフィルム文化連盟（NAFCA）の2024年調査によれば、
+アニメ産業労働者の月間労働時間の中央値は225時間（最大336時間）であり、
+全国平均の162.3時間を大幅に上回っている~\cite{nafca2024survey}。
+さらに、回答者の37.7\%が月間の\emph{アニメ関連}収入が
+20万円（約1{,}300ドル）未満であると報告しており、
+時給の中央値は1{,}111円---調査時点（2023年度）の
+全国最低賃金平均1{,}004円をわずかに上回る水準であった~\cite{nafca2024labor}。\footnote{全国最低賃金は2024年10月（2024年度）に1{,}055円に引き上げられた。}
+
+動画（\textit{douga}）アニメーターの平均年収は
+263.2万円であり、原画（\textit{genga}）アニメーターは399.8万円であった~\cite{janica2023survey}。
+これらの数値は、動画1枚あたりの報酬が約200円（2ドル未満）であり、
+各フレームの作業に1時間以上を要し得ることを考慮すると、
+特に衝撃的である~\cite{adler2020blood}。
+
+2025年12月、日本の公正取引委員会はアニメ制作業界における
+クリエイターの取引環境に関する調査結果を公表し、
+交渉なしに一方的に価格を決定する行為が下請法に基づく
+法的違反に該当し得ると認定した~\cite{jftc2025anime}。
+2024年11月に施行されたフリーランス保護法は
+個人事業主に対する新たな保護を導入したが、
+アニメ産業への影響は今後の推移を見守る必要がある~\cite{meti2025anime}。
+
+% ----- 2.3 Soulbound Tokens and Decentralized Identity -----
+\subsection{ソウルバウンドトークンと分散型アイデンティティ}
+\label{subsec:sbt}
+
+Weyl et al.~\cite{buterin2022decentralized}は、
+\textbf{ソウルバウンドトークン（Soulbound Token, SBT）}---
+特定のブロックチェーンアドレス（``Soul''）に紐づけられた譲渡不可能なトークン---
+の概念を、分散型社会（Decentralized Society）におけるコミットメント、
+資格、および所属をエンコードするためのプリミティブとして導入した。
+従来のNFTとは異なり、SBTは売却や譲渡ができないため、
+投機的資産ではなく獲得された資格を表現するのに適している。
+この着想は、World of Warcraftの「ソウルバウンド」アイテム---
+プレイヤーが取得すると恒久的にそのプレイヤーに紐づけられるアイテム---
+に由来する~\cite{buterin2022soulbound}。
+
+SBTの導入以降、複数の領域で研究が進められてきた。
+Kakebayashi and Beverley~\cite{kakebayashi2023sbt}は、SBTの実装と
+ソーシャルアイデンティティレイヤーとしての可能性に関する包括的な研究を行った。
+医療分野では、プライバシーに配慮した医療記録認証にSBTが提案されており、
+分散型の管理を維持しつつ施設間で相互運用可能な患者データ共有を
+可能にする~\cite{sbt_health2024}。
+\cite{sbt_credential_framework2023}の著者らは、SBTを用いた
+プライバシー保護型の資格発行・検証フレームワークを開発した。
+農業分野では、Verma et al.~\cite{verma2025sbt_agriculture}が、
+サプライチェーン全体にわたる農業従事者のアイデンティティ管理と
+資産検証のためにソウルバウンドNFTを統合する
+デュアルブロックチェーンモデルを提案した。
+ERC-5192標準~\cite{daubenschuetz2022erc5192}は、
+Ethereum上のソウルバウンドNFTに対する最小限のインターフェースを形式化し、
+これらの実装の多くに対する技術的基盤を提供した。
+
+並行する発展として、W3C標準の\textbf{検証可能クレデンシャル（Verifiable Credentials, VC）}~\cite{sporny2022vc}
+および\textbf{分散型識別子（Decentralized Identifier, DID）}~\cite{sporny2022did}がある。
+VCは、発行者、保持者、検証者の三者モデルに従い、
+元の発行者に問い合わせることなく検証可能な暗号学的に署名されたデジタルクレデンシャルである。
+\cite{did_survey2024}の著者らは、DIDおよびVCのアーキテクチャに関する包括的なサーベイを提供している。
+Al-Marri et al.~\cite{almarri2025decentralized}は、Ethereum上での分散型証明書発行・検証システムを実装し、
+Zhang et al.~\cite{zhang2025zkbar}は、学術記録のためのゼロ知識証明（Zero-Knowledge Proof）を活用した
+システムを提案した。
+
+\textbf{重要な点として、SBTまたはVCをアニメ制作ワークフローやフリーランスアニメーターの
+資格証明に特化して適用した既存研究は存在しない。}
+最も近い研究はAnimechain.aiのホワイトペーパー~\cite{animechain2024whitepaper}であり、
+AI統合によるブロックチェーンベースのアニメ制作管理を提案しているが、
+SBTを用いた個人レベルの貢献証明には言及しておらず、
+査読付き論文またはプレプリントとしても発表されていない。
+
+% ----- 2.4 Blockchain in Creative and Gig Economies -----
+\subsection{クリエイティブ経済・ギグエコノミーにおけるブロックチェーン}
+\label{subsec:blockchain_creative}
+
+クリエイティブ産業へのブロックチェーン技術の応用は、
+複数の観点から検討されてきた。
+\cite{blockchain_creative2023}の著者らは、クリエイティブ産業におけるブロックチェーンの現状を調査し、
+権利管理、来歴追跡、およびクリエイターから消費者への直接流通における
+機会を特定した。
+世界経済フォーラムは、透明なロイヤリティ分配と知的財産保護に対する
+ブロックチェーンの可能性を強調した~\cite{wef2017creative}。
+
+より広範なギグエコノミーにおいて、ブロックチェーンは
+スマートコントラクトによる自動決済、レピュテーション管理、
+および分散型紛争解決のためのツールとして提案されてきた。
+スマートコントラクトは、検証済みのタスク完了時に自動的に資金を
+リリースする報酬条件をエンコードすることができ、
+フリーランスに不均衡に影響を与える支払い遅延を排除する。
+
+\textbf{検証済みクリエイターポートフォリオ（Verified Creator Portfolio, VCP）}の概念は、
+クリエイティブフリーランスの資格証明に対するブロックチェーンの直接的な応用として登場した。
+従来のポートフォリオが完成作品を示しつつも、クリエイターの具体的な役割、
+制約条件、または貢献の真正性を証明できないのに対し、
+ブロックチェーンベースのクレデンシャルは検証可能なエビデンスリンク、
+基準、および検証方法を付帯させることができる~\cite{sbt_credentials_digital2024}。
+
+Four Pillars研究グループは、「アニメにはWeb3が必要である」と明確に主張し、
+IPのトークン化、クリエイター報酬の透明化、
+およびファンエンゲージメントを主要な機会領域として特定した~\cite{fourpillars2025anime}。
+しかし、彼らの分析はIPレベルのトークン化（例：アニメフランチャイズの分割所有権）に
+焦点を当てており、個々のクリエイターレベルの貢献証明には及んでいなかった。
+
+% ----- 2.5 Research Gap -----
+\subsection{研究ギャップ}
+\label{subsec:gap}
+
+\Cref{fig:research_gap}および\Cref{tab:related_work_gap}は、
+ドメイン特殊性（一般的からアニメ特化まで）と粒度（IPレベルからタスクレベルまで）の
+2つの次元に沿った、既存研究に対する本研究の位置づけを要約している。
+SBTは医療、教育、農業に適用されてきており、
+ブロックチェーンはIPレベルでのクリエイティブ産業応用が検討されてきたが、
+\textbf{SBTベースの貢献証明を個別タスクレベルでアニメ制作ワークフローに統合した
+先行研究は存在しない。}
+本論文はこのギャップに取り組むものである。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/research_gap}
+  \caption{研究ポジショニングマップ。AnimatorSBTは、アニメ特化ドメインと
+  タスクレベル粒度の未探索の交差領域を占めている。}
+  \label{fig:research_gap}
+\end{figure}
+
+\begin{table}[ht]
+\centering
+\caption{既存研究に対するAnimatorSBTの位置づけ。}
+\label{tab:related_work_gap}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{研究} & \textbf{SBT} & \textbf{創作} & \textbf{アニメ} & \textbf{タスク} & \textbf{実装} \\
+\midrule
+Buterin et al.~'22       & \checkmark & -- & -- & -- & -- \\
+SBT Healthcare~'24       & \checkmark & -- & -- & -- & \checkmark \\
+SBT Agriculture~'25      & \checkmark & -- & -- & -- & \checkmark \\
+Animechain.ai~'24        & -- & \checkmark & \checkmark & -- & -- \\
+Four Pillars~'25         & -- & \checkmark & \checkmark & -- & -- \\
+VCP / Cardano~'23        & \checkmark & \checkmark & -- & -- & \checkmark \\
+Blockchain Cre.~'23      & -- & \checkmark & -- & -- & -- \\
+\midrule
+\textbf{本研究}            & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
+\bottomrule
+\end{tabular}
+\end{table}

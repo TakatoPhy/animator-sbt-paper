@@ -1,0 +1,244 @@
+% システム設計と技術仕様
+
+本節では、AnimatorSBTフレームワークの技術仕様を提示する。
+具体的には、技術スタック（\cref{subsec:stack}）、
+スマートコントラクト設計（\cref{subsec:contract}）、
+公開テストネット上にデプロイされたプロトタイプ実装（\cref{subsec:prototype}）、
+および既存の制作管理クライアントとの統合設計（\cref{subsec:integration}）について述べる。
+
+% ----- 5.1 技術スタック -----
+\subsection{技術スタック}
+\label{subsec:stack}
+
+提案システムは以下のコンポーネントを使用する。
+
+\begin{itemize}
+  \item \textbf{ブロックチェーン：} Polygon PoS~\cite{gangwal2023layer2}（本番デプロイの対象）。Polygonは、
+    低いトランザクションコスト（一般的なガス価格で1トランザクションあたり\$0.01未満）、
+    Ethereum Virtual Machine（EVM）互換性、および確立されたエコシステムを理由に選定した。
+  \item \textbf{スマートコントラクト：} Solidity 0.8.20、OpenZeppelin Contracts v4.x
+    （ERC-721、AccessControl、Counters）を使用。
+  \item \textbf{メタデータストレージ：} PinataピンニングサービスによるIPFS。
+    メタデータJSONファイルはコンテンツアドレス（content-addressed）方式で管理され、
+    ピンニングされた後は不変である。
+  \item \textbf{発行サービス：} ブロックチェーンとの連携にethers.js v6、
+    IPFSアップロードにPinata SDKを使用するNode.jsバックエンド。
+  \item \textbf{制作管理クライアント：} 標準的なウェブフレームワークで構築された
+    Progressive Web Application（PWA）であり、フリーランスアニメーター向けの
+    カット管理、締切追跡、および収入計算機能を提供する。
+  \item \textbf{ウォレット管理（本番ターゲット）：} アカウント抽象化（ERC-4337）による
+    埋め込みウォレットを使用し、アニメーターがウォレットソフトウェアを
+    インストールしたり秘密鍵を管理したりする必要を排除する。
+    現行のプロトタイプでは標準的な外部所有アカウント（Externally Owned Account, EOA）を使用しており、
+    ERC-4337の統合は本番デプロイ時に計画されている。
+\end{itemize}
+
+% ----- 5.2 スマートコントラクト -----
+\subsection{スマートコントラクト設計}
+\label{subsec:contract}
+
+\texttt{AnimatorSBT}コントラクトは、OpenZeppelinのERC-721実装を拡張し、
+2つの主要な変更を加えたものとして設計されている。すなわち、
+\textbf{Soulbinding}と\textbf{ロールベースアクセス制御（role-based access control）}である。
+
+\subsubsection{Soulbindingメカニズム}
+
+転送の制限は、ミント、転送、バーンを含むすべてのトークン移動時に呼び出される
+\texttt{\_beforeTokenTransfer}フックのオーバーライドにより強制される。
+
+\begin{lstlisting}[basicstyle=\footnotesize\ttfamily, frame=single,
+  caption={転送フックによるSoulbindingの強制。},
+  label={lst:soulbind},
+  morekeywords={function,address,uint256,internal,virtual,override,if,revert,super}]
+function _beforeTokenTransfer(
+  address from, address to,
+  uint256 tokenId, uint256 batchSize
+) internal virtual override {
+  // Allow mint (from==0), block transfers
+  if (from != address(0)
+      && to != address(0)) {
+    revert SoulboundTransferDisabled();
+  }
+  super._beforeTokenTransfer(
+    from, to, tokenId, batchSize
+  );
+}
+\end{lstlisting}
+
+さらに、\texttt{approve()}および\texttt{setApprovalForAll()}関数は
+無条件にリバートするようオーバーライドされており、
+承認ベースの転送メカニズムを防止する。
+これにより、SBTはいかなるERC-721準拠のインタフェースを通じても転送できないことが保証される。
+
+\subsubsection{なぜERC-5192を採用しないのか}
+
+ERC-5192標準~\cite{daubenschuetz2022erc5192}は、\texttt{locked()}クエリ関数を追加することで、
+Soulbound NFTのための最小限のインタフェースを定義している。
+本研究がERC-5192を実装しない理由は2つある。
+(1)~ERC-5192はイベントを通じて譲渡不能性を\textit{通知する}のみであり、
+コントラクトレベルでの強制は行わない---本アプローチは
+\texttt{\_beforeTokenTransfer}においてSoulbindingを強制し、
+転送を単に非推奨とするのではなく物理的に不可能にする。
+(2)~ERC-5192は承認ベースの転送ベクター
+（\texttt{approve}、\texttt{setApprovalForAll}）に対処しないが、
+本コントラクトはこれらを明示的にブロックする。
+将来のバージョンでは、SBT対応ツールとの相互運用性を向上させるために、
+本研究の強制メカニズムに加えてERC-5192互換性
+（\texttt{locked()}ビュー関数）を追加する可能性がある。
+
+\subsubsection{ロールベースアクセス制御}
+
+コントラクトは、OpenZeppelinの\texttt{AccessControl}を用いて2つのロールを定義する。
+
+\begin{itemize}
+  \item \texttt{DEFAULT\_ADMIN\_ROLE}：発行者ロールの付与・取消が可能。
+    システム管理者（TOONIQ）が保持する。
+  \item \texttt{ISSUER\_ROLE}：新規SBTのミントおよび既存SBTの失効が可能。
+    発行サービスのオペレーショナルウォレットに割り当てられる。
+\end{itemize}
+
+この分離により、発行サービスの鍵が漏洩した場合でも、
+攻撃者はアクセス制御構造自体を変更できないことが保証される。
+
+\subsubsection{コア関数}
+
+コントラクトは以下の外部関数を提供する。
+
+\begin{itemize}
+  \item \texttt{mint(address to, string uri)}：指定されたIPFSメタデータURIを持つ
+    単一のSBTをミントする。\texttt{SBTMinted}イベントを発行する。
+  \item \texttt{mintBatch(address[] recipients, string[] uris)}：プロジェクト完了時に
+    複数のアニメーターに証明書を発行する際の効率化のための
+    バッチミント関数。
+  \item \texttt{revoke(uint256 tokenId)}：SBTをバーンせずに無効化済みとしてマークし、
+    オンチェーンの監査証跡を保持する。
+    \texttt{SBTRevoked}イベントを発行する。
+  \item \texttt{tokensOfOwner(address owner)}：指定アドレスが保有する
+    すべてのトークンIDを返す（オフチェーンクエリ用のビュー関数）。
+  \item \texttt{isRevoked(uint256 tokenId)}：失効状態を返す。
+  \item \texttt{issuedAt(uint256 tokenId)}：発行タイムスタンプを返す。
+\end{itemize}
+
+\subsubsection{ガスコスト分析}
+
+\Cref{tab:gas}に、主要な操作のガス消費量を報告する。
+これらはSolidityオプティマイザ有効（200回）の条件下で
+Hardhatテスト環境において\textbf{実測}されたものである。
+
+\begin{table}[ht]
+\centering
+\caption{実測されたガス消費量およびPolygon PoS上での推定コスト
+（30 gwei、POL = \$0.22、2026年3月時点）。}
+\label{tab:gas}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{操作} & \textbf{ガス} & \textbf{POL} & \textbf{USD} \\
+\midrule
+デプロイ          & 1{,}824{,}117  & 0.0547  & \$0.0120  \\
+\texttt{mint()}   & 135{,}505      & 0.0041  & \$0.0009  \\
+\texttt{mintBatch(10)} & 1{,}039{,}581 & 0.0312 & \$0.0069 \\
+\texttt{revoke()} & 50{,}027       & 0.0015  & \$0.0003  \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+このコストでは、単一の貢献証明書のミントにかかる費用は約\textbf{\$0.0009}であり、
+個人のフリーランサーにとっても無視できる水準である。
+バッチミントにより、トークンあたりのコストは約\$0.0007まで削減される。
+コントラクト全体のデプロイコストは約\$0.012である。
+
+% ----- 5.3 プロトタイプ実装 -----
+\subsection{プロトタイプ実装}
+\label{subsec:prototype}
+
+設計の妥当性を検証するため、3つのコンポーネントから成る動作するプロトタイプを実装した。
+公開テストネット上にデプロイされたスマートコントラクト、発行サービス、および検証ポータルである。
+
+\subsubsection{テストネットデプロイ}
+
+\texttt{AnimatorSBT}コントラクトは、Polygon Amoyテストネット
+（Chain ID: 80002）上のアドレス
+\texttt{0x2cC3\allowbreak{}1B9E\allowbreak{}FBD5\allowbreak{}dDfB\allowbreak{}5456\allowbreak{}EE4c\allowbreak{}76A0\allowbreak{}fcBC\allowbreak{}A5EE\allowbreak{}E117}
+（ブロック35{,}058{,}633）にデプロイされた。\footnote{デプロイトランザクションおよび
+その後のすべてのインタラクションは、
+\url{https://amoy.polygonscan.com/address/0x2cC31B9EFBD5dDfB5456EE4c76A0fcBCA5EEE117}
+において公開的に検証可能である。}
+35件のユニットテストから成る包括的なテストスイートをHardhatを用いて開発し、
+デプロイ、ミント、バッチミント、Soulbinding強制、
+失効、ビュー関数、およびアクセス制御をカバーした。
+すべてのテストが正常にパスしている。
+田中シナリオ（\cref{subsec:flow}）のエンドツーエンドのデモンストレーションが
+テストネット上で実行され、
+IPFSにホストされたメタデータを持つSBTのミントに成功し、
+すべてのオンチェーン状態（残高、トークンURI、失効状態）が検証された。
+
+\subsubsection{発行サービス}
+
+ethers.js~v6およびPinata SDKを使用したNode.jsベースの発行サービスを実装した。
+このサービスは、完全な発行ワークフローを実行する。
+すなわち、(1)~\cref{tab:metadata}のスキーマに準拠したメタデータJSONの構築、
+(2)~\texttt{evidence\_hash}の計算（シリアライズされたattributesのKeccak-256ハッシュ）、
+(3)~Pinataを介したIPFSへのメタデータのアップロード、
+および(4)~取得したIPFS~URIによる\texttt{AnimatorSBT.mint()}の呼び出しである。
+
+エンドツーエンドのデモンストレーションスクリプトは、
+\cref{subsec:flow}で記述した田中シナリオを再現する。
+原画アニメーターが第7話で25カットを完成させ、
+システムが検証可能なエビデンスハッシュを伴う貢献記録のSBTを発行する。
+
+\subsubsection{検証ポータル}
+
+軽量な検証ポータルを、CDNから読み込んだethers.jsを使用する
+静的HTMLページとして実装した。サーバーサイドのインフラストラクチャは不要である。
+ポータルはウォレットアドレスを受け取り、コントラクトの\texttt{tokensOfOwner()}
+関数に問い合わせ、各SBTのメタデータをIPFSから取得し、
+プロジェクト、役割、タスク数、および日付を含む貢献の詳細を表示する。
+ポータルはまた、IPFSメタデータからKeccak-256ハッシュを再計算し、
+格納された\texttt{evidence\_hash}フィールドと比較することで、
+エビデンスハッシュの検証もサポートする。
+
+% ----- 5.4 制作管理クライアントとの統合 -----
+\subsection{制作管理クライアントとの統合}
+\label{subsec:integration}
+
+AnimatorSBTは、著者らが開発したフリーランスアニメーター向けの
+カット管理・収支管理用Progressive Web Applicationである
+\textit{Pocket Seishin}\footnote{\url{https://pocket-seishin.vercel.app}にて公開中。}
+との統合を想定して設計されている。
+本アプリケーションは公開デプロイされており、アクティブなユーザーが存在する。
+カットレベルの作業ログはアニメーターのデバイス上にローカル保存されており、
+デフォルトでプライバシーが保護される。
+SBTの発行はアニメーターの明示的な同意がある場合にのみ行われる。
+
+計画されている統合は、\cref{subsec:flow}で記述した発行フローに従う。
+主要な統合ポイントは以下のとおりである。
+
+\begin{enumerate}
+  \item \textbf{ウォレットプロビジョニング：}
+    新しいアニメーターがPocket Seishinに登録する際、
+    アカウント抽象化を用いて埋め込みウォレットが作成される。
+    ウォレットアドレスはユーザープロフィールに保存され、
+    SBTミントの\texttt{to}パラメータとして使用される。
+    アニメーターがウォレットを直接操作する必要はない。
+  \item \textbf{作業ログの集約：}
+    Pocket Seishinはすでにコア機能の一部として、
+    カットレベルのタスクデータ（割り当て、ステータス遷移、完了タイムスタンプ）を
+    記録している。
+    ユーザーの同意のもと、このローカルに保存されたデータが
+    SBTメタデータの構築に使用される。
+  \item \textbf{エビデンスハッシュの計算：}
+    発行サービスは、認証期間の作業ログエントリをシリアライズしたもののKeccak-256ハッシュを計算する。
+    このハッシュはSBTメタデータ（\texttt{evidence\_hash}フィールド）に含まれ、
+    後にユーザーのローカルデータと照合して検証できる。
+  \item \textbf{証明書の表示：}
+    Pocket Seishinのプロフィールページに「SBT証明書」セクションが追加され、
+    アニメーターに発行されたトークンがプロジェクト名、
+    役割、タスク数、および検証ポータルへのリンクとともに表示される。
+\end{enumerate}
+
+アニメーターの視点からは、SBTワークフロー全体が透過的となる。
+アニメーターは従来どおりPMCを使用し続けるだけでよく、
+プロジェクトのマイルストーン到達時に貢献証明書が自動的に発行される。
+ブロックチェーンの知識、ウォレット管理、追加のデータ入力は一切不要である。

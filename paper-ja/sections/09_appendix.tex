@@ -1,0 +1,316 @@
+% 付録
+
+% ----- A. テストネット展開の詳細 -----
+\subsection{テストネット展開の詳細}
+\label{app:testnet}
+
+\Cref{tab:testnet_txs}に、Polygon Amoyテストネット（Chain ID: 80002）上で実行された
+すべてのオンチェーン操作のトランザクションハッシュを示す。
+すべてのトランザクションはPolygonscan上で公開的に検証可能である。\footnote{%
+\url{https://amoy.polygonscan.com/address/0x2cC31B9EFBD5dDfB5456EE4c76A0fcBCA5EEE117}}
+
+\begin{table}[ht]
+\centering
+\caption{Polygon Amoy上のテストネットトランザクションログ。}
+\label{tab:testnet_txs}
+\footnotesize
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}{@{}llr@{}}
+\toprule
+\textbf{操作} & \textbf{TXハッシュ（省略）} & \textbf{Gas} \\
+\midrule
+Deploy
+  & \texttt{0xb230...6bf5}
+  & 1{,}824{,}117 \\
+\texttt{mint()} (Tanaka)
+  & \texttt{0x5461...8c30}
+  & 189{,}792 \\
+\texttt{mintBatch(10)}
+  & \texttt{0xfcee...9182}
+  & 1{,}025{,}449 \\
+\texttt{revoke()}
+  & \texttt{0x9fad...5ecd}
+  & 50{,}027 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+コントラクトアドレス: \texttt{0x2cC31B9EFBD5dDfB5456EE4c76A0fcBCA5EEE117}\\
+デプロイヤーアドレス: \texttt{0x91eca41e060de63871dFb0Fe8Fdc78897d6119b8}\\
+デプロイブロック: 35{,}058{,}633
+
+% ----- B. ユニットテスト結果 -----
+\subsection{ユニットテスト結果}
+\label{app:tests}
+
+Hardhat（Solidity 0.8.20、オプティマイザ有効、200回実行）を用いて合計35件のユニットテストを開発した。すべてのテストが合格している。
+\Cref{tab:test_results}にテストスイートの全体を示す。
+
+\begin{table}[ht]
+\centering
+\caption{AnimatorSBTの完全なユニットテストスイート（35テスト、すべて合格）。}
+\label{tab:test_results}
+\footnotesize
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{カテゴリ} & \textbf{テストケース} \\
+\midrule
+\multirow{4}{*}{Deployment}
+  & Set correct name and symbol \\
+  & Grant DEFAULT\_ADMIN\_ROLE to deployer \\
+  & Grant ISSUER\_ROLE to deployer \\
+  & Start with 0 total minted \\
+\midrule
+\multirow{5}{*}{\texttt{mint()}}
+  & Mint with ISSUER\_ROLE \\
+  & Emit SBTMinted event \\
+  & Record issuedAt timestamp \\
+  & Increment token IDs \\
+  & Revert when caller lacks ISSUER\_ROLE \\
+\midrule
+\multirow{4}{*}{\texttt{mintBatch()}}
+  & Batch mint to multiple recipients \\
+  & Batch mint 10 tokens (gas measurement) \\
+  & Revert on length mismatch \\
+  & Revert when caller lacks ISSUER\_ROLE \\
+\midrule
+\multirow{2}{*}{\texttt{tokenURI()}}
+  & Return correct URI after mint \\
+  & Revert for non-existent token \\
+\midrule
+\multirow{4}{*}{Soulbinding}
+  & Revert on \texttt{transferFrom} \\
+  & Revert on \texttt{safeTransferFrom} \\
+  & Revert on \texttt{approve} \\
+  & Revert on \texttt{setApprovalForAll} \\
+\midrule
+\multirow{5}{*}{\texttt{revoke()}}
+  & Revoke a token \\
+  & Emit SBTRevoked event \\
+  & Revert on double revoke \\
+  & Revert for non-existent token \\
+  & Revert when caller lacks ISSUER\_ROLE \\
+\midrule
+\multirow{6}{*}{View Functions}
+  & \texttt{isRevoked()} returns false for active token \\
+  & \texttt{issuedAt()} returns block timestamp \\
+  & \texttt{totalMinted()} returns correct count \\
+  & \texttt{tokensOfOwner()} returns all tokens \\
+  & \texttt{tokensOfOwner()} returns single token \\
+  & \texttt{tokensOfOwner()} returns empty for non-holder \\
+\midrule
+\multirow{4}{*}{AccessControl}
+  & Admin grants ISSUER\_ROLE \\
+  & Admin revokes ISSUER\_ROLE \\
+  & Non-admin cannot grant roles \\
+  & \texttt{supportsInterface} (ERC721, AccessControl) \\
+\midrule
+Gas & Measure deploy gas \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ----- C. メタデータJSONの例 -----
+\subsection{メタデータJSONの例}
+\label{app:metadata}
+
+\Cref{lst:metadata_json}に、E2Eデモンストレーション（Tanakaシナリオ）において
+IPFSにアップロードされた実際のメタデータJSONを示す。
+IPFS CIDは\texttt{Qmbv6Xm1GmNpxkJ8rq3QCihTPmQYBo6EQaxE72qTcXtVys}であり、
+\url{https://gateway.pinata.cloud/ipfs/Qmbv6Xm1GmNpxkJ8rq3QCihTPmQYBo6EQaxE72qTcXtVys}から取得可能である。
+
+\begin{lstlisting}[
+  basicstyle=\scriptsize\ttfamily,
+  frame=single,
+  caption={E2Eデモ（Tanakaシナリオ）のSBTメタデータJSON。},
+  label={lst:metadata_json},
+  breaklines=true,
+  columns=flexible
+]
+{
+  "name": "AnimatorSBT - Tanaka Yuki",
+  "description": "Contribution certification
+    for Tanaka Yuki on Episode 7",
+  "attributes": {
+    "animator_name": "Tanaka Yuki",
+    "animator_wallet": "0x7eBa20e703...82f3a",
+    "project": "Episode 7",
+    "role": "key_anim",
+    "task_count": 25,
+    "start_date": "2025-01-15",
+    "end_date": "2025-03-30",
+    "studio_name": "Studio Example",
+    "issued_at": "2026-03-11T16:04:05.123Z"
+  },
+  "evidence_files": [
+    "ipfs://QmExampleHash1_storyboard",
+    "ipfs://QmExampleHash2_keyframes"
+  ],
+  "evidence_hash": "0x7c27a833f1678308
+    c58d217c178a1c27ac10a32b4a8b61ec7d681dbe24673e79"
+}
+\end{lstlisting}
+
+\texttt{evidence\_hash}フィールドは\texttt{attributes}オブジェクト（JSONシリアライズ済み）のKeccak-256ハッシュである。
+IPFSメタデータにアクセスできる任意の当事者がこのハッシュを独立に再計算し、
+その完全性を検証できる。
+
+% ----- D. スマートコントラクトのソースコード -----
+\subsection{スマートコントラクトのソースコード}
+\label{app:source}
+
+\texttt{AnimatorSBT}コントラクトの完全なソースコードを以下に示す。
+プロジェクトリポジトリでも公開している。\footnote{%
+\url{https://github.com/TakatoPhy/animator-sbt-paper/blob/main/contracts/AnimatorSBT.sol}}
+
+\begin{lstlisting}[
+  basicstyle=\scriptsize\ttfamily,
+  frame=single,
+  caption={AnimatorSBT.sol --- コントラクトの完全なソースコード。},
+  label={lst:full_source},
+  breaklines=true,
+  columns=flexible,
+  morekeywords={pragma,solidity,import,contract,is,using,for,
+    function,external,internal,public,view,pure,override,virtual,
+    returns,return,if,revert,mapping,event,error,emit,
+    address,uint256,string,bytes32,bool,memory,calldata,
+    constructor,require,constant}
+]
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+
+contract AnimatorSBT is ERC721, AccessControl {
+  using Counters for Counters.Counter;
+
+  bytes32 public constant ISSUER_ROLE =
+    keccak256("ISSUER_ROLE");
+
+  Counters.Counter private _tokenIdCounter;
+  mapping(uint256 => string) private _tokenURIs;
+  mapping(uint256 => bool) private _revoked;
+  mapping(uint256 => uint256) private _issuedAt;
+
+  event SBTMinted(uint256 indexed tokenId,
+    address indexed to, string uri,
+    uint256 timestamp);
+  event SBTRevoked(uint256 indexed tokenId,
+    uint256 timestamp);
+
+  error SoulboundTransferDisabled();
+  error TokenAlreadyRevoked(uint256 tokenId);
+
+  constructor() ERC721("AnimatorSBT", "ASBT") {
+    _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    _grantRole(ISSUER_ROLE, msg.sender);
+  }
+
+  function _beforeTokenTransfer(
+    address from, address to,
+    uint256 tokenId, uint256 batchSize
+  ) internal virtual override {
+    if (from != address(0) && to != address(0))
+      revert SoulboundTransferDisabled();
+    super._beforeTokenTransfer(
+      from, to, tokenId, batchSize);
+  }
+
+  function approve(address, uint256)
+    public pure override {
+    revert SoulboundTransferDisabled();
+  }
+
+  function setApprovalForAll(address, bool)
+    public pure override {
+    revert SoulboundTransferDisabled();
+  }
+
+  function mint(address to, string calldata uri)
+    external onlyRole(ISSUER_ROLE)
+    returns (uint256) {
+    _tokenIdCounter.increment();
+    uint256 tokenId = _tokenIdCounter.current();
+    _safeMint(to, tokenId);
+    _tokenURIs[tokenId] = uri;
+    _issuedAt[tokenId] = block.timestamp;
+    emit SBTMinted(tokenId, to, uri,
+      block.timestamp);
+    return tokenId;
+  }
+
+  function mintBatch(
+    address[] calldata recipients,
+    string[] calldata uris
+  ) external onlyRole(ISSUER_ROLE) {
+    require(recipients.length == uris.length,
+      "Length mismatch");
+    for (uint256 i = 0;
+         i < recipients.length; i++) {
+      _tokenIdCounter.increment();
+      uint256 tokenId =
+        _tokenIdCounter.current();
+      _safeMint(recipients[i], tokenId);
+      _tokenURIs[tokenId] = uris[i];
+      _issuedAt[tokenId] = block.timestamp;
+      emit SBTMinted(tokenId, recipients[i],
+        uris[i], block.timestamp);
+    }
+  }
+
+  function revoke(uint256 tokenId)
+    external onlyRole(ISSUER_ROLE) {
+    if (_revoked[tokenId])
+      revert TokenAlreadyRevoked(tokenId);
+    _requireMinted(tokenId);
+    _revoked[tokenId] = true;
+    emit SBTRevoked(tokenId, block.timestamp);
+  }
+
+  function tokenURI(uint256 tokenId)
+    public view override returns (string memory) {
+    _requireMinted(tokenId);
+    return _tokenURIs[tokenId];
+  }
+
+  function isRevoked(uint256 tokenId)
+    external view returns (bool) {
+    return _revoked[tokenId];
+  }
+
+  function issuedAt(uint256 tokenId)
+    external view returns (uint256) {
+    return _issuedAt[tokenId];
+  }
+
+  function totalMinted()
+    external view returns (uint256) {
+    return _tokenIdCounter.current();
+  }
+
+  function tokensOfOwner(address owner)
+    external view returns (uint256[] memory) {
+    uint256 total = _tokenIdCounter.current();
+    uint256 count = balanceOf(owner);
+    uint256[] memory result =
+      new uint256[](count);
+    uint256 idx = 0;
+    for (uint256 i = 1;
+         i <= total && idx < count; i++) {
+      if (_exists(i) && ownerOf(i) == owner)
+        result[idx++] = i;
+    }
+    return result;
+  }
+
+  function supportsInterface(bytes4 interfaceId)
+    public view
+    override(ERC721, AccessControl)
+    returns (bool) {
+    return super.supportsInterface(interfaceId);
+  }
+}
+\end{lstlisting}

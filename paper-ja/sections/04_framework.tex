@@ -1,0 +1,268 @@
+% 提案フレームワーク：AnimatorSBT
+
+本論文では、既存の制作管理ツールを通じて、アニメ制作ワークフローに
+Soulbound Tokenの発行を統合するフレームワークである\textbf{AnimatorSBT}を提案する。
+本節では、システムアーキテクチャ（\cref{subsec:architecture}）、
+SBTメタデータスキーマ（\cref{subsec:metadata}）、
+発行フロー（\cref{subsec:flow}）、
+検証メカニズム（\cref{subsec:verification}）、
+およびプライバシーに関する考慮事項（\cref{subsec:privacy}）について述べる。
+
+% ----- 4.1 システムアーキテクチャ -----
+\subsection{システムアーキテクチャ}
+\label{subsec:architecture}
+
+AnimatorSBTは4つのコンポーネントから構成される。
+
+\begin{enumerate}
+  \item \textbf{制作管理クライアント（Production Management Client, PMC）：}
+    フリーランスアニメーターが日常業務---カット割り当て、タスクの状態、
+    締切、成果物---を追跡するために使用するProgressive Web Application（PWA）である。
+    これが貢献記録の主要なデータソースとなる。
+  \item \textbf{AnimatorSBTスマートコントラクト（smart contract）：}
+    Layer~2ブロックチェーン（Polygon Proof of Stake（PoS））上にデプロイされた
+    ERC-721ベース~\cite{entriken2018erc721}の譲渡不能トークン（non-transferable token）コントラクトである。
+    転送関数のオーバーライドによりSoulbindingを強制し、
+    ミント（minting）、失効（revocation）、およびメタデータ取得のインタフェースを提供する。
+  \item \textbf{発行サービス（Issuance Service）：}
+    PMCとスマートコントラクトを橋渡しする軽量なバックエンドである。
+    プロジェクト完了時（またはユーザーが定義したマイルストーン到達時）に、
+    PMCの作業ログからSBTメタデータを構築し、
+    InterPlanetary File System（IPFS）~\cite{benet2014ipfs}にアップロードした上で、
+    ミントトランザクション（minting transaction）をトリガーする。
+  \item \textbf{検証ポータル（Verification Portal）：}
+    第三者（スタジオ、クライアント、リクルーター）がブロックチェーンに問い合わせ、
+    関連するメタデータを表示することで、
+    アニメーターの貢献履歴を検証できる公開ウェブインタフェースである。
+\end{enumerate}
+
+\Cref{fig:architecture}は、これらのコンポーネント間のデータフローを示している。
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/architecture}
+  \caption{AnimatorSBTのシステムアーキテクチャ。アニメーターが操作するのは
+  制作管理クライアント（PMC）のみであり、SBTの発行およびオンチェーンストレージへの保存は
+  発行サービスによって透過的に処理される。}
+  \label{fig:architecture}
+\end{figure*}
+
+\textbf{なぜ集中型データベースではなくブロックチェーンを採用するのか。}
+従来のアプローチでは、貢献記録を単一の主体（例：TOONIQまたはスタジオ）が
+運営する集中型データベースに保存する。
+しかし、このアプローチは\cref{subsec:formalization}で定義した要件を
+3つの理由から満たすことができない。
+\begin{enumerate}
+  \item \textbf{組織を超えた永続性：}
+    アニメスタジオの倒産や再編は頻繁に起こる。
+    集中型データベースは運営者とともに消失する。
+    オンチェーン記録はいかなる企業の存続にも依存せず永続する---
+    たとえTOONIQが事業を停止したとしても、
+    すべてのSBTは公開ブロックチェーン上で検証可能なまま残る。
+  \item \textbf{組織横断的な可搬性：}
+    フリーランスアニメーターはキャリアを通じて数十のスタジオで働く。
+    集中型モデルでは、各スタジオがアニメーターの履歴の断片を
+    それぞれの独立したシステム内に保持しており、
+    それらを集約する標準的な方法がない。
+    SBTを用いれば、すべての資格情報（credential）が単一のウォレットアドレスに蓄積される。
+    アニメーターは1つのリンクを検証者に提示するだけで、
+    スタジオをまたぐキャリア履歴全体を証明できる。
+  \item \textbf{信頼を前提としない改ざん耐性：}
+    集中型データベースの管理者は記録を変更・削除できる。
+    ブロックチェーンの記録は追記専用（append-only）であり暗号学的に連鎖している。
+    SBTが一度ミントされれば、発行者もいかなる第三者も、
+    それがいつ、誰に対して発行されたかという事実を改変することはできない。
+    これにより、アニメーターの資格情報が監査可能なオンチェーンの痕跡なしに
+    遡及的に失効または偽造されることはないという
+    独立した保証がアニメーターに提供される。
+\end{enumerate}
+
+\textbf{なぜVerifiable CredentialsではなくSBTを採用するのか。}
+代替設計として、オンチェーンのSBTの代わりにW3C Verifiable Credentials（VCs）~\cite{sporny2022vc}
+を使用することが考えられる。
+VCは成熟した標準、選択的開示（selective disclosure）、およびオフチェーンストレージを提供しており、
+信頼できる発行者が存在し、資格情報が二者間で提示されるシナリオ
+（例：大学の学位証明書）には適している。
+しかし、VCにはアニメ制作の文脈において致命的な限界がある~\cite{kakebayashi2023sbt}。
+すなわち、\textit{検証が発行者の運営継続に依存する}点である。
+発行スタジオが倒産した場合---アニメ業界では日常的な出来事である---、
+第三者が発行者の鍵素材を管理しない限り、VCの検証は失敗する。
+SBTはこの依存性を回避する。オンチェーン記録は発行者の存続に関係なく永続し、
+いかなる当事者も公開ブロックチェーンに問い合わせることで所有権を検証できる。
+加えて、SBTは自然に集約可能なポートフォリオを提供する---すべての資格情報が
+単一のウォレットアドレスに蓄積され、1回の問い合わせで照会可能である---のに対し、
+VCは保持者がローカルウォレットから個々の資格情報を管理・選択的に提示する必要があり、
+要件R5（最小限の摩擦）と相反する摩擦を生じさせる。
+なお、SBTとVCは相互排他的ではない。
+今後の研究（\cref{sec:conclusion}）において、
+AnimatorSBTメタデータに対するVC準拠のラッパーの検討を行う。
+
+主要な設計原則は\textbf{エンドユーザーに対する透過性}である。
+アニメーターはブロックチェーン技術を理解したり、
+ウォレットを手動で管理したり、ガス代（gas fee）を支払ったりする必要がない。
+PMCがウォレットの作成を処理し（アカウント抽象化（account abstraction）~\cite{buterin2021erc4337}を用いた
+埋め込みウォレット（embedded wallet））、
+発行サービスがリレイヤー（relayer）を通じてガス代を負担する。
+アニメーターの視点からは、体験は次のようなものとなる。
+「カットを仕上げた $\rightarrow$ プロフィールに証明書が届いた」
+
+% ----- 4.2 SBTメタデータスキーマ -----
+\subsection{SBTメタデータスキーマ}
+\label{subsec:metadata}
+
+各AnimatorSBTは、単一のプロジェクトへの貢献についての構造化された記録をエンコードする。
+メタデータはIPFS上に保存されたJSONスキーマに従い、コンテンツハッシュは
+オンチェーンのトークンURIによって参照される。\Cref{tab:metadata}にスキーマを定義する。
+
+\begin{table}[ht]
+\centering
+\caption{AnimatorSBTメタデータスキーマ。JSONはNFT互換の構造に従い、
+トップレベルに\texttt{name}および\texttt{description}フィールドを持つ。
+貢献データは\texttt{attributes}オブジェクトの下に格納される。}
+\label{tab:metadata}
+\footnotesize
+\begin{tabular}{@{}llp{3.0cm}@{}}
+\toprule
+\textbf{フィールド} & \textbf{型} & \textbf{説明} \\
+\midrule
+\texttt{name}              & string   & SBTの表示名 \\
+\texttt{description}       & string   & 人間が読める要約 \\
+\midrule
+\multicolumn{3}{@{}l}{\textit{attributes}（貢献データ）：} \\
+\texttt{animator\_name}    & string   & アニメーターの表示名 \\
+\texttt{animator\_wallet}  & address  & アニメーターのウォレットアドレス \\
+\texttt{project}           & string   & アニメ作品名または話数タイトル \\
+\texttt{role}              & enum     & 例：\texttt{key\_anim}、\texttt{in\_between}、\texttt{coloring} \\
+\texttt{task\_count}       & integer  & 完了タスク数（カット、フレーム） \\
+\texttt{start\_date}       & date     & 貢献開始日 \\
+\texttt{end\_date}         & date     & 貢献終了日 \\
+\texttt{studio\_name}      & string   & 契約スタジオ（nullable） \\
+\texttt{issued\_at}        & datetime & ISO~8601形式の発行タイムスタンプ \\
+\midrule
+\texttt{evidence\_files}   & array    & 証拠ファイルのIPFS URI \\
+\texttt{evidence\_hash}    & bytes32  & シリアライズされたattributesのKeccak-256ハッシュ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\texttt{evidence\_hash}フィールドは、オンチェーンの証明書と
+PMCに保存されたオフチェーンの作業ログとの間の暗号学的なリンクを提供する。
+これにより、検証者は生の作業ログデータを公開することなく、
+SBTが実際に記録された作業に対応するものであることを確認できる。
+
+\texttt{studio\_name}フィールドは、秘密保持契約（NDA）により
+特定のプロジェクトやスタジオへの公開的な帰属表示ができない場合に対応するため、
+意図的にnullable（null許容）としている。
+スタジオ名がなくとも、SBTはアニメーターの役割、タスク量、
+および期間を証明するため、記録が一切存在しない現行システムよりも
+多くの情報を提供する。
+
+% ----- 4.3 発行フロー -----
+\subsection{発行フロー}
+\label{subsec:flow}
+
+SBTの発行プロセスは5つのステップで構成される。
+\Cref{fig:issuance_flow}にその流れを示す。
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85\columnwidth]{figures/issuance_flow}
+  \caption{5段階のSBT発行フロー。アニメーターが操作するのは
+  PMCのみ（ステップ1）であり、以降のステップはすべて自動化されている。}
+  \label{fig:issuance_flow}
+\end{figure}
+
+\begin{enumerate}
+  \item \textbf{作業記録：}
+    アニメーターは通常のワークフローの一環として、
+    日常の作業（カット割り当て、ステータス更新、完了タイムスタンプ）をPMCに記録する。
+    SBTの発行のために追加の作業は不要である。
+  \item \textbf{マイルストーントリガー：}
+    事前に定義されたマイルストーン（例：プロジェクト完了、話数の納品、
+    またはアニメーターの手動リクエスト）に到達すると、
+    PMCが発行サービスに証明リクエストを送信する。
+  \item \textbf{メタデータ構築：}
+    発行サービスは、指定期間の作業ログエントリを集約し、
+    \texttt{evidence\_hash}を計算し、JSONメタデータを構築し、
+    ピンニングサービス（例：Pinata）を介してIPFSにアップロードする。
+  \item \textbf{ミント：}
+    発行サービスがAnimatorSBTスマートコントラクトの\texttt{mint()}関数を呼び出し、
+    アニメーターのウォレットアドレスとIPFSコンテンツURIを渡す。
+    本番設計では、メタトランザクションリレイヤー（ERC-2771）を通じて
+    発行サービスがガス代を負担する。
+    現行のプロトタイプでは、発行サービスがオペレーショナルウォレットから
+    直接ガス代を支払っている。
+  \item \textbf{確認：}
+    PMCがトランザクションレシートを受信し、新たに発行されたSBTを
+    アニメーターのプロフィールに表示する。
+    検証ポータルへのリンクも併せて表示される。
+\end{enumerate}
+
+\textbf{シナリオ例：}
+フリーランスの原画アニメーター田中が、二次下請けを通じて
+あるアニメシリーズの第7話で25カットを担当したとする。
+6週間にわたり、田中は通常のワークフローの一環として、
+各カットの割り当て、ステータス更新、完了をPMCに記録する。
+第7話のラップアップ時にPMCが証明リクエストをトリガーする。
+発行サービスは田中の作業ログを集約し
+（役割：\texttt{key\_anim}、タスク数：25、期間：2025-04-01〜2025-05-15）、
+エビデンスハッシュを計算し、田中の埋め込みウォレットにSBTをミントする。
+田中はPMCのプロフィールに新しい証明書が表示されるのを確認する。
+3か月後、別のスタジオに応募する際に、
+田中はウォレットアドレスを共有する。
+スタジオはブロックチェーンに問い合わせ、
+田中が実在する作品で25カットの原画作業を完了したことを確認し、
+契約を提示する---たとえ田中の名前が
+当該話数の放送クレジットに一切掲載されていなかったとしてもである。
+
+% ----- 4.4 検証メカニズム -----
+\subsection{検証メカニズム}
+\label{subsec:verification}
+
+第三者は2つの方法でアニメーターの資格情報を検証できる。
+
+\textbf{オンチェーンクエリ：}
+アニメーターのウォレットアドレス（またはEthereum Name Service（ENS）名 /
+可読識別子（human-readable identifier））が与えられれば、
+検証者はAnimatorSBTコントラクトの\texttt{balanceOf()}および
+\texttt{tokenURI()}関数に問い合わせることで、
+発行されたすべてのSBTとそのメタデータを取得できる。
+トークンは譲渡不能であるため、特定のアドレスにおけるSBTの保有は、
+そのアドレスの保有者が当該資格情報を獲得したことの証明となる。
+
+\textbf{検証ポータル：}
+ウェブベースのインタフェースが、アニメーターのSBTポートフォリオを
+人間が読める形式で表示し、
+プロジェクト名、役割、タスク数、および期間を提示する。
+ポータルはまた、\texttt{evidence\_hash}をPMCに保存された作業ログと照合し
+（アニメーターの同意のもとで）、
+追加の真正性検証レイヤーを提供する。
+
+% ----- 4.5 プライバシーに関する考慮事項 -----
+\subsection{プライバシーに関する考慮事項}
+\label{subsec:privacy}
+
+AnimatorSBTは以下のメカニズムによりプライバシーに対処する。
+
+\begin{itemize}
+  \item \textbf{最小限のオンチェーンデータ：}
+    オンチェーンに保存されるのはトークンID、所有者アドレス、およびIPFS URIのみである。
+    詳細なメタデータはすべてIPFS上に存在し、必要に応じて暗号化が可能である。
+  \item \textbf{Nullableフィールド：}
+    秘密保持契約（NDA）が適用される場合、機密情報（スタジオ名、プロジェクト名）を
+    省略できる。その場合でも、役割とタスク量は証明される。
+  \item \textbf{選択的開示（selective disclosure）：}
+    アニメーターは、検証ポータル上でどのSBTを公開するかを制御できる。
+    非公開のSBTは、アクセス制御付きのダイレクトリンクを介して共有できる。
+  \item \textbf{埋め込みウォレット：}
+    アカウント抽象化（ERC-4337）を使用することで、アニメーターは
+    秘密鍵を直接管理する必要がなくなり、
+    鍵の紛失やソーシャルエンジニアリング攻撃のリスクが軽減される。
+  \item \textbf{忘れられる権利（right to be forgotten）：}
+    ブロックチェーンのデータは不変（immutable）であるが、
+    スマートコントラクトにはSBTを無効化済みとしてマークする
+    \texttt{revoke()}関数が含まれている。
+    IPFSメタデータもアンピン（unpin）することが可能であり、
+    標準的なゲートウェイを通じてアクセスできなくなる
+    （ただし、失効のオンチェーン記録は残存する）。
+\end{itemize}
