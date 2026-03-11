@@ -1,3 +1,177 @@
 % Proposed Framework: AnimatorSBT
-% TODO: Draft
 
+We propose \textbf{AnimatorSBT}, a framework that integrates Soulbound Token issuance
+into the anime production workflow through an existing production management tool.
+This section describes the system architecture (\cref{subsec:architecture}),
+the SBT metadata schema (\cref{subsec:metadata}),
+the issuance flow (\cref{subsec:flow}),
+the verification mechanism (\cref{subsec:verification}),
+and privacy considerations (\cref{subsec:privacy}).
+
+% ----- 4.1 System Architecture -----
+\subsection{System Architecture}
+\label{subsec:architecture}
+
+AnimatorSBT consists of four components:
+
+\begin{enumerate}
+  \item \textbf{Production Management Client (PMC):}
+    A Progressive Web Application (PWA) used by freelance animators to track
+    their daily work---cut assignments, task status, deadlines, and deliverables.
+    This is the primary data source for contribution records.
+  \item \textbf{AnimatorSBT Smart Contract:}
+    An ERC-721--based non-transferable token contract deployed on a Layer~2 blockchain
+    (Polygon PoS). The contract enforces soulbinding by overriding transfer functions
+    and provides minting, revocation, and metadata retrieval interfaces.
+  \item \textbf{Issuance Service:}
+    A lightweight backend that bridges the PMC and the smart contract.
+    Upon project completion (or at a user-defined milestone),
+    the service constructs SBT metadata from the PMC's work logs,
+    uploads it to IPFS, and triggers the minting transaction.
+  \item \textbf{Verification Portal:}
+    A public web interface where third parties (studios, clients, recruiters)
+    can verify an animator's contribution history by querying the blockchain
+    and rendering the associated metadata.
+\end{enumerate}
+
+\Cref{fig:architecture} illustrates the data flow between these components.
+
+\begin{figure}[ht]
+  \centering
+  % TODO: Replace with TikZ diagram
+  \fbox{\parbox{0.9\textwidth}{\centering
+    \vspace{1cm}
+    \textbf{[Architecture Diagram]}\\[0.5em]
+    PMC (PWA) $\rightarrow$ Issuance Service $\rightarrow$ IPFS + Polygon $\rightarrow$ Verification Portal\\[0.5em]
+    Animator interacts with PMC only; SBT issuance is triggered automatically.
+    \vspace{1cm}
+  }}
+  \caption{AnimatorSBT system architecture. The animator interacts only with the
+  Production Management Client; SBT issuance and on-chain storage are handled
+  transparently by the Issuance Service.}
+  \label{fig:architecture}
+\end{figure}
+
+A key design principle is \textbf{transparency to the end user}:
+the animator does not need to understand blockchain technology,
+manage a wallet manually, or pay gas fees.
+The PMC handles wallet creation (embedded wallet via account abstraction)
+and the Issuance Service sponsors gas fees through a relayer.
+From the animator's perspective, the experience is:
+``I finished my cuts $\rightarrow$ I got a certificate in my profile.''
+
+% ----- 4.2 SBT Metadata Schema -----
+\subsection{SBT Metadata Schema}
+\label{subsec:metadata}
+
+Each AnimatorSBT encodes a structured record of a single project contribution.
+The metadata follows a JSON schema stored on IPFS, with the content hash
+referenced by the on-chain token URI. \Cref{tab:metadata} defines the schema.
+
+\begin{table}[ht]
+\centering
+\caption{AnimatorSBT metadata schema.}
+\label{tab:metadata}
+\small
+\begin{tabular}{@{}llp{6cm}@{}}
+\toprule
+\textbf{Field} & \textbf{Type} & \textbf{Description} \\
+\midrule
+\texttt{project\_title}    & string   & Title of the anime project (series / film) \\
+\texttt{episode}           & string   & Episode number or segment identifier (nullable) \\
+\texttt{role}              & enum     & Production role: \texttt{key\_animation}, \texttt{in\_between}, \texttt{coloring}, \texttt{background}, \texttt{compositing}, \texttt{direction}, \texttt{other} \\
+\texttt{task\_count}       & integer  & Number of discrete tasks completed (e.g., cuts, frames) \\
+\texttt{period\_start}     & date     & Start date of the contribution period \\
+\texttt{period\_end}       & date     & End date of the contribution period \\
+\texttt{studio}            & string   & Name of the contracting studio (nullable if NDA) \\
+\texttt{issuer}            & address  & Ethereum address of the issuing entity \\
+\texttt{issued\_at}        & datetime & ISO~8601 timestamp of SBT issuance \\
+\texttt{evidence\_hash}    & bytes32  & Keccak-256 hash of the underlying work log data \\
+\texttt{schema\_version}   & string   & Metadata schema version (e.g., ``1.0.0'') \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The \texttt{evidence\_hash} field provides a cryptographic link between the on-chain certificate
+and the off-chain work log stored in the PMC.
+This allows verifiers to confirm that the SBT corresponds to actual recorded work
+without exposing the raw work log data.
+
+The \texttt{studio} field is intentionally nullable to accommodate cases where
+non-disclosure agreements prevent public attribution to a specific project or studio.
+Even without a studio name, the SBT still certifies the animator's role, task volume,
+and time period, providing more information than the current system of no record at all.
+
+% ----- 4.3 Issuance Flow -----
+\subsection{Issuance Flow}
+\label{subsec:flow}
+
+The SBT issuance process follows five steps:
+
+\begin{enumerate}
+  \item \textbf{Work Recording:}
+    The animator logs their daily work in the PMC as part of their normal workflow
+    (cut assignments, status updates, completion timestamps).
+    No additional effort is required for SBT issuance.
+  \item \textbf{Milestone Trigger:}
+    When a predefined milestone is reached (e.g., project completion, episode delivery,
+    or manual request by the animator), the PMC sends a certification request
+    to the Issuance Service.
+  \item \textbf{Metadata Construction:}
+    The Issuance Service aggregates the work log entries for the specified period,
+    computes the \texttt{evidence\_hash}, constructs the JSON metadata, and uploads
+    it to IPFS via a pinning service (e.g., Pinata).
+  \item \textbf{Minting:}
+    The Issuance Service calls the \texttt{mint()} function on the AnimatorSBT
+    smart contract, passing the animator's wallet address and the IPFS content URI.
+    Gas fees are covered by the Issuance Service through a meta-transaction relayer
+    (ERC-2771).
+  \item \textbf{Confirmation:}
+    The PMC receives a transaction receipt and displays the newly issued SBT
+    in the animator's profile, including a link to the Verification Portal.
+\end{enumerate}
+
+% ----- 4.4 Verification Mechanism -----
+\subsection{Verification Mechanism}
+\label{subsec:verification}
+
+Third parties can verify an animator's credentials through two methods:
+
+\textbf{On-chain query:}
+Given an animator's wallet address (or an ENS name / human-readable identifier),
+a verifier can query the AnimatorSBT contract's \texttt{balanceOf()} and
+\texttt{tokenURI()} functions to retrieve all issued SBTs and their metadata.
+Since the tokens are non-transferable, possession of an SBT at a given address
+constitutes proof that the address holder earned the credential.
+
+\textbf{Verification Portal:}
+A web-based interface renders an animator's SBT portfolio in a human-readable format,
+displaying project titles, roles, task counts, and time periods.
+The portal also verifies the \texttt{evidence\_hash} against the PMC's stored work logs
+(with the animator's consent) to provide an additional layer of authenticity.
+
+% ----- 4.5 Privacy Considerations -----
+\subsection{Privacy Considerations}
+\label{subsec:privacy}
+
+AnimatorSBT addresses privacy through several mechanisms:
+
+\begin{itemize}
+  \item \textbf{Minimal on-chain data:}
+    Only the token ID, owner address, and IPFS URI are stored on-chain.
+    All detailed metadata resides on IPFS and can be encrypted if needed.
+  \item \textbf{Nullable fields:}
+    Sensitive information (studio name, project title) can be omitted
+    when NDAs apply, while still certifying role and task volume.
+  \item \textbf{Selective disclosure:}
+    The animator controls which SBTs are visible on the Verification Portal.
+    Non-public SBTs can be shared via direct links with access control.
+  \item \textbf{Embedded wallets:}
+    By using account abstraction (ERC-4337), animators do not need to manage
+    private keys directly, reducing the risk of key loss or social engineering attacks.
+  \item \textbf{Right to be forgotten:}
+    While blockchain data is immutable, the smart contract includes a
+    \texttt{revoke()} function that marks an SBT as invalidated.
+    The IPFS metadata can also be unpinned, rendering it inaccessible
+    through standard gateways (though the on-chain record of revocation persists).
+\end{itemize}
