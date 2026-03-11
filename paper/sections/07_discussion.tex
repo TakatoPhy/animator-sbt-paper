@@ -46,6 +46,21 @@ We propose addressing this through a phased rollout:
 (2)~partner with progressive studios willing to recognize SBTs in hiring,
 and (3)~expand to the broader industry as demonstrated value accumulates.
 
+\textbf{Studio incentives.}
+AnimatorSBT is designed primarily for animators, but studio cooperation
+significantly increases credential value.
+Why would studios participate?
+We identify three incentive pathways:
+(1)~\textit{talent retention}: studios that endorse SBTs signal
+transparency and respect for creators, making them more attractive
+to high-quality freelancers in a competitive labor market;
+(2)~\textit{regulatory compliance}: Japan's Fair Trade Commission
+has flagged opaque subcontracting practices~\cite{jftc2025anime},
+and SBT co-signing provides auditable evidence of fair attribution;
+(3)~\textit{production quality assurance}: verifiable animator portfolios
+reduce hiring risk by allowing studios to confirm a freelancer's
+actual track record before assignment.
+
 \textbf{Cultural norms.}
 Japanese business culture emphasizes relationships and trust
 built through personal networks (\textit{kone}).
@@ -95,6 +110,42 @@ The AccessControl pattern mitigates this:
 the admin role (held by TOONIQ) can revoke the compromised issuer role
 and assign a new key, and all fraudulently minted SBTs can be revoked on-chain.
 
+\textbf{Wallet loss and credential recovery.}
+Because SBTs are bound to a specific wallet address,
+loss of wallet access means loss of all accumulated credentials.
+Account abstraction mitigates this by removing direct private key management,
+but the underlying risk remains if the embedded wallet provider
+experiences a service disruption.
+A social recovery mechanism---where a set of designated guardians
+(e.g., trusted colleagues, the PMC operator) can authorize wallet migration
+to a new address---is a promising direction.
+The smart contract could support a \texttt{migrate()} function
+that re-mints all SBTs to a new address upon multi-signature approval,
+preserving the credential history.
+This is an open problem in the broader SBT literature~\cite{buterin2022decentralized},
+with recent work exploring social recovery mechanisms
+for SBT-bearing wallets~\cite{goldston2023recovery}.
+
+\textbf{Surveillance and power asymmetry.}
+A system that creates persistent, granular records of every task
+an animator completes could be repurposed as a surveillance tool.
+Studios or clients could use SBT data to monitor productivity
+(e.g., ``this animator only completed 20 cuts last month''),
+compare animators against each other, or penalize those deemed underperforming.
+This risk is particularly acute given the existing power imbalance
+between studios and freelance animators~\cite{jftc2025anime},
+and mirrors broader concerns about surveillance
+in platform-mediated gig work~\cite{sannon2022privacy}.
+AnimatorSBT mitigates this through two design choices:
+(1)~the animator controls which SBTs are publicly visible
+via the selective disclosure mechanism (\cref{subsec:privacy}),
+and (2)~metadata granularity can be adjusted---the \texttt{task\_count} field
+reports aggregate totals per project, not daily output.
+Nevertheless, the tension between verifiability and privacy
+is inherent to any credentialing system, and deployment must be accompanied
+by clear policies that prevent misuse of contribution data
+for punitive performance monitoring.
+
 % ----- 7.3 Legal and Regulatory Considerations -----
 \subsection{Legal and Regulatory Considerations}
 \label{subsec:legal}
@@ -137,8 +188,10 @@ has not been established through precedent.
 
 A natural question is why the anime industry requires a blockchain-based solution
 when other entertainment industries manage attribution through institutional means.
-In Hollywood, labor unions such as SAG-AFTRA (actors), the WGA (writers),
-and IATSE (below-the-line crew) enforce credit rights through collective bargaining
+In Hollywood, labor unions such as the Screen Actors Guild--American Federation
+of Television and Radio Artists (SAG-AFTRA),
+the Writers Guild of America (WGA),
+and the International Alliance of Theatrical Stage Employees (IATSE) enforce credit rights through collective bargaining
 agreements. These unions maintain records of members' work history,
 negotiate credit arbitration processes, and can call strikes
 to enforce compliance---as demonstrated by the 2023 SAG-AFTRA and WGA strikes.
@@ -175,6 +228,18 @@ but structurally necessary.
 AnimatorSBT fills the role that unions serve elsewhere:
 a persistent, trusted record of who did what.
 
+More broadly, verifiable career records have the potential to elevate
+the \textit{social capital} of the animator profession itself.
+When animators possess bank-recognizable documentation of their work history,
+the downstream effects extend beyond hiring:
+mortgage approvals, visa applications, and credit assessments---
+all of which require institutional proof of professional activity---become
+accessible to a workforce that has historically been unable to produce such evidence.
+In this sense, AnimatorSBT is not merely a credentialing tool
+but a mechanism for integrating freelance animators
+into the broader socioeconomic infrastructure
+that salaried workers take for granted.
+
 % ----- 7.5 Generalizability -----
 \subsection{Generalizability to Other Creative Industries}
 \label{subsec:generalizability}
@@ -203,3 +268,23 @@ to these domains by modifying the \texttt{role} enum and
 adjusting the \texttt{task\_count} semantics.
 The smart contract, issuance service, and verification portal
 require no domain-specific modifications.
+
+\textbf{International subcontracting.}
+Anime production increasingly involves cross-border outsourcing,
+with key animation, in-betweening, and coloring tasks
+frequently delegated to studios in South Korea, China, Vietnam,
+and the Philippines~\cite{mori2011pitfall,tschang2010outsourcing}.
+This international subcontracting deepens the attribution gap:
+animators working overseas are even less likely to appear in Japanese credits
+than domestic subcontractors.
+AnimatorSBT is inherently borderless---blockchain credentials
+are not jurisdiction-specific, and a wallet address works identically
+regardless of the holder's country.
+However, cross-border deployment introduces additional challenges:
+local data protection regulations (e.g., China's Personal Information Protection Law (PIPL),
+the EU's General Data Protection Regulation (GDPR)
+for European co-productions), language barriers in metadata,
+and the need for local PMC deployment or API integration
+with existing production management tools used in each country.
+Addressing these challenges is essential for AnimatorSBT
+to cover the full scope of modern anime production.

@@ -1,6 +1,6 @@
 % Evaluation
 
-We evaluate AnimatorSBT along three dimensions:
+This section evaluates AnimatorSBT along three dimensions:
 economic viability through cost simulation (\cref{subsec:cost_sim}),
 scalability analysis (\cref{subsec:scalability}),
 and a qualitative assessment against the requirements defined in \cref{subsec:formalization}.
@@ -12,7 +12,7 @@ and a qualitative assessment against the requirements defined in \cref{subsec:fo
 We simulated the annual operating cost of AnimatorSBT across five adoption scenarios,
 ranging from a single-studio pilot to full industry adoption.
 The simulation uses industry statistics from JAniCA~(2023) and NAFCA~(2024)
-for workforce parameters, and gas costs measured on the Polygon PoS testnet
+for workforce parameters, and gas costs estimated from typical ERC-721 operations on Polygon PoS
 (30~gwei gas price, MATIC = \$0.50).
 
 \subsubsection{Parameters}
@@ -25,7 +25,7 @@ The simulation assumes the following industry parameters based on public data:
   \item Average projects per animator per year: 6
   \item Batch minting with batch size of 10 (default)
   \item Revocation rate: 1\% of issued SBTs
-  \item IPFS pinning: Free tier for $\leq$500 files; \$20/month for larger deployments
+  \item IPFS pinning: Free tier for $\leq$500 files; \$20/month for larger deployments~\cite{pinata2026pricing}
 \end{itemize}
 
 \subsubsection{Results}
@@ -47,7 +47,7 @@ Pilot (1 studio)      & 50    & 300      & \$0.49  & \$0.010 \\
 Early (10 studios)    & 500   & 3{,}000  & \$244   & \$0.489 \\
 Moderate (50\%)       & 1{,}300 & 7{,}800 & \$252  & \$0.194 \\
 Full (low est.)       & 2{,}601 & 15{,}606 & \$263 & \$0.101 \\
-Full (high est.)      & 3{,}828 & 22{,}962 & \$274 & \$0.072 \\
+Full (high est.)      & 3{,}828 & 22{,}968 & \$274 & \$0.072 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -68,9 +68,18 @@ The results reveal a striking finding:
 the total annual operating cost is approximately \$274}---less than
 the cost of a single dinner in Tokyo.
 This represents $0.000011\%$ of the anime production industry's
-annual revenue of \textyen 362.1 billion (\$2.41 billion)~\cite{tdb2025anime}.
+annual revenue of \textyen 362.1 billion (\$2.41 billion)~\cite{tdb2025anime}.\footnote{Costs are computed
+at MATIC = \$0.50 (mid-2024 rate). At the March 2026 rate of
+${\sim}$\$0.10, on-chain minting costs at full adoption would decrease
+to approximately \$7/year. However, total costs remain dominated
+by USD-denominated IPFS pinning fees (\$240/year),
+yielding a total of ${\sim}$\$247/year.}
 
-The cost is dominated by IPFS pinning fees (\$240/year),
+The sharp increase from the Pilot scenario (\$0.49) to the Early scenario (\$244)
+is not driven by blockchain costs but by the IPFS pinning fee threshold:
+the Pilot's 300 SBTs fall within Pinata's free tier ($\leq$500 files),
+whereas the Early scenario's 3{,}000 SBTs require a paid plan at \$20/month (\$240/year)~\cite{pinata2026pricing}.
+More broadly, the cost is dominated by IPFS pinning fees,
 not blockchain transaction costs.
 On-chain minting costs account for only \$34 at full adoption,
 confirming that Layer~2 blockchains have reduced gas fees
@@ -88,18 +97,18 @@ of \textyen 1{,}111~\cite{nafca2024labor}.
 
 \subsubsection{Transaction Throughput}
 
-Polygon PoS processes approximately 65{,}000 transactions per day
-with a block time of 2 seconds.
-At full adoption, AnimatorSBT would generate approximately 22{,}962 minting
+Polygon PoS processes approximately 3--8 million transactions per day
+with a block time of approximately 2 seconds~\cite{gangwal2023layer2}.
+At full adoption, AnimatorSBT would generate approximately 22{,}968 minting
 transactions per year, or roughly 63 per day.
-This represents less than 0.1\% of Polygon's daily capacity,
+This represents less than 0.002\% of Polygon's daily capacity,
 indicating that the system operates well within the network's limits.
 
 \subsubsection{Storage}
 
 Each SBT metadata JSON file is approximately 500 bytes.
 At full adoption, annual metadata storage is approximately
-$22{,}962 \times 500 = 11.5$~MB---trivially small for IPFS.
+$22{,}968 \times 500 = 11.5$~MB---trivially small for IPFS.
 On-chain storage is minimal (token ID, owner address, URI string),
 at approximately 200 bytes per token.
 
@@ -116,7 +125,7 @@ and would cost approximately \$300--400 annually.
 \subsection{Requirements Satisfaction}
 \label{subsec:requirements_eval}
 
-We evaluate AnimatorSBT against the five requirements
+We assess AnimatorSBT against the five requirements
 defined in \cref{subsec:formalization}:
 
 \begin{itemize}

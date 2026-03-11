@@ -1,23 +1,22 @@
-% Prototype Implementation
+% System Design and Technical Specification
 
-We implemented a prototype of the AnimatorSBT framework to validate
-the system design described in \cref{sec:framework}.
-This section describes the technology stack (\cref{subsec:stack}),
-the smart contract implementation (\cref{subsec:contract}),
-and the integration with the production management client (\cref{subsec:integration}).
-The complete source code is available in the accompanying repository.
+This section presents the technical specification of the AnimatorSBT framework,
+including the technology stack (\cref{subsec:stack}),
+the smart contract design (\cref{subsec:contract}),
+and the planned integration with the production management client (\cref{subsec:integration}).
+The system has not yet been deployed; the design and cost estimates
+presented here serve as a feasibility assessment for future implementation.
 
 % ----- 5.1 Technology Stack -----
 \subsection{Technology Stack}
 \label{subsec:stack}
 
-The prototype uses the following components:
+The proposed system uses the following components:
 
 \begin{itemize}
-  \item \textbf{Blockchain:} Polygon PoS~\cite{gangwal2023layer2} (Mumbai testnet for development;
-    mainnet for production deployment). Polygon was selected for its low
+  \item \textbf{Blockchain:} Polygon PoS~\cite{gangwal2023layer2} (targeted for production deployment). Polygon was selected for its low
     transaction costs ($<$\$0.01 per transaction at typical gas prices),
-    EVM compatibility, and established ecosystem.
+    Ethereum Virtual Machine (EVM) compatibility, and established ecosystem.
   \item \textbf{Smart contract:} Solidity 0.8.20 with OpenZeppelin Contracts v4.x
     (ERC-721, AccessControl, Counters).
   \item \textbf{Metadata storage:} IPFS via Pinata pinning service.
@@ -33,10 +32,10 @@ The prototype uses the following components:
 \end{itemize}
 
 % ----- 5.2 Smart Contract -----
-\subsection{Smart Contract Implementation}
+\subsection{Smart Contract Design}
 \label{subsec:contract}
 
-The \texttt{AnimatorSBT} contract extends OpenZeppelin's ERC-721 implementation
+The \texttt{AnimatorSBT} contract is designed to extend OpenZeppelin's ERC-721 implementation
 with two key modifications: \textbf{soulbinding} and \textbf{role-based access control}.
 
 \subsubsection{Soulbinding Mechanism}
@@ -103,7 +102,7 @@ The contract provides the following external functions:
 \subsubsection{Gas Cost Analysis}
 
 \Cref{tab:gas} reports the gas consumption of key operations,
-measured on the Polygon Mumbai testnet.
+estimated based on typical ERC-721 gas consumption on Polygon PoS.
 
 \begin{table}[ht]
 \centering
@@ -130,36 +129,36 @@ Batch minting further reduces the per-token cost to approximately \$0.0015.
 The entire contract deployment costs less than \$0.05.
 
 % ----- 5.3 Integration with Production Management Client -----
-\subsection{Integration with Production Management Client}
+\subsection{Planned Integration with Production Management Client}
 \label{subsec:integration}
 
-The integration between the PMC and the AnimatorSBT system follows
-the issuance flow described in \cref{subsec:flow}.
+The planned integration between the PMC and the AnimatorSBT system
+follows the issuance flow described in \cref{subsec:flow}.
 The key integration points are:
 
 \begin{enumerate}
   \item \textbf{Wallet provisioning:}
-    When a new animator registers on the PMC, an embedded wallet is created
-    using account abstraction. The wallet address is stored in the PMC's
+    When a new animator registers on the PMC, an embedded wallet will be created
+    using account abstraction. The wallet address will be stored in the PMC's
     user profile and used as the \texttt{to} parameter for SBT minting.
-    The animator is not required to interact with the wallet directly.
+    The animator will not be required to interact with the wallet directly.
   \item \textbf{Work log aggregation:}
     The PMC already records cut-level task data (assignment, status transitions,
     completion timestamps) as part of its core functionality.
-    The Issuance Service queries this data via the PMC's API
+    The Issuance Service will query this data via the PMC's API
     to construct the SBT metadata.
   \item \textbf{Evidence hash computation:}
-    The Issuance Service computes a Keccak-256 hash of the serialized work log
+    The Issuance Service will compute a Keccak-256 hash of the serialized work log
     entries for the certification period.
-    This hash is included in the SBT metadata (\texttt{evidence\_hash} field)
+    This hash will be included in the SBT metadata (\texttt{evidence\_hash} field)
     and can later be verified against the PMC's stored data.
   \item \textbf{Certificate display:}
-    The PMC's profile page includes an ``SBT Certificates'' section
+    The PMC's profile page will include an ``SBT Certificates'' section
     that renders the animator's issued tokens with project title,
     role, task count, and a link to the Verification Portal.
 \end{enumerate}
 
-From the animator's perspective, the entire SBT workflow is transparent:
-they continue using the PMC as before, and contribution certificates
-appear automatically upon project milestones.
-No blockchain knowledge, wallet management, or additional data entry is required.
+From the animator's perspective, the entire SBT workflow will be transparent:
+they will continue using the PMC as before, and contribution certificates
+will appear automatically upon project milestones.
+No blockchain knowledge, wallet management, or additional data entry will be required.

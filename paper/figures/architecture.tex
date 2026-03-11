@@ -12,7 +12,7 @@
 
 \begin{tikzpicture}[
     % --- Global styles ---
-    node distance=5mm and 3.5mm,
+    node distance=6mm and 5mm,
     >={Stealth[length=2pt,width=1.8pt]},
     every node/.style={font=\sffamily\scriptsize},
     % --- Component boxes ---
@@ -24,7 +24,7 @@
     },
     % Override text width where needed
     wide component/.style={
-      component, text width=13mm, minimum width=15mm,
+      component, text width=16mm, minimum width=18mm,
     },
     actor/.style={component, fill=blue!8, draw=blue!40},
     pmc/.style={component, fill=green!10, draw=green!50!black!40},
@@ -52,47 +52,46 @@
   \node[service, right=of pmc] (issuer)
     {Issuance Service};
 
-  % IPFS (above-right of issuer)
-  \node[infra, above right=5mm and 5mm of issuer] (ipfs) {IPFS};
+  % IPFS (above, between issuer and portal)
+  \node[infra, above right=14mm and 16mm of issuer] (ipfs) {IPFS};
 
-  % Polygon PoS (below-right of issuer)
-  \node[infra, below right=5mm and 5mm of issuer] (polygon) {Polygon PoS};
+  % Polygon PoS (below, between issuer and portal)
+  \node[infra, below right=14mm and 16mm of issuer] (polygon) {Polygon PoS};
 
   % Verification Portal
-  \node[portal, right=16mm of issuer] (portal)
+  \node[portal, right=42mm of issuer] (portal)
     {Verification Portal};
 
   % Verifier
   \node[actor, right=of portal] (verifier)
     {Verifier {\tiny(Studio)}};
 
-  %% ---- Arrows ----
+  %% ---- Arrows (lines only) ----
 
-  % Animator -> PMC
-  \draw[flow] (animator) -- node[lbl, above] {Work logs} (pmc);
+  \draw[flow] (animator) -- (pmc);
+  \draw[flow] (pmc) -- (issuer);
+  \draw[flow] (issuer) -- (ipfs);
+  \draw[flow] (issuer) -- (polygon);
+  \draw[dashed flow] (ipfs) -- (polygon);
+  \draw[flow] (polygon) -- (portal);
+  \draw[flow] (portal) -- (verifier);
 
-  % PMC -> Issuance Service
-  \draw[flow] (pmc) -- node[lbl, above, text width=9mm, align=center]
-    {Cert.\ request} (issuer);
+  %% ---- Labels (placed independently to avoid overlap) ----
 
-  % Issuance Service -> IPFS
-  \draw[flow] (issuer) -- node[lbl, above left=-0.5mm and -1mm, text width=9mm, align=center]
-    {Metadata JSON} (ipfs);
-
-  % Issuance Service -> Polygon
-  \draw[flow] (issuer) -- node[lbl, below left=-0.5mm and -1mm, text width=8mm, align=center]
-    {\texttt{mint()} tx} (polygon);
-
-  % IPFS --> Polygon (dashed, tokenURI)
-  \draw[dashed flow] (ipfs) -- node[lbl, right, inner sep=1pt] {tokenURI} (polygon);
-
-  % Polygon -> Verification Portal
-  \draw[flow] (polygon) -| node[lbl, below right=-0.5mm and -1mm, text width=9mm, align=center]
-    {On-chain query} (portal);
-
-  % Verification Portal -> Verifier
-  \draw[flow] (portal) -- node[lbl, above, text width=10mm, align=center]
-    {Verified cred.} (verifier);
+  \node[lbl] at ($(animator)!0.5!(pmc) + (0, 3mm)$)
+    {Work logs};
+  \node[lbl, text width=9mm, align=center] at ($(pmc)!0.5!(issuer) + (0, 3.5mm)$)
+    {Cert.\ request};
+  \node[lbl, text width=9mm, align=center] at ($(issuer)!0.45!(ipfs) + (-3mm, 4mm)$)
+    {Metadata JSON};
+  \node[lbl, text width=8mm, align=center] at ($(issuer)!0.45!(polygon) + (-3mm, -4mm)$)
+    {\texttt{mint()} tx};
+  \node[lbl] at ($(ipfs)!0.5!(polygon) + (-7mm, 0)$)
+    {tokenURI};
+  \node[lbl, text width=9mm, align=center] at ($(polygon)!0.5!(portal) + (-2mm, 5mm)$)
+    {On-chain query};
+  \node[lbl, text width=10mm, align=center] at ($(portal)!0.5!(verifier) + (0, 5mm)$)
+    {Verified cred.};
 
 \end{tikzpicture}
 

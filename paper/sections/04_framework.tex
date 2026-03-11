@@ -1,6 +1,6 @@
 % Proposed Framework: AnimatorSBT
 
-We propose \textbf{AnimatorSBT}, a framework that integrates Soulbound Token issuance
+We propose \textbf{AnimatorSBT}, a framework designed to integrate Soulbound Token issuance
 into the anime production workflow through an existing production management tool.
 This section describes the system architecture (\cref{subsec:architecture}),
 the SBT metadata schema (\cref{subsec:metadata}),
@@ -21,13 +21,14 @@ AnimatorSBT consists of four components:
     This is the primary data source for contribution records.
   \item \textbf{AnimatorSBT Smart Contract:}
     An ERC-721--based~\cite{entriken2018erc721} non-transferable token contract deployed on a Layer~2 blockchain
-    (Polygon PoS). The contract enforces soulbinding by overriding transfer functions
+    (Polygon Proof of Stake (PoS)). The contract enforces soulbinding by overriding transfer functions
     and provides minting, revocation, and metadata retrieval interfaces.
   \item \textbf{Issuance Service:}
     A lightweight backend that bridges the PMC and the smart contract.
     Upon project completion (or at a user-defined milestone),
     the service constructs SBT metadata from the PMC's work logs,
-    uploads it to IPFS~\cite{benet2014ipfs}, and triggers the minting transaction.
+    uploads it to the InterPlanetary File System (IPFS)~\cite{benet2014ipfs},
+    and triggers the minting transaction.
   \item \textbf{Verification Portal:}
     A public web interface where third parties (studios, clients, recruiters)
     can verify an animator's contribution history by querying the blockchain
@@ -44,6 +45,55 @@ AnimatorSBT consists of four components:
   transparently by the Issuance Service.}
   \label{fig:architecture}
 \end{figure*}
+
+\textbf{Why blockchain rather than a centralized database?}
+A conventional approach would store contribution records in
+a centralized database operated by a single entity (e.g., TOONIQ or a studio).
+However, this fails to satisfy the requirements defined in \cref{subsec:formalization}
+for three reasons:
+\begin{enumerate}
+  \item \textbf{Persistence beyond any single organization:}
+    Anime studios frequently close or restructure.
+    A centralized database disappears with its operator.
+    On-chain records persist independently of any company's survival---
+    even if TOONIQ ceases operations, every SBT remains verifiable on the public blockchain.
+  \item \textbf{Cross-organizational portability:}
+    Freelance animators work across dozens of studios over their careers.
+    In a centralized model, each studio holds a fragment of an animator's history
+    in its own siloed system, with no standard way to aggregate them.
+    With SBTs, all credentials accumulate in a single wallet address.
+    An animator can present one link to a verifier
+    and prove their entire cross-studio career history.
+  \item \textbf{Tamper resistance without trust:}
+    A centralized database administrator can modify or delete records.
+    Blockchain records are append-only and cryptographically linked;
+    once an SBT is minted, neither the issuer nor any third party
+    can alter the fact that it was issued, when, and to whom.
+    This provides animators with an independent guarantee
+    that their credentials cannot be retroactively revoked or falsified
+    without an auditable on-chain trace.
+\end{enumerate}
+
+\textbf{Why SBTs rather than Verifiable Credentials?}
+An alternative design would use W3C Verifiable Credentials (VCs)~\cite{sporny2022vc}
+instead of on-chain SBTs.
+VCs offer mature standards, selective disclosure, and off-chain storage,
+making them well suited for scenarios where a trusted issuer exists
+and credentials are presented bilaterally (e.g., university diplomas).
+However, VCs have a critical limitation in the anime production context~\cite{kakebayashi2023sbt}:
+\textit{verification depends on the issuer remaining operational.}
+If the issuing studio closes---a common event in the anime industry---VC
+verification fails unless a third party maintains the issuer's key material.
+SBTs avoid this dependency: the on-chain record persists regardless of
+the issuer's survival, and any party can verify ownership
+by querying the public blockchain.
+Additionally, SBTs provide a naturally aggregatable portfolio---all
+credentials accumulate at a single wallet address, queryable in one call---whereas
+VCs require the holder to manage and selectively present individual credentials
+from a local wallet, adding friction that conflicts with requirement R5 (minimal friction).
+We note that SBTs and VCs are not mutually exclusive:
+future work (\cref{sec:conclusion}) explores VC-compliant wrappers
+for AnimatorSBT metadata.
 
 A key design principle is \textbf{transparency to the end user}:
 the animator does not need to understand blockchain technology,
@@ -133,6 +183,22 @@ illustrated in \Cref{fig:issuance_flow}:
     in the animator's profile, including a link to the Verification Portal.
 \end{enumerate}
 
+\textbf{Example scenario.}
+Consider a freelance key animator, Tanaka, who is assigned 25 cuts
+for Episode~7 of an anime series through a secondary subcontractor.
+Over six weeks, Tanaka logs each cut assignment, status update,
+and completion in the PMC as part of her normal workflow.
+When Episode~7 wraps, the PMC triggers a certification request.
+The Issuance Service aggregates Tanaka's work log
+(role: \texttt{key\_anim}, task count: 25, period: 2025-04-01 to 2025-05-15),
+computes the evidence hash, and mints an SBT to her embedded wallet.
+Tanaka sees a new certificate in her PMC profile.
+Three months later, when applying to a different studio,
+she shares her wallet address.
+The studio queries the blockchain, confirms she completed 25 key animation cuts
+on a real production, and offers her a contract---even though
+her name never appeared in the episode's broadcast credits.
+
 % ----- 4.4 Verification Mechanism -----
 \subsection{Verification Mechanism}
 \label{subsec:verification}
@@ -140,7 +206,7 @@ illustrated in \Cref{fig:issuance_flow}:
 Third parties can verify an animator's credentials through two methods:
 
 \textbf{On-chain query:}
-Given an animator's wallet address (or an ENS name / human-readable identifier),
+Given an animator's wallet address (or an Ethereum Name Service (ENS) name / human-readable identifier),
 a verifier can query the AnimatorSBT contract's \texttt{balanceOf()} and
 \texttt{tokenURI()} functions to retrieve all issued SBTs and their metadata.
 Since the tokens are non-transferable, possession of an SBT at a given address
@@ -164,7 +230,7 @@ AnimatorSBT addresses privacy through several mechanisms:
     All detailed metadata resides on IPFS and can be encrypted if needed.
   \item \textbf{Nullable fields:}
     Sensitive information (studio name, project title) can be omitted
-    when NDAs apply, while still certifying role and task volume.
+    when non-disclosure agreements (NDAs) apply, while still certifying role and task volume.
   \item \textbf{Selective disclosure:}
     The animator controls which SBTs are visible on the Verification Portal.
     Non-public SBTs can be shared via direct links with access control.
