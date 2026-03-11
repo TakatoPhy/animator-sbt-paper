@@ -14,7 +14,7 @@ The complete source code is available in the accompanying repository.
 The prototype uses the following components:
 
 \begin{itemize}
-  \item \textbf{Blockchain:} Polygon PoS (Mumbai testnet for development;
+  \item \textbf{Blockchain:} Polygon PoS~\cite{gangwal2023layer2} (Mumbai testnet for development;
     mainnet for production deployment). Polygon was selected for its low
     transaction costs ($<$\$0.01 per transaction at typical gas prices),
     EVM compatibility, and established ecosystem.
@@ -44,20 +44,22 @@ with two key modifications: \textbf{soulbinding} and \textbf{role-based access c
 Transfer restriction is enforced by overriding the \texttt{\_beforeTokenTransfer}
 hook, which is called on every token movement including minting, transferring, and burning:
 
-\begin{lstlisting}[basicstyle=\small\ttfamily, frame=single,
-  caption={Soulbinding enforcement via transfer hook override.},
-  label={lst:soulbind}, morekeywords={function,address,uint256,internal,virtual,override,if,revert,super}]
+\begin{lstlisting}[basicstyle=\footnotesize\ttfamily, frame=single,
+  caption={Soulbinding enforcement via transfer hook.},
+  label={lst:soulbind},
+  morekeywords={function,address,uint256,internal,virtual,override,if,revert,super}]
 function _beforeTokenTransfer(
-    address from,
-    address to,
-    uint256 tokenId,
-    uint256 batchSize
+  address from, address to,
+  uint256 tokenId, uint256 batchSize
 ) internal virtual override {
-    // Allow minting (from == 0) but block all transfers
-    if (from != address(0) && to != address(0)) {
-        revert SoulboundTransferDisabled();
-    }
-    super._beforeTokenTransfer(from, to, tokenId, batchSize);
+  // Allow mint (from==0), block transfers
+  if (from != address(0)
+      && to != address(0)) {
+    revert SoulboundTransferDisabled();
+  }
+  super._beforeTokenTransfer(
+    from, to, tokenId, batchSize
+  );
 }
 \end{lstlisting}
 
@@ -106,17 +108,18 @@ measured on the Polygon Mumbai testnet.
 \begin{table}[ht]
 \centering
 \caption{Gas consumption and estimated cost on Polygon PoS
-(at 30 gwei gas price, MATIC = \$0.50).}
+(30 gwei, MATIC = \$0.50).}
 \label{tab:gas}
-\small
+\footnotesize
+\setlength{\tabcolsep}{3pt}
 \begin{tabular}{@{}lrrr@{}}
 \toprule
-\textbf{Operation} & \textbf{Gas Used} & \textbf{Cost (MATIC)} & \textbf{Cost (USD)} \\
+\textbf{Operation} & \textbf{Gas} & \textbf{MATIC} & \textbf{USD} \\
 \midrule
-Contract deployment  & $\sim$2{,}800{,}000 & 0.084  & \$0.042  \\
-\texttt{mint()}      & $\sim$148{,}000    & 0.0044 & \$0.0022 \\
-\texttt{mintBatch()} (10 tokens) & $\sim$980{,}000 & 0.029 & \$0.015 \\
-\texttt{revoke()}    & $\sim$48{,}000     & 0.0014 & \$0.0007 \\
+Deploy            & $\sim$2.8M  & 0.084  & \$0.042  \\
+\texttt{mint()}   & $\sim$148K  & 0.0044 & \$0.0022 \\
+\texttt{mintBatch(10)} & $\sim$980K & 0.029 & \$0.015 \\
+\texttt{revoke()} & $\sim$48K   & 0.0014 & \$0.0007 \\
 \bottomrule
 \end{tabular}
 \end{table}

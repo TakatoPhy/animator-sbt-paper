@@ -20,14 +20,14 @@ AnimatorSBT consists of four components:
     their daily work---cut assignments, task status, deadlines, and deliverables.
     This is the primary data source for contribution records.
   \item \textbf{AnimatorSBT Smart Contract:}
-    An ERC-721--based non-transferable token contract deployed on a Layer~2 blockchain
+    An ERC-721--based~\cite{entriken2018erc721} non-transferable token contract deployed on a Layer~2 blockchain
     (Polygon PoS). The contract enforces soulbinding by overriding transfer functions
     and provides minting, revocation, and metadata retrieval interfaces.
   \item \textbf{Issuance Service:}
     A lightweight backend that bridges the PMC and the smart contract.
     Upon project completion (or at a user-defined milestone),
     the service constructs SBT metadata from the PMC's work logs,
-    uploads it to IPFS, and triggers the minting transaction.
+    uploads it to IPFS~\cite{benet2014ipfs}, and triggers the minting transaction.
   \item \textbf{Verification Portal:}
     A public web interface where third parties (studios, clients, recruiters)
     can verify an animator's contribution history by querying the blockchain
@@ -36,26 +36,19 @@ AnimatorSBT consists of four components:
 
 \Cref{fig:architecture} illustrates the data flow between these components.
 
-\begin{figure}[ht]
+\begin{figure*}[t]
   \centering
-  % TODO: Replace with TikZ diagram
-  \fbox{\parbox{0.9\textwidth}{\centering
-    \vspace{1cm}
-    \textbf{[Architecture Diagram]}\\[0.5em]
-    PMC (PWA) $\rightarrow$ Issuance Service $\rightarrow$ IPFS + Polygon $\rightarrow$ Verification Portal\\[0.5em]
-    Animator interacts with PMC only; SBT issuance is triggered automatically.
-    \vspace{1cm}
-  }}
+  \includegraphics[width=\textwidth]{figures/architecture}
   \caption{AnimatorSBT system architecture. The animator interacts only with the
-  Production Management Client; SBT issuance and on-chain storage are handled
+  Production Management Client (PMC); SBT issuance and on-chain storage are handled
   transparently by the Issuance Service.}
   \label{fig:architecture}
-\end{figure}
+\end{figure*}
 
 A key design principle is \textbf{transparency to the end user}:
 the animator does not need to understand blockchain technology,
 manage a wallet manually, or pay gas fees.
-The PMC handles wallet creation (embedded wallet via account abstraction)
+The PMC handles wallet creation (embedded wallet via account abstraction~\cite{buterin2021erc4337})
 and the Issuance Service sponsors gas fees through a relayer.
 From the animator's perspective, the experience is:
 ``I finished my cuts $\rightarrow$ I got a certificate in my profile.''
@@ -72,22 +65,22 @@ referenced by the on-chain token URI. \Cref{tab:metadata} defines the schema.
 \centering
 \caption{AnimatorSBT metadata schema.}
 \label{tab:metadata}
-\small
-\begin{tabular}{@{}llp{6cm}@{}}
+\footnotesize
+\begin{tabular}{@{}llp{3.2cm}@{}}
 \toprule
 \textbf{Field} & \textbf{Type} & \textbf{Description} \\
 \midrule
-\texttt{project\_title}    & string   & Title of the anime project (series / film) \\
-\texttt{episode}           & string   & Episode number or segment identifier (nullable) \\
-\texttt{role}              & enum     & Production role: \texttt{key\_animation}, \texttt{in\_between}, \texttt{coloring}, \texttt{background}, \texttt{compositing}, \texttt{direction}, \texttt{other} \\
-\texttt{task\_count}       & integer  & Number of discrete tasks completed (e.g., cuts, frames) \\
-\texttt{period\_start}     & date     & Start date of the contribution period \\
-\texttt{period\_end}       & date     & End date of the contribution period \\
-\texttt{studio}            & string   & Name of the contracting studio (nullable if NDA) \\
-\texttt{issuer}            & address  & Ethereum address of the issuing entity \\
-\texttt{issued\_at}        & datetime & ISO~8601 timestamp of SBT issuance \\
-\texttt{evidence\_hash}    & bytes32  & Keccak-256 hash of the underlying work log data \\
-\texttt{schema\_version}   & string   & Metadata schema version (e.g., ``1.0.0'') \\
+\texttt{project\_title}    & string   & Anime project title \\
+\texttt{episode}           & string   & Episode or segment ID (nullable) \\
+\texttt{role}              & enum     & e.g., \texttt{key\_anim}, \texttt{in\_between}, \texttt{coloring} \\
+\texttt{task\_count}       & integer  & Tasks completed (cuts, frames) \\
+\texttt{period\_start}     & date     & Contribution start date \\
+\texttt{period\_end}       & date     & Contribution end date \\
+\texttt{studio}            & string   & Contracting studio (nullable) \\
+\texttt{issuer}            & address  & Issuing entity address \\
+\texttt{issued\_at}        & datetime & ISO~8601 issuance timestamp \\
+\texttt{evidence\_hash}    & bytes32  & Keccak-256 of work log data \\
+\texttt{schema\_version}   & string   & Schema version (e.g., ``1.0.0'') \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -106,7 +99,16 @@ and time period, providing more information than the current system of no record
 \subsection{Issuance Flow}
 \label{subsec:flow}
 
-The SBT issuance process follows five steps:
+The SBT issuance process follows five steps,
+illustrated in \Cref{fig:issuance_flow}:
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85\columnwidth]{figures/issuance_flow}
+  \caption{Five-step SBT issuance flow. The animator's only interaction
+  is with the PMC (Step~1); all subsequent steps are automated.}
+  \label{fig:issuance_flow}
+\end{figure}
 
 \begin{enumerate}
   \item \textbf{Work Recording:}

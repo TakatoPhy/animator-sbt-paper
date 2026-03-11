@@ -37,19 +37,31 @@ The simulation assumes the following industry parameters based on public data:
 \caption{Annual cost simulation across five adoption scenarios.
 All costs in USD at Polygon PoS rates (30 gwei, MATIC = \$0.50).}
 \label{tab:cost_scenarios}
-\small
+\footnotesize
+\setlength{\tabcolsep}{3pt}
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
-\textbf{Scenario} & \textbf{Animators} & \textbf{SBTs/year} & \textbf{Annual Cost} & \textbf{Per Animator} \\
+\textbf{Scenario} & \textbf{Anim.} & \textbf{SBTs/yr} & \textbf{Cost/yr} & \textbf{Per Anim.} \\
 \midrule
-Pilot (1 studio)              & 50    & 300     & \$0.49    & \$0.010 \\
-Early adoption (10 studios)   & 500   & 3{,}000   & \$244     & \$0.489 \\
-Moderate (50\% freelancers)   & 1{,}300 & 7{,}800   & \$252     & \$0.194 \\
-Full adoption (low est.)      & 2{,}601 & 15{,}606  & \$263     & \$0.101 \\
-Full adoption (high est.)     & 3{,}828 & 22{,}962  & \$274     & \$0.072 \\
+Pilot (1 studio)      & 50    & 300      & \$0.49  & \$0.010 \\
+Early (10 studios)    & 500   & 3{,}000  & \$244   & \$0.489 \\
+Moderate (50\%)       & 1{,}300 & 7{,}800 & \$252  & \$0.194 \\
+Full (low est.)       & 2{,}601 & 15{,}606 & \$263 & \$0.101 \\
+Full (high est.)      & 3{,}828 & 22{,}962 & \$274 & \$0.072 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\Cref{fig:cost_simulation} visualizes the cost breakdown and economies of scale.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/cost_simulation}
+  \caption{Cost simulation results. Left: annual cost breakdown by component
+  across five adoption scenarios. Right: per-animator cost showing
+  economies of scale as adoption increases.}
+  \label{fig:cost_simulation}
+\end{figure}
 
 The results reveal a striking finding:
 \textbf{even at full industry adoption (all freelance animators in Japan),
@@ -107,42 +119,37 @@ and would cost approximately \$300--400 annually.
 We evaluate AnimatorSBT against the five requirements
 defined in \cref{subsec:formalization}:
 
-\begin{description}
-  \item[R1 -- Completeness:]
-    \textit{Satisfied.}
+\begin{itemize}
+  \item \textbf{R1 (Completeness):} \textit{Satisfied.}
     Any animator using the PMC can receive an SBT regardless of their
     position in the subcontracting hierarchy.
     The issuance is triggered by work log data in the PMC,
     not by studio approval or credit committee decisions.
 
-  \item[R2 -- Verifiability:]
-    \textit{Satisfied.}
+  \item \textbf{R2 (Verifiability):} \textit{Satisfied.}
     Third parties can verify SBTs by querying the public blockchain.
     The \texttt{evidence\_hash} provides a cryptographic link
     to the underlying work log data.
     No contact with the original studio is required.
 
-  \item[R3 -- Persistence:]
-    \textit{Satisfied.}
+  \item \textbf{R3 (Persistence):} \textit{Satisfied.}
     On-chain data persists as long as the Polygon network operates.
     IPFS metadata is content-addressed and can be re-pinned by any party
     with a copy, surviving individual service shutdowns.
     Even if TOONIQ ceases operations, the on-chain records remain accessible.
 
-  \item[R4 -- Portability:]
-    \textit{Satisfied.}
+  \item \textbf{R4 (Portability):} \textit{Satisfied.}
     The SBT is bound to the animator's wallet address,
     which they control via account abstraction.
     The animator can present their wallet address (or a derived identifier)
     to any verifier, independent of any specific platform.
 
-  \item[R5 -- Minimal Friction:]
-    \textit{Satisfied.}
+  \item \textbf{R5 (Minimal Friction):} \textit{Satisfied.}
     The animator's workflow is unchanged---they continue recording work
     in the PMC as before.
     SBT issuance is automatic upon project milestones.
     No wallet management, gas fee payment, or blockchain knowledge is required.
-\end{description}
+\end{itemize}
 
 % ----- 6.4 Limitations -----
 \subsection{Limitations}

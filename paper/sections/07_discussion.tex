@@ -4,6 +4,8 @@ This section examines the practical challenges of deploying AnimatorSBT
 in the anime industry (\cref{subsec:adoption_barriers}),
 discusses the trust model and potential abuse vectors (\cref{subsec:trust}),
 considers legal and regulatory implications (\cref{subsec:legal}),
+explains why a technological solution is particularly needed
+in Japan's anime industry (\cref{subsec:why_japan}),
 and explores generalizability to other creative industries (\cref{subsec:generalizability}).
 
 % ----- 7.1 Adoption Barriers -----
@@ -129,7 +131,51 @@ work performed and its scope.
 However, the legal admissibility of on-chain evidence in Japanese courts
 has not been established through precedent.
 
-% ----- 7.4 Generalizability -----
+% ----- 7.4 Why Japan's Anime Industry? -----
+\subsection{Why a Technological Solution Is Needed}
+\label{subsec:why_japan}
+
+A natural question is why the anime industry requires a blockchain-based solution
+when other entertainment industries manage attribution through institutional means.
+In Hollywood, labor unions such as SAG-AFTRA (actors), the WGA (writers),
+and IATSE (below-the-line crew) enforce credit rights through collective bargaining
+agreements. These unions maintain records of members' work history,
+negotiate credit arbitration processes, and can call strikes
+to enforce compliance---as demonstrated by the 2023 SAG-AFTRA and WGA strikes.
+
+Japan's anime industry lacks comparable institutional infrastructure.
+Although JAniCA exists as an industry association,
+it functions primarily as a survey and advocacy body
+rather than a collective bargaining agent with enforcement power.
+The key structural differences are:
+
+\begin{itemize}
+  \item \textbf{Unionization rate:}
+    The anime industry has no equivalent of SAG-AFTRA's mandatory membership.
+    JAniCA membership is voluntary and does not confer negotiating rights.
+  \item \textbf{Freelance prevalence:}
+    At 47--70\% freelancers~\cite{janica2023survey},
+    the anime workforce far exceeds the freelance ratio
+    in unionized Western entertainment industries.
+  \item \textbf{Credit governance:}
+    In Hollywood, unions define credit rules (e.g., the WGA's credit arbitration process).
+    In anime, credit decisions rest with studios and production committees
+    with no external oversight.
+  \item \textbf{Multi-layer subcontracting:}
+    While Hollywood outsources VFX,
+    anime's gross-subcontracting (\textit{gurosu}) system
+    routinely delegates entire episodes through two or three tiers of subcontractors,
+    creating deeper attribution gaps.
+\end{itemize}
+
+In the absence of institutional solutions,
+a technological approach that gives individual animators
+verifiable, self-sovereign credentials becomes not merely useful
+but structurally necessary.
+AnimatorSBT fills the role that unions serve elsewhere:
+a persistent, trusted record of who did what.
+
+% ----- 7.5 Generalizability -----
 \subsection{Generalizability to Other Creative Industries}
 \label{subsec:generalizability}
 

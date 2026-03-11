@@ -1,0 +1,99 @@
+% AnimatorSBT System Architecture Diagram
+% Usage: Compile standalone with pdflatex, or include in main paper via:
+%   \includegraphics[width=\columnwidth]{figures/architecture}
+%
+\documentclass[tikz,border=2mm]{standalone}
+
+\usepackage[T1]{fontenc}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, shapes.symbols, fit, calc}
+
+\begin{document}
+
+\begin{tikzpicture}[
+    % --- Global styles ---
+    node distance=5mm and 3.5mm,
+    >={Stealth[length=2pt,width=1.8pt]},
+    every node/.style={font=\sffamily\scriptsize},
+    % --- Component boxes ---
+    component/.style={
+      draw, rounded corners=2pt,
+      minimum height=8mm, minimum width=14mm,
+      text width=12mm, align=center,
+      line width=0.35pt,
+    },
+    % Override text width where needed
+    wide component/.style={
+      component, text width=13mm, minimum width=15mm,
+    },
+    actor/.style={component, fill=blue!8, draw=blue!40},
+    pmc/.style={component, fill=green!10, draw=green!50!black!40},
+    service/.style={component, fill=orange!12, draw=orange!50!black!40},
+    infra/.style={component, fill=violet!10, draw=violet!40},
+    portal/.style={wide component, fill=yellow!15, draw=yellow!50!black!40},
+    % --- Arrow styles ---
+    flow/.style={->, line width=0.35pt, draw=black!70},
+    dashed flow/.style={->, line width=0.35pt, draw=black!50, dashed},
+    % --- Label style ---
+    lbl/.style={font=\sffamily\tiny, text=black!70, fill=white,
+                inner sep=0.5pt},
+  ]
+
+  %% ---- Nodes (left to right) ----
+
+  % Animator
+  \node[actor] (animator) {Animator};
+
+  % Production Management Client
+  \node[pmc, right=of animator] (pmc)
+    {Prod.\ Mgmt Client {\tiny(PWA)}};
+
+  % Issuance Service
+  \node[service, right=of pmc] (issuer)
+    {Issuance Service};
+
+  % IPFS (above-right of issuer)
+  \node[infra, above right=5mm and 5mm of issuer] (ipfs) {IPFS};
+
+  % Polygon PoS (below-right of issuer)
+  \node[infra, below right=5mm and 5mm of issuer] (polygon) {Polygon PoS};
+
+  % Verification Portal
+  \node[portal, right=16mm of issuer] (portal)
+    {Verification Portal};
+
+  % Verifier
+  \node[actor, right=of portal] (verifier)
+    {Verifier {\tiny(Studio)}};
+
+  %% ---- Arrows ----
+
+  % Animator -> PMC
+  \draw[flow] (animator) -- node[lbl, above] {Work logs} (pmc);
+
+  % PMC -> Issuance Service
+  \draw[flow] (pmc) -- node[lbl, above, text width=9mm, align=center]
+    {Cert.\ request} (issuer);
+
+  % Issuance Service -> IPFS
+  \draw[flow] (issuer) -- node[lbl, above left=-0.5mm and -1mm, text width=9mm, align=center]
+    {Metadata JSON} (ipfs);
+
+  % Issuance Service -> Polygon
+  \draw[flow] (issuer) -- node[lbl, below left=-0.5mm and -1mm, text width=8mm, align=center]
+    {\texttt{mint()} tx} (polygon);
+
+  % IPFS --> Polygon (dashed, tokenURI)
+  \draw[dashed flow] (ipfs) -- node[lbl, right, inner sep=1pt] {tokenURI} (polygon);
+
+  % Polygon -> Verification Portal
+  \draw[flow] (polygon) -| node[lbl, below right=-0.5mm and -1mm, text width=9mm, align=center]
+    {On-chain query} (portal);
+
+  % Verification Portal -> Verifier
+  \draw[flow] (portal) -- node[lbl, above, text width=10mm, align=center]
+    {Verified cred.} (verifier);
+
+\end{tikzpicture}
+
+\end{document}

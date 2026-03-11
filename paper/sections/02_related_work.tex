@@ -11,7 +11,7 @@ and blockchain applications in the creative and gig economies (\cref{subsec:bloc
 \label{subsec:anime_workflow}
 
 Anime production follows a multi-stage pipeline that typically involves dozens of specialized roles
-distributed across multiple studios~\cite{animechain2024whitepaper}.
+distributed across multiple studios~\cite{condry2013soul, animechain2024whitepaper}.
 A single 24-minute television episode may require over 3{,}000 individual drawings
 and the coordination of key animators (\textit{genga}), in-between animators (\textit{douga}),
 color designers (\textit{shiage}), background artists, compositors, and directors,
@@ -39,6 +39,8 @@ Japan's anime production market reached a record \textyen 362.1 billion in 2024~
 and the global anime market is projected to grow at a compound annual growth rate of 10.6\%,
 reaching USD~49.6 billion by 2031~\cite{mordor2026anime}.
 Despite this commercial success, the labor conditions of individual creators remain precarious.
+Okeda and Koike~\cite{okeda2011animators} provided the first systematic assessment
+of animators' working conditions based on JAniCA survey data.
 
 An exceptionally large share of the anime workforce consists of freelancers.
 The Japan Animation Creators Association (JAniCA) reported that 47.3\% of animation creators
@@ -85,11 +87,15 @@ enabling interoperable patient data sharing across facilities
 while maintaining decentralized control~\cite{sbt_health2024}.
 The authors of~\cite{sbt_credential_framework2023} developed a framework for privacy-preserving
 credential issuance and verification using SBTs.
-In agriculture, SBTs have been explored for identity management and asset validation
+In agriculture, Verma et al.~\cite{verma2025sbt_agriculture} proposed a dual-blockchain model
+integrating soulbound NFTs for farmer identity management and asset validation
 across supply chains.
+The ERC-5192 standard~\cite{daubenschuetz2022erc5192} formalized a minimal interface
+for soulbound NFTs on Ethereum, providing the technical foundation
+for many of these implementations.
 
-A parallel development is the W3C standard for \textbf{Verifiable Credentials (VCs)}
-and \textbf{Decentralized Identifiers (DIDs)}.
+A parallel development is the W3C standard for \textbf{Verifiable Credentials (VCs)}~\cite{sporny2022vc}
+and \textbf{Decentralized Identifiers (DIDs)}~\cite{sporny2022did}.
 VCs are cryptographically signed digital credentials that can be verified without
 contacting the original issuer,
 following a three-party model of issuers, holders, and verifiers.
@@ -141,31 +147,42 @@ of anime franchises) rather than individual creator-level contribution certifica
 \subsection{Research Gap}
 \label{subsec:gap}
 
-\Cref{tab:related_work_gap} summarizes the positioning of our work relative to
-existing research. While SBTs have been applied to healthcare, education, and agriculture,
+\Cref{fig:research_gap} and \Cref{tab:related_work_gap} summarize the positioning
+of our work relative to existing research along two dimensions:
+domain specificity (general to anime-specific) and granularity (IP-level to task-level).
+While SBTs have been applied to healthcare, education, and agriculture,
 and blockchain has been explored for creative industry applications at the IP level,
 \textbf{no prior work combines SBT-based contribution certification with
 anime production workflow integration at the individual task level.}
 This paper addresses this gap.
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/research_gap}
+  \caption{Research positioning map. AnimatorSBT occupies the unexplored
+  intersection of anime-specific domain and task-level granularity.}
+  \label{fig:research_gap}
+\end{figure}
+
 \begin{table}[ht]
 \centering
 \caption{Positioning of AnimatorSBT relative to existing work.}
 \label{tab:related_work_gap}
-\small
+\footnotesize
+\setlength{\tabcolsep}{3pt}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
-\textbf{Work} & \textbf{SBT/VC} & \textbf{Creative} & \textbf{Anime} & \textbf{Task-level} & \textbf{Prototype} \\
+\textbf{Work} & \textbf{SBT} & \textbf{Cre.} & \textbf{Ani.} & \textbf{Task} & \textbf{Proto.} \\
 \midrule
-Buterin et al.~(2022) & \checkmark & -- & -- & -- & -- \\
-SBT Healthcare~(2024) & \checkmark & -- & -- & -- & \checkmark \\
-SBT Agriculture~(2025) & \checkmark & -- & -- & -- & \checkmark \\
-Animechain.ai~(2024) & -- & \checkmark & \checkmark & -- & -- \\
-Four Pillars~(2025) & -- & \checkmark & \checkmark & -- & -- \\
-VCP / Cardano~(2023) & \checkmark & \checkmark & -- & -- & \checkmark \\
-Blockchain Creative~(2023) & -- & \checkmark & -- & -- & -- \\
+Buterin et al.~'22       & \checkmark & -- & -- & -- & -- \\
+SBT Healthcare~'24       & \checkmark & -- & -- & -- & \checkmark \\
+SBT Agriculture~'25      & \checkmark & -- & -- & -- & \checkmark \\
+Animechain.ai~'24        & -- & \checkmark & \checkmark & -- & -- \\
+Four Pillars~'25         & -- & \checkmark & \checkmark & -- & -- \\
+VCP / Cardano~'23        & \checkmark & \checkmark & -- & -- & \checkmark \\
+Blockchain Cre.~'23      & -- & \checkmark & -- & -- & -- \\
 \midrule
-\textbf{AnimatorSBT (Ours)} & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
+\textbf{Ours}            & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
 \bottomrule
 \end{tabular}
 \end{table}
