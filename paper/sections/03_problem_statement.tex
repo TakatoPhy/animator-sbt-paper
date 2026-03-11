@@ -1,3 +1,153 @@
 % Problem Statement
-% TODO: Draft
 
+The anime production industry suffers from a systemic \textbf{contribution invisibility problem}:
+a significant portion of the creative labor that produces anime goes unrecorded,
+unattributed, and unverifiable.
+This section formalizes the problem along three dimensions
+and analyzes why existing solutions are insufficient.
+
+% ----- 3.1 The Credit Gap -----
+\subsection{The Credit Gap}
+\label{subsec:credit_gap}
+
+In a typical anime production, the end credits list the names of staff
+who contributed to each episode.
+However, the credit system has three structural limitations:
+
+\begin{enumerate}
+  \item \textbf{Subcontracting opacity:}
+    When work is outsourced through multiple layers of subcontracting
+    (a common practice in the industry; see \cref{subsec:anime_workflow}),
+    individual animators at secondary or tertiary subcontractors
+    are frequently omitted from credits entirely.
+    Only the subcontracting studio's name may appear,
+    or in some cases, no attribution is given at all.
+  \item \textbf{Slot limitations:}
+    Credits have practical space and time constraints.
+    Television broadcasts allocate limited screen time for credits,
+    and production committees may restrict the number of listed contributors
+    for editorial or contractual reasons.
+  \item \textbf{Staff turnover:}
+    Animators who leave a project mid-production---whether voluntarily
+    or due to scheduling conflicts---may have their names removed
+    from the final credits despite having completed substantial work.
+\end{enumerate}
+
+These limitations mean that \textbf{credits function as an incomplete,
+curated record rather than a comprehensive log of contributions.}
+
+% ----- 3.2 Consequences for Freelance Animators -----
+\subsection{Consequences for Freelance Animators}
+\label{subsec:consequences}
+
+The credit gap has concrete consequences for the 47--70\% of animators
+who work as freelancers~\citep{janica2023survey}:
+
+\begin{itemize}
+  \item \textbf{Portfolio asymmetry:}
+    When seeking new contracts, freelancers must demonstrate their track record.
+    Without credits, they rely on verbal claims, personal networks,
+    or physical samples that lack independent verification.
+    Studios hiring freelancers have no standardized way to verify
+    a candidate's claimed experience.
+  \item \textbf{Bargaining disadvantage:}
+    Animators cannot leverage uncredited work in fee negotiations.
+    A key animator who completed 30 cuts on a high-profile production
+    but was not credited has no verifiable evidence to justify higher rates.
+  \item \textbf{Career fragility:}
+    Freelancers' career histories exist primarily in the memories
+    of colleagues and in informal industry networks.
+    When studios close---a frequent occurrence in the anime industry---
+    or when key contacts retire, these informal records disappear.
+  \item \textbf{Industry-level data loss:}
+    At the aggregate level, the absence of comprehensive contribution records
+    makes it difficult to study workforce dynamics, identify labor shortages
+    in specific roles, or design effective industry policy.
+    The surveys by JAniCA and NAFCA provide valuable snapshots
+    but cannot capture project-level attribution data.
+\end{itemize}
+
+% ----- 3.3 Limitations of Existing Solutions -----
+\subsection{Limitations of Existing Solutions}
+\label{subsec:existing_limitations}
+
+Several recent initiatives have addressed aspects of the freelance animator problem,
+but none fully resolves the contribution invisibility issue:
+
+\begin{itemize}
+  \item \textbf{Freelance Protection Act (2024):}
+    Japan's new legislation introduces protections for independent contractors,
+    including written contract requirements and payment term regulations.
+    However, it does not mandate contribution recording or attribution;
+    an animator can have a legally compliant contract while still being uncredited.
+  \item \textbf{NAFCA standard contracts:}
+    NAFCA has developed template contracts for studio--animator agreements.
+    While these improve transaction transparency,
+    they are bilateral documents between two parties
+    and do not create a publicly verifiable record
+    that the animator can carry to future engagements.
+  \item \textbf{Community databases (e.g., Sakugabooru, AniList):}
+    Fan-maintained databases attempt to track animator contributions.
+    These are valuable but rely on volunteer effort,
+    are inherently incomplete, and lack official verification.
+  \item \textbf{Centralized portfolio platforms:}
+    Platforms such as ArtStation or personal websites allow animators
+    to showcase their work, but they depend on self-reported claims
+    without cryptographic proof, and they are controlled by
+    a single platform operator that may change terms or shut down.
+\end{itemize}
+
+% ----- 3.4 Problem Formalization -----
+\subsection{Problem Formalization}
+\label{subsec:formalization}
+
+We define the contribution invisibility problem as follows.
+Let $A$ be the set of all animators who contributed to a production $P$.
+Let $C(P) \subseteq A$ be the set of animators credited in the official records of $P$.
+The \textbf{credit gap} is:
+
+\begin{equation}
+  \Delta(P) = A \setminus C(P)
+  \label{eq:credit_gap}
+\end{equation}
+
+For any animator $a \in \Delta(P)$, there exists no verifiable, persistent,
+and portable record of their contribution to $P$.
+
+An ideal solution should satisfy the following requirements:
+
+\begin{enumerate}
+  \item[\textbf{R1}] \textbf{Completeness:} Every animator $a \in A$ can obtain a record,
+    regardless of their position in the subcontracting hierarchy.
+  \item[\textbf{R2}] \textbf{Verifiability:} Third parties can cryptographically verify
+    the authenticity of the record without contacting the original studio.
+  \item[\textbf{R3}] \textbf{Persistence:} The record survives studio closures,
+    platform shutdowns, and changes in industry infrastructure.
+  \item[\textbf{R4}] \textbf{Portability:} The animator owns and controls the record
+    and can present it to any future employer or client.
+  \item[\textbf{R5}] \textbf{Minimal friction:} The recording process must integrate
+    into existing workflows without requiring additional effort from the animator.
+\end{enumerate}
+
+\Cref{tab:requirements} evaluates existing solutions against these requirements.
+AnimatorSBT is designed to satisfy all five.
+
+\begin{table}[ht]
+\centering
+\caption{Evaluation of existing solutions against the five requirements.}
+\label{tab:requirements}
+\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Solution} & \textbf{R1} & \textbf{R2} & \textbf{R3} & \textbf{R4} & \textbf{R5} \\
+\midrule
+Official credits          & --         & \checkmark & \checkmark & --         & \checkmark \\
+Freelance Protection Act  & --         & --         & --         & --         & \checkmark \\
+NAFCA standard contracts  & partial    & --         & --         & --         & \checkmark \\
+Community databases       & partial    & --         & partial    & --         & --         \\
+Portfolio platforms        & \checkmark & --         & --         & partial    & --         \\
+\midrule
+\textbf{AnimatorSBT}      & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
+\bottomrule
+\end{tabular}
+\end{table}
