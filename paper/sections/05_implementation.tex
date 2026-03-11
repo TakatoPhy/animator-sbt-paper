@@ -44,9 +44,9 @@ with two key modifications: \textbf{soulbinding} and \textbf{role-based access c
 Transfer restriction is enforced by overriding the \texttt{\_beforeTokenTransfer}
 hook, which is called on every token movement including minting, transferring, and burning:
 
-\begin{lstlisting}[language=Solidity, basicstyle=\small\ttfamily, frame=single,
+\begin{lstlisting}[basicstyle=\small\ttfamily, frame=single,
   caption={Soulbinding enforcement via transfer hook override.},
-  label={lst:soulbind}]
+  label={lst:soulbind}, morekeywords={function,address,uint256,internal,virtual,override,if,revert,super}]
 function _beforeTokenTransfer(
     address from,
     address to,
