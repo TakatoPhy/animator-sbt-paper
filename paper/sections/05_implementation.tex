@@ -14,10 +14,15 @@ The proposed system uses the following components:
 
 \begin{itemize}
   \item \textbf{Blockchain:} Polygon PoS~\cite{gangwal2023layer2} (targeted for production deployment). Polygon was selected for its low
-    transaction costs ($<$\$0.01 per transaction at typical gas prices),
-    Ethereum Virtual Machine (EVM) compatibility, and established ecosystem.
+    transaction costs (on the order of $10^{-3}$~USD per mint at typical gas prices;
+    see \cref{tab:gas}), Ethereum Virtual Machine (EVM) compatibility, and established ecosystem.
   \item \textbf{Smart contract:} Solidity 0.8.20 with OpenZeppelin Contracts v4.x
-    (ERC-721, AccessControl, Counters).
+    (ERC-721, AccessControl, Counters). We note that OpenZeppelin Contracts v5 has
+    since superseded the \texttt{\_beforeTokenTransfer} hook used here with a unified
+    \texttt{\_update} hook and removed the \texttt{Counters} utility; porting to v5
+    (using \texttt{\_update} for soulbinding enforcement and a plain counter) is a
+    straightforward, recommended step for a production deployment, which we note as
+    future work.
   \item \textbf{Metadata storage:} IPFS via Pinata pinning service.
     Metadata JSON files are content-addressed and immutable once pinned.
   \item \textbf{Issuance service:} Node.js backend using ethers.js v6
@@ -70,18 +75,18 @@ This ensures that SBTs cannot be transferred through any ERC-721--compliant inte
 \subsubsection{Why Not ERC-5192?}
 
 The ERC-5192 standard~\cite{daubenschuetz2022erc5192} defines a minimal interface
-for soulbound NFTs by adding a \texttt{locked()} query function.
-We chose not to implement ERC-5192 for two reasons:
-(1)~ERC-5192 only \textit{signals} non-transferability via an event
-but does not enforce it at the contract level---our approach enforces
-soulbinding in \texttt{\_beforeTokenTransfer}, making transfers
-physically impossible rather than merely discouraged;
-(2)~ERC-5192 does not address approval-based transfer vectors
-(\texttt{approve}, \texttt{setApprovalForAll}),
-which our contract explicitly blocks.
-Future versions may add ERC-5192 compatibility
-(the \texttt{locked()} view function) alongside our enforcement mechanism
-to improve interoperability with SBT-aware tooling.
+for soulbound NFTs via a \texttt{locked()} query function and a lock event.
+ERC-5192 and our approach address complementary concerns rather than competing
+ones: ERC-5192 is primarily a \emph{signaling/interoperability} standard (it lets
+SBT-aware tooling discover that a token is non-transferable), whereas our contract
+focuses on \emph{enforcement}, blocking transfers in \texttt{\_beforeTokenTransfer}
+and additionally overriding the approval-based vectors (\texttt{approve},
+\texttt{setApprovalForAll}) so that non-transferability holds through any
+ERC-721--compliant path. The prototype does not yet expose the ERC-5192
+\texttt{locked()} view; this is a small, recommended addition that would let
+wallets and explorers recognize the token as soulbound, and we plan to include it
+alongside our enforcement mechanism. We do not claim ERC-5192 is deficient---only
+that, on its own, signaling without enforcement was insufficient for our goal.
 
 \subsubsection{Role-Based Access Control}
 
@@ -118,39 +123,53 @@ The contract provides the following external functions:
 
 \subsubsection{Gas Cost Analysis}
 
-\Cref{tab:gas} reports the gas consumption of key operations,
-\textbf{measured} on the Hardhat test environment with the Solidity optimizer
-enabled (200 runs).
+\Cref{tab:gas} reports the gas consumption of key operations measured in two
+environments: the local Hardhat EVM (optimizer enabled, 200 runs) and the live
+Polygon Amoy testnet. We report both because they differ: a single \texttt{mint()}
+consumes more gas on-chain (189{,}792) than in Hardhat (135{,}505), whereas
+\texttt{mintBatch(10)} is slightly \emph{lower} on-chain; \texttt{deploy} and
+\texttt{revoke} match. We do not have a verified mechanistic explanation for these
+per-operation differences and therefore do not speculate about their cause. For all
+cost figures we use the \emph{on-chain Amoy} values, which we treat as authoritative
+because they reflect actual network execution (transaction hashes in \cref{app:testnet}).
 
 \begin{table}[ht]
 \centering
-\caption{Measured gas consumption and estimated cost on Polygon PoS
-(30 gwei, POL = \$0.22, March 2026).}
+\caption{Gas consumption in two environments and estimated cost on Polygon
+(30~gwei, POL = \$0.22, March 2026). ``Hardhat'' is the local-EVM simulated value;
+``Amoy'' is the value observed on-chain on the Polygon Amoy testnet. The POL/USD
+cost columns are computed from the on-chain Amoy gas. These USD figures are
+\emph{projections}: they apply a fixed gas price and POL/USD rate to measured gas
+used, and exclude any mainnet priority/L1 fees (see \cref{subsec:eval_limitations}).}
 \label{tab:gas}
 \footnotesize
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}lrrr@{}}
+\begin{tabular}{@{}lrrrr@{}}
 \toprule
-\textbf{Operation} & \textbf{Gas} & \textbf{POL} & \textbf{USD} \\
+\textbf{Operation} & \textbf{Gas (Hardhat)} & \textbf{Gas (Amoy)} & \textbf{POL} & \textbf{USD} \\
 \midrule
-Deploy            & 1{,}824{,}117  & 0.0547  & \$0.0120  \\
-\texttt{mint()}   & 135{,}505      & 0.0041  & \$0.0009  \\
-\texttt{mintBatch(10)} & 1{,}039{,}581 & 0.0312 & \$0.0069 \\
-\texttt{revoke()} & 50{,}027       & 0.0015  & \$0.0003  \\
+Deploy            & 1{,}824{,}117  & 1{,}824{,}117 & 0.0547  & \$0.0120  \\
+\texttt{mint()}   & 135{,}505      & 189{,}792     & 0.0057  & \$0.0013  \\
+\texttt{mintBatch(10)} & 1{,}039{,}581 & 1{,}025{,}449 & 0.0308 & \$0.0068 \\
+\texttt{revoke()} & 50{,}027       & 50{,}027      & 0.0015  & \$0.0003  \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 At these costs, minting a single contribution certificate costs approximately
-\textbf{\$0.0009}---negligible even for individual freelancers.
-Batch minting reduces the per-token cost to approximately \$0.0007.
-The entire contract deployment costs approximately \$0.012.
+\textbf{\$0.0013} on-chain---negligible even for individual freelancers.
+Batch minting reduces the per-token cost to approximately \$0.0007
+(\$0.0068 amortized over 10 tokens),
+and the entire contract deployment costs approximately \$0.012.
+A sensitivity analysis over a range of gas prices and POL prices appears in
+\cref{tab:sensitivity}.
 
 % ----- 5.3 Prototype Implementation -----
 \subsection{Prototype Implementation}
 \label{subsec:prototype}
 
-To validate the design, we implemented a working prototype consisting of three components:
+To demonstrate technical feasibility and on-chain correctness, we implemented a
+prototype consisting of three components:
 the smart contract deployed on a public testnet, an Issuance Service, and a Verification Portal.
 
 \subsubsection{Testnet Deployment}
@@ -161,10 +180,18 @@ The \texttt{AnimatorSBT} contract was deployed on the Polygon Amoy testnet
 (block 35{,}058{,}633).\footnote{The deployment transaction and all subsequent
 interactions are publicly verifiable at
 \url{https://amoy.polygonscan.com/address/0x2cC31B9EFBD5dDfB5456EE4c76A0fcBCA5EEE117}.}
-A comprehensive test suite of 35 unit tests was developed using Hardhat,
+A test suite of 35 unit tests was developed using Hardhat,
 covering deployment, minting, batch minting, soulbinding enforcement,
 revocation, view functions, and access control.
 All tests pass successfully.
+We note the scope of this suite plainly: it exercises the \emph{smart-contract}
+mechanics, which are the most standard and least error-prone part of the system.
+It does \emph{not} cover the Issuance Service's metadata construction, the
+deterministic (canonical) serialization on which \texttt{evidence\_hash} depends,
+the IPFS upload path, or the portal's hash-recompute logic---i.e., the components
+that carry the authenticity argument (\cref{subsec:verification}). Serialization
+determinism in particular is a classic source of hash-mismatch bugs and is
+currently untested; we flag testing of the off-chain pipeline as needed work.
 An end-to-end demonstration of the Tanaka scenario
 (\cref{subsec:flow}) was executed on the testnet,
 successfully minting an SBT with IPFS-hosted metadata
@@ -205,10 +232,14 @@ AnimatorSBT is designed for integration with
 at \url{https://pocket-seishin.vercel.app}.}
 a Progressive Web Application developed by the authors
 for freelance animators to manage cuts and finances.
-The application is publicly deployed and has active users.
-Cut-level work logs are stored locally on the animator's device,
-preserving privacy by default;
+The application is publicly deployed, and cut-level work logs are stored locally
+on the animator's device, preserving privacy by default.
+We state the integration status plainly: the SBT issuance pipeline described below
+is \emph{not yet integrated} into Pocket Seishin, and \emph{no SBTs have been
+minted from real user data}. The end-to-end demonstration of \cref{subsec:prototype}
+used a scripted work log, not live application data.
 SBT issuance would occur only with the animator's explicit consent.
+The remainder of this subsection therefore describes a \emph{planned} integration.
 
 The planned integration follows the issuance flow
 described in \cref{subsec:flow}.

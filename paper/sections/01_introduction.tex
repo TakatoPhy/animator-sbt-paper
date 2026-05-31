@@ -37,10 +37,10 @@ Weyl et al.~\cite{buterin2022decentralized} proposed \textbf{Soulbound Tokens (S
 non-transferable tokens bound to a specific blockchain address---
 as a mechanism for encoding credentials, commitments, and affiliations
 without the speculative dynamics of conventional NFTs.
-SBTs have since been applied to healthcare credentialing,
+SBTs have since been proposed and prototyped for healthcare credentialing,
 academic certificate verification, and agricultural supply chains,
-but \textbf{no prior work has applied SBTs to creative production workflows
-or to the credentialing of freelance animators.}
+but \textbf{to the best of our knowledge, no prior work has applied SBTs
+to creative production workflows or to the credentialing of freelance animators.}
 
 Notably, existing blockchain applications in the anime industry have focused
 almost exclusively on \textit{fan-facing} monetization:
@@ -53,9 +53,12 @@ professional identity and career records.
 This paper presents \textbf{AnimatorSBT}, a blockchain-based contribution
 certification framework designed to integrate SBT issuance into an existing
 production management tool for freelance animators.
-The system creates immutable, verifiable, and portable records
+The system is designed to create immutable, tamper-evident, and portable records
 of individual contributions at the granular level of production tasks
-(e.g., key animation cuts, in-between frames, coloring assignments).
+(e.g., key animation cuts, in-between frames, coloring assignments), with
+verifiability currently limited to integrity and existence
+(authenticity requires the studio co-signing layer of \cref{subsec:cosigning},
+which is not yet implemented).
 Critically, the framework is designed to be \textit{transparent to the end user}:
 animators continue their normal workflow of recording tasks in the management tool,
 and contribution certificates are issued automatically
@@ -74,11 +77,13 @@ Our contributions are as follows:
     consisting of an SBT smart contract, an issuance service,
     and a verification portal integrated with a production management tool
     (\cref{sec:framework}).
-  \item We present a \textbf{working prototype deployed on the Polygon Amoy testnet},
-    including the smart contract, an issuance service, and a verification portal.
-    Cost simulation using measured gas costs shows that full industry adoption
-    would cost approximately \textbf{\$256 per year}---$0.000011\%$
-    of the industry's annual revenue (\cref{sec:evaluation}).
+  \item We present a \textbf{prototype on the Polygon Amoy testnet}---a smart contract,
+    an issuance service, and a static verification portal---that demonstrates
+    technical feasibility and on-chain correctness (not yet an integrated product,
+    and not yet evaluated with users). A cost analysis using on-chain gas measurements
+    shows that the marginal operating cost is low and is dominated by a flat
+    IPFS pinning fee (on the order of \$240/year) rather than blockchain costs
+    (\cref{sec:evaluation}).
   \item We identify \textbf{adoption barriers and abuse vectors},
     including studio cooperation challenges, self-reporting risks,
     and regulatory considerations specific to Japan,

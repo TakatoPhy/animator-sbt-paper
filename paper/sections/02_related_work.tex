@@ -60,7 +60,10 @@ In-between animators (\textit{douga}) earned an average annual income of
 \textyen 2.632 million, while key animators (\textit{genga}) earned \textyen 3.998 million~\cite{janica2023survey}.
 These figures are particularly striking given that a single in-between frame
 is typically compensated at approximately \textyen 200 (less than USD~2),
-and each frame can require over an hour of work~\cite{adler2020blood}.
+and each frame can require over an hour of work.\footnote{The per-frame rate and
+time estimate are drawn from~\cite{adler2020blood}, an older, non-peer-reviewed
+industry account, and are cited here illustratively; the income and wage figures
+above are from the official JAniCA and NAFCA surveys.}
 
 In December 2025, Japan's Fair Trade Commission published an investigation into
 the transaction environment for creators in the anime production industry,
@@ -107,8 +110,10 @@ Al-Marri et al.~\cite{almarri2025decentralized} implemented a decentralized cert
 verification system on Ethereum, while Zhang et al.~\cite{zhang2025zkbar} proposed a zero-knowledge
 proof-enabled system for academic records.
 
-\textbf{Critically, no existing work applies SBTs or VCs specifically to
-anime production workflows or to the credentialing of freelance animators.}
+\textbf{Critically, to the best of our knowledge---based on a search of
+peer-reviewed venues, preprint servers, and industry whitepapers---no existing
+work applies SBTs or VCs specifically to anime production workflows or to the
+credentialing of freelance animators.}
 The closest work is the Animechain.ai whitepaper~\cite{animechain2024whitepaper},
 which proposes blockchain-based anime production management with AI integration,
 but does not address individual-level contribution certification using SBTs
@@ -126,12 +131,14 @@ creator-to-consumer distribution.
 The World Economic Forum highlighted blockchain's potential for transparent
 royalty distribution and intellectual property protection~\cite{wef2017creative}.
 
-In the broader gig economy, blockchain has been proposed as a tool for
+In the broader gig economy, blockchain has been discussed as a potential tool for
 automated payment via smart contracts, reputation management,
 and decentralized dispute resolution.
-Smart contracts can encode compensation terms that automatically release funds
-upon verified task completion, eliminating payment delays that disproportionately
-affect freelancers.
+In principle, smart contracts can encode compensation terms that release funds
+upon verified task completion, which has been proposed as a way to reduce the
+payment delays that disproportionately affect freelancers; we note, however,
+that such mechanisms presuppose a trustworthy oracle for ``verified completion''---
+precisely the authenticity problem this paper foregrounds.
 
 The concept of \textbf{Verified Creator Portfolios (VCPs)} has emerged as
 a direct application of blockchain to creative freelancer credentialing.
@@ -155,8 +162,8 @@ of our work relative to existing research along two dimensions:
 domain specificity (general to anime-specific) and granularity (IP-level to task-level).
 While SBTs have been applied to healthcare, education, and agriculture,
 and blockchain has been explored for creative industry applications at the IP level,
-\textbf{no prior work combines SBT-based contribution certification with
-anime production workflow integration at the individual task level.}
+\textbf{to the best of our knowledge, no prior work combines SBT-based contribution
+certification with anime production workflow integration at the individual task level.}
 This paper addresses this gap.
 
 \begin{figure}[t]

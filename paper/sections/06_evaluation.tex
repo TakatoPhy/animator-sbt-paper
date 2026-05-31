@@ -1,9 +1,15 @@
 % Evaluation
 
-This section evaluates AnimatorSBT along three dimensions:
-economic viability through cost simulation (\cref{subsec:cost_sim}),
+This section evaluates the \emph{technical and economic feasibility} of AnimatorSBT
+along three dimensions:
+marginal-cost analysis through cost simulation (\cref{subsec:cost_sim}),
 scalability analysis (\cref{subsec:scalability}),
 and a qualitative assessment against the requirements defined in \cref{subsec:formalization}.
+We emphasize at the outset that this is a feasibility-and-correctness evaluation,
+not a validation of real-world adoption or usability: the prototype shows that the
+mechanism works and is inexpensive to operate, but claims about animator uptake,
+perceived value, and studio participation remain to be tested
+(\cref{subsec:eval_limitations}).
 
 % ----- 6.1 Cost Simulation -----
 \subsection{Cost Simulation}
@@ -12,8 +18,8 @@ and a qualitative assessment against the requirements defined in \cref{subsec:fo
 We simulated the annual operating cost of AnimatorSBT across five adoption scenarios,
 ranging from a single-studio pilot to full industry adoption.
 The simulation uses industry statistics from JAniCA~(2023) and NAFCA~(2024)
-for workforce parameters, and gas costs \textbf{measured} from our Hardhat test suite on Polygon PoS
-(30~gwei gas price, POL = \$0.22, March 2026 rate).
+for workforce parameters, and gas costs measured on-chain on the Polygon Amoy
+testnet (\cref{tab:gas}; 30~gwei gas price, POL = \$0.22, March 2026 rate).
 
 \subsubsection{Parameters}
 
@@ -21,7 +27,10 @@ The simulation assumes the following industry parameters based on public data:
 
 \begin{itemize}
   \item Total animation creators: $\sim$5{,}500 (JAniCA 2023 survey base)
-  \item Freelance ratio: 47.3\%--69.6\% (JAniCA 2023 / 2019)
+  \item Freelance ratio: 47.3\% (JAniCA 2023) to 69.6\% (JAniCA 2019). The
+    high-estimate scenario applies the older 2019 ratio to the 2023 creator base
+    as an upper bound; this mixes survey years and should be read as a conservative
+    ceiling, not a current figure.
   \item Average projects per animator per year: 6
   \item Batch minting with batch size of 10 (default)
   \item Revocation rate: 1\% of issued SBTs
@@ -36,7 +45,8 @@ The simulation assumes the following industry parameters based on public data:
 \centering
 \caption{Annual cost simulation across five adoption scenarios.
 All costs in USD at Polygon PoS rates (30 gwei, POL = \$0.22, March 2026).
-Gas values are measured from the Hardhat test suite.}
+Gas values are the on-chain Amoy measurements (\cref{tab:gas}); USD figures are
+projections (see \cref{subsec:eval_limitations}).}
 \label{tab:cost_scenarios}
 \footnotesize
 \setlength{\tabcolsep}{3pt}
@@ -64,28 +74,64 @@ Full (high est.)      & 3{,}827 & 22{,}962 & \$256 & \$0.067 \\
   \label{fig:cost_simulation}
 \end{figure}
 
-The results reveal a striking finding:
-\textbf{even at full industry adoption (all freelance animators in Japan),
-the total annual operating cost is approximately \$256}---less than
-the cost of a single dinner in Tokyo.
-This represents $0.000011\%$ of the anime production industry's
-annual revenue of \textyen 362.1 billion (\$2.41 billion)~\cite{tdb2025anime}.
+The key finding is that the \emph{marginal} operating cost is low and---importantly---is
+\textbf{dominated by a flat off-chain SaaS fee, not by the blockchain}.
+At full industry adoption the modeled total is approximately \$256/year, of which
+roughly \$240 is the fixed IPFS pinning subscription~\cite{pinata2026pricing}
+and only about \$16 is on-chain minting.
+The jump from the Pilot scenario (\$0.22) to the Early scenario (\$242) is caused
+entirely by crossing Pinata's free-tier threshold (300 vs.\ 3{,}000 files),
+not by blockchain costs. The blockchain layer itself is inexpensive: Layer~2 fees
+make per-transaction cost economically negligible.
 
-The sharp increase from the Pilot scenario (\$0.22) to the Early scenario (\$242)
-is not driven by blockchain costs but by the IPFS pinning fee threshold:
-the Pilot's 300 SBTs fall within Pinata's free tier ($\leq$500 files),
-whereas the Early scenario's 3{,}000 SBTs require a paid plan at \$20/month (\$240/year)~\cite{pinata2026pricing}.
-More broadly, the cost is dominated by IPFS pinning fees,
-not blockchain transaction costs.
-On-chain minting costs account for only \$16 at full adoption,
-confirming that Layer~2 blockchains have reduced gas fees
-to a point where per-transaction costs are economically negligible.
+We are careful not to overstate what this figure means.
+First, it is a \emph{marginal} cost (on-chain transactions plus IPFS storage);
+it excludes the operating costs the system actually requires at scale---running the
+Issuance Service, \textbf{a relayer that sponsors gas on behalf of all animators}
+(\cref{subsec:flow}), wallet-recovery support, the co-signing workflow
+(\cref{subsec:cosigning}), PMC integration and maintenance, and the legal/DPIA
+review we recommend (\cref{subsec:legal}).
+Second, because the relayer subsidizes gas, the \$256 is borne by a single
+sponsoring party fronting costs for the entire industry on an ongoing basis---a
+funding-sustainability and centralization consideration, not a free lunch.
+We therefore present \$256 as evidence that \emph{the blockchain layer is not a
+cost barrier}, not as a total cost of ownership.
+We also avoid normalizing the figure against industry revenue, since that revenue
+accrues largely to production committees and IP holders rather than to the freelance
+animators the system serves; the relevant comparison is the operating budget of
+whoever runs the service.
 
-The per-animator cost decreases with scale due to fixed IPFS costs
-being distributed across more users.
-At full adoption, the cost is approximately \$0.067 per animator per year---
-equivalent to less than one minute of work at the median hourly wage
-of \textyen 1{,}111~\cite{nafca2024labor}.
+The per-animator marginal cost decreases with scale as the fixed IPFS cost is
+spread across more users, reaching roughly \$0.067 per animator per year at full
+adoption.
+
+Because the dollar figures depend on two volatile parameters---gas price and the
+POL/USD rate---\Cref{tab:sensitivity} reports the per-mint cost over a range of
+each, computed arithmetically from the on-chain mint gas (189{,}792). The
+parameter values are \emph{hypothetical scenarios}, not observed market prices.
+Even in the most adverse cell (300~gwei, POL at \$1.00), a single mint costs under
+\$0.06; the qualitative conclusion---that on-chain cost is not a barrier---is robust
+to large swings in both parameters.
+
+\begin{table}[ht]
+\centering
+\caption{Sensitivity of the per-\texttt{mint()} cost (USD) to gas price and POL/USD
+rate, computed from the on-chain mint gas of 189{,}792. Values are hypothetical
+price scenarios, not observed market rates. The shaded baseline used elsewhere in
+this paper is 30~gwei / \$0.22.}
+\label{tab:sensitivity}
+\footnotesize
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Gas price} & \textbf{POL \$0.22} & \textbf{POL \$0.50} & \textbf{POL \$1.00} \\
+\midrule
+30~gwei  & \$0.0013 & \$0.0028 & \$0.0057 \\
+100~gwei & \$0.0042 & \$0.0095 & \$0.0190 \\
+300~gwei & \$0.0125 & \$0.0285 & \$0.0569 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 % ----- 6.2 Scalability -----
 \subsection{Scalability Analysis}
@@ -119,6 +165,13 @@ for \texttt{eth\_call} queries.
 A production deployment should add an owner-to-token-ID mapping
 for $O(1)$ lookups, or rely on off-chain indexing
 (e.g., The Graph) for portfolio queries.
+Crucially, it is the \emph{cumulative} token count, not the annual flow, that
+drives this limit: at the projected $22{,}000$--$42{,}000$ SBTs per year
+(\cref{subsec:scalability}), cumulative supply enters the $\sim$100k range within a
+few years of deployment. We therefore treat the prototype's \texttt{tokensOfOwner()}
+as demonstration-only and regard the enumerable mapping or an off-chain indexer as a
+launch requirement rather than a later optimization. (We do not report gas for the
+mapping variant here, as it would require re-measurement of the modified contract.)
 
 \subsubsection{Growth Projection}
 
@@ -127,27 +180,46 @@ and proportional workforce growth,
 the system would need to handle approximately 42{,}000 SBTs per year by 2031
 (roughly 115 per day).
 This remains well within Polygon's capacity
-and would cost approximately \$300--400 annually.
+and would cost approximately \$300--400 annually---again dominated by the flat
+IPFS pinning tier rather than on-chain fees, and subject to the same
+relayer-subsidy and total-cost-of-ownership caveats noted for the \$256 figure
+(\cref{subsec:cost_sim}).
 
 % ----- 6.3 Requirements Evaluation -----
 \subsection{Requirements Satisfaction}
 \label{subsec:requirements_eval}
 
 We assess AnimatorSBT against the five requirements
-defined in \cref{subsec:formalization}:
+defined in \cref{subsec:formalization}.
+We distinguish what the prototype \emph{empirically demonstrates}---the
+integrity/existence aspect of R2 and the cost and throughput results of
+\cref{subsec:cost_sim,subsec:scalability}---from what it satisfies \emph{by design
+but has not yet validated} with users, at scale, or with the unbuilt components
+(R1, R4, R5, and the authenticity aspect of R2).
 
 \begin{itemize}
-  \item \textbf{R1 (Completeness):} \textit{Satisfied.}
+  \item \textbf{R1 (Completeness):} \textit{Satisfied by design, with a noted tension.}
     Any animator using the PMC can receive an SBT regardless of their
-    position in the subcontracting hierarchy.
-    The issuance is triggered by work log data in the PMC,
-    not by studio approval or credit committee decisions.
+    position in the subcontracting hierarchy, because issuance is triggered by
+    work-log data in the PMC, not by studio approval or credit-committee decisions.
+    Two caveats: (i)~completeness presupposes PMC adoption---an animator who does
+    not use the tool remains invisible; and (ii)~the open, low-friction
+    self-enrollment that R1 requires is in tension with the Sybil mitigation of
+    \cref{subsec:trust}, which treats PMC registration as an identity gate. One
+    cannot simultaneously have fully open self-onboarding and PMC registration as a
+    meaningful Sybil barrier; we revisit this trade-off in \cref{subsec:trust}.
 
-  \item \textbf{R2 (Verifiability):} \textit{Satisfied.}
-    Third parties can verify SBTs by querying the public blockchain.
-    The \texttt{evidence\_hash} provides a cryptographic link
-    to the underlying work log data.
-    No contact with the original studio is required.
+  \item \textbf{R2 (Verifiability):} \textit{Partially satisfied (integrity and
+    existence, not authenticity).}
+    Third parties can verify, by querying the public blockchain and recomputing the
+    evidence hash, that a contribution claim \emph{exists}, is \emph{unaltered}, and
+    carries a \emph{timestamp}, without contacting the original studio. They cannot,
+    from the chain alone, verify that the claimed work was actually performed: the
+    metadata derives from a self-reported log, and \texttt{evidence\_hash} is
+    computed over issuer-authored attributes (\cref{subsec:verification,subsec:trust}).
+    Authenticity requires the studio co-signing layer of \cref{subsec:cosigning},
+    which is designed but not implemented. This is the single most important
+    qualification in this paper.
 
   \item \textbf{R3 (Persistence):} \textit{Partially satisfied.}
     On-chain data (token ownership, issuance timestamp) persists
@@ -162,17 +234,24 @@ defined in \cref{subsec:formalization}:
     community-operated IPFS nodes, and Arweave-based
     permanent storage as a fallback.
 
-  \item \textbf{R4 (Portability):} \textit{Satisfied.}
-    The SBT is bound to the animator's wallet address,
-    which they control via account abstraction.
-    The animator can present their wallet address (or a derived identifier)
-    to any verifier, independent of any specific platform.
+  \item \textbf{R4 (Portability):} \textit{Satisfied by design, pending implementation.}
+    The SBT is bound to the animator's wallet address, which they control
+    via account abstraction, and can be presented to any verifier independent of
+    any platform. This rests, however, on the embedded-wallet layer that is not yet
+    built (\cref{subsec:stack}), and the unsolved wallet-loss/recovery problem
+    (\cref{subsec:trust}) directly threatens portability: losing wallet access today
+    would mean losing the entire portfolio. We thus regard R4 as satisfied in design
+    but contingent on a recovery mechanism that remains future work.
 
-  \item \textbf{R5 (Minimal Friction):} \textit{Satisfied.}
-    The animator's workflow is unchanged---they continue recording work
-    in the PMC as before.
-    SBT issuance is automatic upon project milestones.
-    No wallet management, gas fee payment, or blockchain knowledge is required.
+  \item \textbf{R5 (Minimal Friction):} \textit{Satisfied by design, not yet validated.}
+    In the intended design the animator's workflow is unchanged and issuance is
+    automatic upon project milestones. Three qualifications apply: (i)~the
+    walletless, gasless experience depends on ERC-4337 and relayer components that
+    are unimplemented (\cref{subsec:stack}); (ii)~the system also \emph{introduces}
+    friction not captured by ``unchanged workflow''---wallet provisioning, issuance
+    consent, and managing selective disclosure; and (iii)~no user study has yet
+    measured perceived friction (\cref{subsec:eval_limitations}). We therefore mark
+    R5 as satisfied by design but requiring empirical user validation.
 \end{itemize}
 
 % ----- 6.4 Limitations -----
@@ -193,16 +272,37 @@ in future work:
     We have not yet conducted a formal user study with practicing animators.
     The cost simulation and measured gas data provide quantitative validation,
     but real-world usability and perceived value remain to be evaluated.
-  \item \textbf{Gas price volatility:}
-    The cost estimates assume a fixed gas price of 30~gwei and POL price of \$0.22.
-    While Polygon PoS gas prices are historically stable,
-    significant price fluctuations could affect cost projections.
-  \item \textbf{Self-reported data:}
+  \item \textbf{Cost figures are testnet-derived projections:}
+    We measured gas \emph{used} on the Polygon Amoy testnet, which transfers
+    faithfully to mainnet because EVM execution is identical. The USD figures,
+    however, are \emph{projections}: they apply a fixed gas price (30~gwei) and a
+    fixed POL/USD rate (\$0.22) to that gas, and they exclude mainnet priority fees
+    and any L1 data costs. Testnet POL has no market value, so the dollar column is
+    a model, not an observed cost. We provide a sensitivity analysis over gas and
+    POL prices (\cref{tab:sensitivity}); the qualitative conclusion is robust, but
+    the specific dollar figures should be read as projections rather than measured
+    market costs.
+  \item \textbf{Self-reported data and a self-referential evidence hash:}
     The SBT metadata is derived from self-reported work logs in the PMC.
     Without a co-signing mechanism (e.g., studio confirmation),
     the system cannot independently verify the truth of contribution claims---only
-    their existence and integrity.
+    their existence and integrity. The limitation is in fact sharper than ``no
+    co-signing'': \texttt{evidence\_hash} is a hash of the issuer-authored attributes
+    stored in the \emph{same} metadata object, so recomputing it from that object
+    detects only post-mint tampering, not correspondence to any independent source
+    (\cref{subsec:verification}). Comparison against the animator's local work log
+    is stronger but still self-referential to a self-reported log, and is untested:
+    our 35 unit tests cover contract mechanics, not the off-chain
+    serialization/hashing pipeline (\cref{subsec:prototype}).
     We discuss the trust model and mitigation strategies in \cref{sec:discussion}.
+
+  \item \textbf{Wallet loss and recovery (unsolved):}
+    Because SBTs are bound to a wallet address, loss of wallet access means loss of
+    all accumulated credentials. The social-recovery / \texttt{migrate()} direction
+    discussed in \cref{subsec:trust} is \emph{unimplemented} and is an open problem
+    in the broader SBT literature. This directly undercuts R3 (persistence of an
+    \emph{accessible} record) and R4 (portability), and is a prerequisite for any
+    real deployment.
   \item \textbf{IPFS metadata persistence:}
     Detailed SBT metadata resides on IPFS, which requires active pinning
     to remain accessible. If all pinning providers stop hosting the data,

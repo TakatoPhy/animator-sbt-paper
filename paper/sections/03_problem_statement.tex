@@ -40,8 +40,9 @@ curated record rather than a comprehensive log of contributions.}
 \subsection{Consequences for Freelance Animators}
 \label{subsec:consequences}
 
-The credit gap has concrete consequences for the 47--70\% of animators
-who work as freelancers~\cite{janica2023survey}:
+The credit gap has concrete consequences for the large share of animators
+who work as freelancers (47.3\% self-employed in 2023, and up to 69.6\%
+by 2019 estimates)~\cite{janica2023survey}:
 
 \begin{itemize}
   \item \textbf{Portfolio asymmetry:}
@@ -66,16 +67,21 @@ who work as freelancers~\cite{janica2023survey}:
     The surveys by JAniCA and NAFCA provide valuable snapshots
     but cannot capture project-level attribution data.
   \item \textbf{Barriers to social participation:}
-    The consequences extend beyond the industry.
+    The consequences may extend beyond the industry.
     Mortgage applications, visa procedures, and bank credit assessments
-    all require documented proof of stable employment and income history.
-    Freelance animators who lack verifiable career records face systematic
-    disadvantages in these processes---not because they lack skills or income,
-    but because they cannot produce the documentation
-    that institutions demand.
-    The contribution invisibility problem thus limits animators'
-    life choices (homeownership, international mobility)
-    in ways that are invisible to the industry itself.
+    typically require documented proof of \emph{income} and stable employment---
+    in Japan, instruments such as tax returns and withholding statements
+    (\textit{gensen-ch\=osh\=uhy\=o}).
+    A contribution record is not itself such a document: it attests to
+    \emph{what work was done}, not to income, and institutions do not currently
+    recognize on-chain records (\cref{subsec:legal}).
+    We therefore do not claim that a contribution credential directly unlocks
+    mortgages or visas. Rather, the absence of \emph{any} verifiable professional
+    record is one contributing factor among several in animators' weak institutional
+    standing; a portable attribution record could become a useful complement
+    \emph{if} paired with co-signing (\cref{subsec:cosigning}) and integration
+    with recognized institutional rails---a direction we treat as future work
+    (\cref{sec:conclusion}), not a demonstrated capability.
 \end{itemize}
 
 % ----- 3.3 Limitations of Existing Solutions -----
@@ -124,6 +130,12 @@ The \textbf{credit gap} is:
 
 For any animator $a \in \Delta(P)$, there exists no verifiable, persistent,
 and portable record of their contribution to $P$.
+We use this definition conceptually rather than as a computed quantity:
+$\Delta(P)$ is not directly observable, since the uncredited set is by construction
+unrecorded. A practical future proxy would compare, for a sample of productions, the
+number of contributors recorded in a production-management tool against the names
+appearing in those productions' broadcast credits; we propose this as a future
+measurement (\cref{sec:conclusion}) and do not estimate $|\Delta(P)|$ here.
 
 An ideal solution should satisfy the following requirements:
 
@@ -140,8 +152,8 @@ An ideal solution should satisfy the following requirements:
     into existing workflows without requiring additional effort from the animator.
 \end{enumerate}
 
-\Cref{tab:requirements} evaluates existing solutions against these requirements.
-AnimatorSBT is designed to satisfy all five.
+\Cref{tab:requirements} evaluates existing solutions against these requirements,
+and positions AnimatorSBT (with the qualifications discussed below).
 
 \begin{table}[ht]
 \centering
@@ -159,7 +171,17 @@ NAFCA contracts        & $\triangle$    & --         & --         & --         &
 Community DBs          & $\triangle$    & --         & $\triangle$    & --         & --         \\
 Portfolio platforms     & \checkmark & --         & --         & $\triangle$    & --         \\
 \midrule
-\textbf{AnimatorSBT}   & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
+\textbf{AnimatorSBT}   & \checkmark & $\triangle$ & \checkmark & \checkmark & \checkmark \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+AnimatorSBT is designed to satisfy all five requirements, with one important
+qualification recorded here and revisited in \cref{subsec:requirements_eval}:
+for \textbf{R2 (Verifiability)} it currently provides only \emph{integrity and
+existence} verification (that a claim was recorded, unaltered, at a given time),
+not \emph{authenticity} (that the claimed work was actually performed).
+Authenticity requires the studio co-signing layer we design in
+\cref{subsec:cosigning} but do not yet implement; hence the $\triangle$ rather
+than a \checkmark. R4 and R5 are satisfied by design but rest on wallet
+abstraction that is not yet built and have not been validated with users.

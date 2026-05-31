@@ -37,11 +37,13 @@ AVG_PROJECTS_PER_ANIMATOR_YEAR = 6
 GAS_PRICE_GWEI = 30
 MATIC_PRICE_USD = 0.22  # POL price March 2026
 
-# Gas costs (measured via Hardhat test suite, optimizer 200 runs)
-GAS_DEPLOY = 1_824_117
-GAS_MINT_SINGLE = 135_505  # avg across test runs (range: 110,287 - 144,631)
-GAS_MINT_BATCH_10 = 1_039_581
-GAS_REVOKE = 50_027
+# Gas costs measured ON-CHAIN on the Polygon Amoy testnet (authoritative; see paper Appendix A).
+# Hardhat-simulated values differ for mint/mintBatch (135,505 and 1,039,581) and are
+# reported alongside these in the paper's gas table; we use the on-chain values here.
+GAS_DEPLOY = 1_824_117        # Amoy on-chain (matches Hardhat)
+GAS_MINT_SINGLE = 189_792     # Amoy on-chain (Hardhat avg was 135,505)
+GAS_MINT_BATCH_10 = 1_025_449 # Amoy on-chain (Hardhat was 1,039,581)
+GAS_REVOKE = 50_027           # Amoy on-chain (matches Hardhat)
 
 # IPFS pinning (Pinata free tier: 500 files, paid: $20/mo for 50GB)
 IPFS_COST_PER_FILE_USD = 0.0  # Free tier covers small JSON files

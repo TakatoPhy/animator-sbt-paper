@@ -5,12 +5,12 @@
     "sbt_per_animator_year": 6,
     "total_sbts_year": 300,
     "cost_per_sbt_usd": 0.0007,
-    "mint_cost_usd": 0.21,
+    "mint_cost_usd": 0.2,
     "deploy_cost_usd": 0.012,
     "ipfs_cost_year_usd": 0.0,
     "revoke_cost_usd": 0.001,
     "total_annual_usd": 0.22,
-    "cost_per_animator_year_usd": 0.0044
+    "cost_per_animator_year_usd": 0.0043
   },
   {
     "scenario": "Early Adoption (10 studios)",
@@ -18,12 +18,12 @@
     "sbt_per_animator_year": 6,
     "total_sbts_year": 3000,
     "cost_per_sbt_usd": 0.0007,
-    "mint_cost_usd": 2.06,
+    "mint_cost_usd": 2.03,
     "deploy_cost_usd": 0.012,
     "ipfs_cost_year_usd": 240.0,
     "revoke_cost_usd": 0.0099,
-    "total_annual_usd": 242.08,
-    "cost_per_animator_year_usd": 0.4842
+    "total_annual_usd": 242.05,
+    "cost_per_animator_year_usd": 0.4841
   },
   {
     "scenario": "Moderate (50% freelancers)",
@@ -31,12 +31,12 @@
     "sbt_per_animator_year": 6,
     "total_sbts_year": 7800,
     "cost_per_sbt_usd": 0.0007,
-    "mint_cost_usd": 5.35,
+    "mint_cost_usd": 5.28,
     "deploy_cost_usd": 0.012,
     "ipfs_cost_year_usd": 240.0,
     "revoke_cost_usd": 0.0258,
-    "total_annual_usd": 245.39,
-    "cost_per_animator_year_usd": 0.1888
+    "total_annual_usd": 245.32,
+    "cost_per_animator_year_usd": 0.1887
   },
   {
     "scenario": "Full (all freelancers, low est.)",
@@ -44,11 +44,11 @@
     "sbt_per_animator_year": 6,
     "total_sbts_year": 15606,
     "cost_per_sbt_usd": 0.0007,
-    "mint_cost_usd": 10.71,
+    "mint_cost_usd": 10.57,
     "deploy_cost_usd": 0.012,
     "ipfs_cost_year_usd": 240.0,
     "revoke_cost_usd": 0.0515,
-    "total_annual_usd": 250.77,
+    "total_annual_usd": 250.63,
     "cost_per_animator_year_usd": 0.0964
   },
   {
@@ -57,11 +57,11 @@
     "sbt_per_animator_year": 6,
     "total_sbts_year": 22962,
     "cost_per_sbt_usd": 0.0007,
-    "mint_cost_usd": 15.76,
+    "mint_cost_usd": 15.54,
     "deploy_cost_usd": 0.012,
     "ipfs_cost_year_usd": 240.0,
     "revoke_cost_usd": 0.0756,
-    "total_annual_usd": 255.84,
-    "cost_per_animator_year_usd": 0.0669
+    "total_annual_usd": 255.63,
+    "cost_per_animator_year_usd": 0.0668
   }
 ]

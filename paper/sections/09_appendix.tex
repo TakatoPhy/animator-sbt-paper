@@ -157,6 +157,11 @@ The \texttt{evidence\_hash} field is the Keccak-256 hash of the
 \texttt{attributes} object (JSON-serialized).
 Any party with access to the IPFS metadata can independently recompute
 this hash and verify its integrity.
+As discussed in \cref{subsec:verification}, this establishes only that the file is
+unaltered since minting---the hash is computed over issuer-authored attributes
+stored in the same object---not that the recorded work was actually performed.
+Note also that the \texttt{animator\_name} appears here in cleartext
+(\cref{subsec:privacy}).
 
 % ----- D. Smart Contract Source Code -----
 \subsection{Smart Contract Source Code}
@@ -165,6 +170,11 @@ this hash and verify its integrity.
 The complete source code of the \texttt{AnimatorSBT} contract is provided below
 and is also available in the project repository.\footnote{%
 \url{https://github.com/TakatoPhy/animator-sbt-paper/blob/main/contracts/AnimatorSBT.sol}}
+This is the contract as deployed on Polygon Amoy, written against OpenZeppelin
+Contracts v4.x (note the \texttt{Counters} utility and the
+\texttt{\_beforeTokenTransfer} hook). As noted in \cref{subsec:stack}, OpenZeppelin
+v5 removes both; a production port would enforce soulbinding in the unified
+\texttt{\_update} hook and use a plain counter.
 
 \begin{lstlisting}[
   basicstyle=\scriptsize\ttfamily,
