@@ -108,10 +108,19 @@ but none fully resolves the contribution invisibility issue:
     These are valuable but rely on volunteer effort,
     are inherently incomplete, and lack official verification.
   \item \textbf{Centralized portfolio platforms:}
-    Platforms such as ArtStation or personal websites allow animators
-    to showcase their work, but they depend on self-reported claims
-    without cryptographic proof, and they are controlled by
-    a single platform operator that may change terms or shut down.
+    Platforms such as ArtStation, and in Japan creator-portfolio services like
+    foriio and Lancers, allow animators to showcase their work, but they depend on
+    self-reported claims without third-party attestation or cryptographic proof,
+    and they are controlled by a single operator that may change terms or shut down.
+  \item \textbf{Production-management tools:}
+    Animation/VFX production trackers---e.g., Autodesk Flow (ShotGrid), ftrack,
+    the open-source Kitsu, and Japanese anime-specific tools such as Save Point
+    and Anikuro---capture genuinely task-level data (per-shot/per-cut assignment
+    and completion) as a byproduct of the workflow. However, that record is
+    \emph{studio-owned}: it lives in the studio's instance, is not a third-party
+    attestation the freelancer holds, and effectively disappears for the animator
+    at offboarding or studio closure. They solve production tracking, not a
+    portable, freelancer-owned credential.
 \end{itemize}
 
 % ----- 3.4 Problem Formalization -----
@@ -170,6 +179,7 @@ Freelance Prot.\ Act   & --         & --         & --         & --         & \ch
 NAFCA contracts        & $\triangle$    & --         & --         & --         & \checkmark \\
 Community DBs          & $\triangle$    & --         & $\triangle$    & --         & --         \\
 Portfolio platforms     & \checkmark & --         & --         & $\triangle$    & --         \\
+PM tools (Kitsu, etc.)  & $\triangle$    & --         & --         & --         & \checkmark \\
 \midrule
 \textbf{AnimatorSBT}   & \checkmark & $\triangle$ & \checkmark & \checkmark & \checkmark \\
 \bottomrule
