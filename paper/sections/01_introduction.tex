@@ -58,7 +58,8 @@ of individual contributions at the granular level of production tasks
 (e.g., key animation cuts, in-between frames, coloring assignments), with
 verifiability currently limited to integrity and existence
 (authenticity requires the studio co-signing layer of \cref{subsec:cosigning},
-which is not yet implemented).
+which we implement as a tested reference contract but do not yet deploy
+on-chain or operate with independent studio attesters).
 Critically, the framework is designed to be \textit{transparent to the end user}:
 animators continue their normal workflow of recording tasks in the management tool,
 and contribution certificates are issued automatically
@@ -84,6 +85,14 @@ Our contributions are as follows:
     shows that the marginal operating cost is low and is dominated by a flat
     IPFS pinning fee (on the order of \$240/year) rather than blockchain costs
     (\cref{sec:evaluation}).
+  \item We provide a \textbf{reference implementation of the authenticity layer}:
+    a separate co-signing contract (\texttt{AnimatorSBTV2}) adding a studio-attester
+    role, an idempotent multi-studio \texttt{coSign} operation, an
+    \texttt{attestationLevel} view, and ERC-5192 soulbound signaling; together with a
+    deterministic (canonical) evidence-hash serialization module that closes a
+    hash-determinism gap. The combined system is exercised by a 60-test suite. These
+    components are validated locally but, in keeping with our honest scoping, are not
+    yet deployed on-chain or operated with independent studios (\cref{subsec:cosigning,subsec:prototype}).
   \item We identify \textbf{adoption barriers and abuse vectors},
     including studio cooperation challenges, self-reporting risks,
     and regulatory considerations specific to Japan,

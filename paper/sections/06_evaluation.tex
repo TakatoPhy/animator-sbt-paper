@@ -218,8 +218,12 @@ but has not yet validated} with users, at scale, or with the unbuilt components
     metadata derives from a self-reported log, and \texttt{evidence\_hash} is
     computed over issuer-authored attributes (\cref{subsec:verification,subsec:trust}).
     Authenticity requires the studio co-signing layer of \cref{subsec:cosigning},
-    which is designed but not implemented. This is the single most important
-    qualification in this paper.
+    which we now provide as a tested reference contract but have not yet deployed
+    on-chain or operated with an \emph{independent, identity-bound} studio attester.
+    Until that independent operation exists, a co-signed record is
+    \emph{operator-attested}, not independently authenticated. This gap---from a
+    working mechanism to trustworthy independent attestation---is the single most
+    important qualification in this paper.
 
   \item \textbf{R3 (Persistence):} \textit{Partially satisfied.}
     On-chain data (token ownership, issuance timestamp) persists
@@ -284,17 +288,21 @@ in future work:
     market costs.
   \item \textbf{Self-reported data and a self-referential evidence hash:}
     The SBT metadata is derived from self-reported work logs in the PMC.
-    Without a co-signing mechanism (e.g., studio confirmation),
-    the system cannot independently verify the truth of contribution claims---only
+    We have now implemented the co-signing mechanism as a reference contract
+    (\cref{subsec:cosigning}), but until it is deployed and operated by an
+    independent, identity-bound studio it adds no authenticity, so as evaluated the
+    system still cannot independently verify the truth of contribution claims---only
     their existence and integrity. The limitation is in fact sharper than ``no
     co-signing'': \texttt{evidence\_hash} is a hash of the issuer-authored attributes
     stored in the \emph{same} metadata object, so recomputing it from that object
     detects only post-mint tampering, not correspondence to any independent source
     (\cref{subsec:verification}). Comparison against the animator's local work log
-    is stronger but still self-referential to a self-reported log, and is untested:
-    our 35 unit tests cover contract mechanics, not the off-chain
-    serialization/hashing pipeline (\cref{subsec:prototype}).
-    We discuss the trust model and mitigation strategies in \cref{sec:discussion}.
+    is stronger but still self-referential to a self-reported log. The
+    serialization/hashing pipeline that this comparison relies on \emph{is} now
+    tested (7 canonical-serialization unit tests, \cref{subsec:prototype}), closing a
+    determinism gap noted earlier; what remains untested is the live IPFS path and
+    the in-browser portal recompute. We discuss the trust model and mitigation
+    strategies in \cref{sec:discussion}.
 
   \item \textbf{Wallet loss and recovery (unsolved):}
     Because SBTs are bound to a wallet address, loss of wallet access means loss of

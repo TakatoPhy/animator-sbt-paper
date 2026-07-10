@@ -44,12 +44,23 @@ Deployment block: 35{,}058{,}633
 \label{app:tests}
 
 A total of 35 unit tests were developed using Hardhat (Solidity 0.8.20,
-optimizer enabled with 200 runs). All tests pass.
-\Cref{tab:test_results} lists the complete test suite.
+optimizer enabled with 200 runs) for the deployed v1 contract. All pass.
+\Cref{tab:test_results} lists this v1 suite. A further 25 tests accompany the
+reference implementation of \cref{subsubsec:v2}: 17 for the v2 co-signing contract
+(co-signing by a studio attester, elevation to \texttt{attestationLevel}~1,
+idempotent and multi-studio co-signing, refusal to co-sign a revoked token,
+attester-role management, ERC-5192 \texttt{locked()} signaling, and preservation of
+soulbinding), 7 for the canonical evidence-hash serialization (order-independence,
+stability, value-sensitivity, null/undefined handling, and nested-object
+canonicalization), and 1 local end-to-end issuance test (build metadata and
+canonical hash $\rightarrow$ mint $\rightarrow$ studio co-sign $\rightarrow$ verify),
+for \textbf{60 passing tests} in total.
 
 \begin{table}[ht]
 \centering
-\caption{Complete unit test suite for AnimatorSBT (35 tests, all passing).}
+\caption{Unit test suite for the deployed v1 \texttt{AnimatorSBT} contract
+(35 tests, all passing). A further 25 tests cover the v2 co-signing reference
+contract, canonical serialization, and a local end-to-end flow (60 total).}
 \label{tab:test_results}
 \footnotesize
 \setlength{\tabcolsep}{2pt}
@@ -167,11 +178,14 @@ Note also that the \texttt{animator\_name} appears here in cleartext
 \subsection{Smart Contract Source Code}
 \label{app:source}
 
-The complete source code of the \texttt{AnimatorSBT} contract is provided below
-and is also available in the project repository.\footnote{%
-\url{https://github.com/TakatoPhy/animator-sbt-paper/blob/main/contracts/AnimatorSBT.sol}}
-This is the contract as deployed on Polygon Amoy, written against OpenZeppelin
-Contracts v4.x (note the \texttt{Counters} utility and the
+The complete source code of the \texttt{AnimatorSBT} contract is provided below.
+The full project---both the v1 contract and the v2 co-signing reference
+implementation, the issuance service, the verification portal, the test suite, and
+the cost-simulation scripts---is available from the authors on reasonable request
+and will be deposited in a public archive (e.g., Zenodo, with a citable DOI) upon
+acceptance.
+The listing below is the contract as deployed on Polygon Amoy, written against
+OpenZeppelin Contracts v4.x (note the \texttt{Counters} utility and the
 \texttt{\_beforeTokenTransfer} hook). As noted in \cref{subsec:stack}, OpenZeppelin
 v5 removes both; a production port would enforce soulbinding in the unified
 \texttt{\_update} hook and use a plain counter.
@@ -324,5 +338,74 @@ contract AnimatorSBT is ERC721, AccessControl {
     returns (bool) {
     return super.supportsInterface(interfaceId);
   }
+}
+\end{lstlisting}
+
+% ----- E. Co-signing Additions (v2) -----
+\subsection{Co-signing Additions (AnimatorSBTV2)}
+\label{app:v2source}
+
+\Cref{lst:v2_cosign} reproduces the core additions of the v2 reference contract
+(\cref{subsubsec:v2}): the studio-attester role, the idempotent multi-studio
+\texttt{coSign}, the trust-level view, and ERC-5192 soulbound signaling. The
+remainder of the contract is identical to the v1 listing above. As stated in
+\cref{subsec:cosigning}, this contract is validated by the test suite of
+\cref{app:tests} but is \emph{not} deployed on-chain, and in the single-operator
+MVP the issuer also holds \texttt{STUDIO\_ATTESTER\_ROLE}, so a co-signature adds no
+authenticity until an independent studio operates the role.
+
+\begin{lstlisting}[
+  basicstyle=\scriptsize\ttfamily,
+  frame=single,
+  caption={AnimatorSBTV2 --- co-signing and ERC-5192 additions (excerpt).},
+  label={lst:v2_cosign},
+  breaklines=true,
+  columns=flexible,
+  morekeywords={function,external,public,view,override,returns,return,if,revert,
+    mapping,event,error,emit,address,uint256,uint8,bool,bytes4,memory,calldata,
+    constant,onlyRole,indexed}
+]
+bytes32 public constant STUDIO_ATTESTER_ROLE =
+  keccak256("STUDIO_ATTESTER_ROLE");
+bytes4 private constant _INTERFACE_ID_ERC5192 =
+  0xb45a3c0e;
+
+mapping(uint256 => address[]) private _attesters;
+mapping(uint256 => mapping(address => bool))
+  private _hasCoSigned;
+
+event SBTCoSigned(uint256 indexed tokenId,
+  address indexed attester, uint256 timestamp);
+event Locked(uint256 tokenId); // ERC-5192
+
+error CannotCoSignRevokedToken(uint256 tokenId);
+error DuplicateAttestation(
+  uint256 tokenId, address attester);
+
+// Studio (msg.sender) co-signs an existing token.
+function coSign(uint256 tokenId)
+  external onlyRole(STUDIO_ATTESTER_ROLE) {
+  _requireMinted(tokenId);
+  if (_revoked[tokenId])
+    revert CannotCoSignRevokedToken(tokenId);
+  if (_hasCoSigned[tokenId][msg.sender])
+    revert DuplicateAttestation(tokenId, msg.sender);
+  _hasCoSigned[tokenId][msg.sender] = true;
+  _attesters[tokenId].push(msg.sender);
+  emit SBTCoSigned(
+    tokenId, msg.sender, block.timestamp);
+}
+
+// 0 = self-attested, 1 = >=1 studio co-signature.
+function attestationLevel(uint256 tokenId)
+  external view returns (uint8) {
+  return _attesters[tokenId].length > 0 ? 1 : 0;
+}
+
+// ERC-5192: every minted token is permanently locked.
+function locked(uint256 tokenId)
+  external view returns (bool) {
+  _requireMinted(tokenId);
+  return true;
 }
 \end{lstlisting}

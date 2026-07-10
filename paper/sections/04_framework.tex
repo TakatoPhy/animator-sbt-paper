@@ -107,6 +107,32 @@ the address-as-portfolio model is a better fit. We stress that SBTs and VCs are
 VC-compliant wrappers for AnimatorSBT metadata, which would add selective
 disclosure and interoperability that on-chain SBTs lack.
 
+\textbf{Why a bespoke contract rather than a general attestation service or a
+signed log?}
+Two lighter-weight alternatives deserve explicit treatment, as a reviewer might
+reasonably prefer them.
+First, a generic on-chain attestation registry such as the Ethereum Attestation
+Service (EAS) could carry the same attestations without a custom contract.
+We regard EAS as a genuinely viable substrate and do not claim our contract is the
+only option; indeed the co-signing design of \cref{subsec:cosigning} could be
+expressed as EAS attestations. We chose a minimal dedicated ERC-721 contract for
+three pragmatic reasons: (i)~it bundles soulbound semantics, role-gated issuance,
+and role-gated co-signing into a single auditable unit with no dependency on an
+external registry's schema, governance, or continued operation; (ii)~it yields the
+\emph{token-balance-as-portfolio} ergonomic (R4/R5) that a non-transferable token
+gives natively and a raw attestation does not; and (iii)~it lets SBT-aware wallets
+recognize the credential directly (via ERC-5192, \cref{subsec:contract}). These are
+ergonomic and self-containment arguments, not claims of technical superiority.
+Second, one could forgo blockchain entirely and publish a centrally operated,
+cryptographically signed append-only log (e.g., a Certificate-Transparency--style
+Merkle log with periodic public anchoring). Such a design achieves tamper-evidence
+and is cheaper, but \emph{verification still depends on the operator continuing to
+publish and serve the log and its signing key}; a public-chain record is verifiable
+by anyone via any RPC node with no dependency on the issuer's survival, which is
+precisely the property R3 (persistence beyond issuer death) and R4 (portability)
+demand. We therefore view the signed-log approach as a reasonable lighter option for
+integrity alone, but not for operator-independent persistence and portability.
+
 A key design principle is \textbf{transparency to the end user}:
 the animator should not need to understand blockchain technology,
 manage a wallet manually, or pay gas fees.
@@ -318,19 +344,26 @@ AnimatorSBT addresses privacy through several mechanisms:
 \end{itemize}
 
 % ----- 4.6 Co-signing / Attestation Design -----
-\subsection{Co-signing and the Authenticity Layer (Designed, Not Yet Implemented)}
+\subsection{Co-signing and the Authenticity Layer (Designed and Prototyped; Not Yet Deployed or Independently Operated)}
 \label{subsec:cosigning}
 
 The mechanisms above produce a record that is \emph{tamper-evident}, timestamped,
 and portable, but---as we are careful to repeat---authenticity (that the claimed
 work was actually performed) is not established by issuance alone, because the
 underlying work log is self-reported (\cref{subsec:trust}).
-This subsection sketches the design of an authenticity layer.
-\textbf{We stress that the co-signing mechanism described here is a design proposal
-and is \emph{not} part of the deployed prototype contract of \cref{subsec:contract}
-(which exposes only \texttt{mint}, \texttt{mintBatch}, \texttt{revoke}, and view
-functions); no \texttt{coSign} function was implemented, deployed, gas-measured,
-or covered by the test suite reported in this paper.}
+This subsection presents the design of an authenticity layer and a reference
+implementation of it.
+\textbf{We are precise about its status. The co-signing mechanism is \emph{not}
+part of the contract currently deployed on Polygon Amoy (\cref{subsec:contract}),
+which is the v1 contract exposing only \texttt{mint}, \texttt{mintBatch},
+\texttt{revoke}, and view functions. It \emph{is}, however, implemented in a
+separate reference contract, \texttt{AnimatorSBTV2}, with a passing test suite and
+local gas measurements (\cref{subsec:prototype}). What remains undone is the part
+that actually delivers authenticity: on-chain deployment, and operation by an
+\emph{independent, identity-bound} studio attester. In the present single-operator
+configuration the deployer holds \texttt{ISSUER\_ROLE} and \texttt{STUDIO\_ATTESTER\_ROLE}
+simultaneously, so a co-signature it produces adds no authenticity over the mint
+itself (see the attester-independence caveat below).}
 
 \paragraph{A trust-level taxonomy.}
 We distinguish three levels of credential strength, which the same SBT can move
@@ -350,18 +383,47 @@ through over time:
 A verifier can then weight a credential by its attestation level, and the
 verification portal can surface that level explicitly.
 
-\paragraph{Interface sketch.}
-The natural realization reuses the contract's existing role-based access control
-(\cref{subsec:contract}). A future contract version could add an
-\texttt{STUDIO\_ATTESTER\_ROLE} and a function of the form
-\texttt{coSign(uint256 tokenId, address attester)} that records an attestation
-against an existing token and emits an event (e.g., \texttt{SBTCoSigned}), with a
-companion view (\texttt{attestationLevel(tokenId)}). Studios would be granted the
-attester role through the same admin pathway used for issuers. We deliberately do
-not report gas costs or test results for this sketch, as it is unbuilt; specifying,
-implementing, and evaluating it---including the incentive design needed to motivate
-studios to participate, which faces the transparency-resistance barrier of
-\cref{subsec:adoption_barriers}---is the primary item of future work
+\paragraph{Reference implementation.}
+The realization reuses the contract's existing role-based access control
+(\cref{subsec:contract}). \texttt{AnimatorSBTV2} adds a
+\texttt{STUDIO\_ATTESTER\_ROLE} and the function
+\texttt{coSign(uint256 tokenId)}, which records an attestation by
+\texttt{msg.sender} against an existing token and emits \texttt{SBTCoSigned}.
+We bind the attester to \texttt{msg.sender} rather than passing it as an argument
+(as an earlier sketch did) so that the on-chain signature itself proves who
+attested, with no spoofable parameter. The mechanism is idempotent (the same
+attester cannot co-sign twice), supports multiple distinct studios co-signing one
+token, and refuses to co-sign a revoked token. Companion views expose the result:
+\texttt{attesters(tokenId)}, \texttt{attestationCount(tokenId)},
+\texttt{hasCoSigned(tokenId, attester)}, and \texttt{attestationLevel(tokenId)}.
+Studios are granted the attester role through the same admin pathway used for
+issuers. A single \texttt{coSign} consumes approximately 95{,}000 gas in the local
+EVM (\textasciitilde\$0.0006 at the baseline rate of \cref{tab:gas}); we report this
+as a local-EVM figure only, since \texttt{AnimatorSBTV2} is not deployed on-chain
+and, as \cref{subsec:contract} shows, local and on-chain gas can differ materially.
+Two scope limits of the implementation are worth stating: \texttt{attestationLevel}
+currently collapses the three-tier taxonomy above into a binary (\texttt{0} = no
+studio co-signature, \texttt{1} = at least one), so the \emph{peer-attested} tier is
+not separately distinguished on-chain; and the incentive design needed to motivate
+studios to participate---which faces the transparency-resistance barrier of
+\cref{subsec:adoption_barriers}---remains unaddressed.
+
+\paragraph{The attester-independence caveat.}
+The authenticity gain from co-signing is exactly as strong as the attester's
+independence and real-world identity binding---neither of which the contract can
+enforce on its own. Two gaps remain open. First, in the current single-operator MVP
+the issuer wallet also holds \texttt{STUDIO\_ATTESTER\_ROLE} (and the issuance
+service defaults the attester key to the issuer key), so a ``studio-attested'' token
+can in fact be self-co-signed by the operator; this configuration adds no
+authenticity and exists only to exercise the mechanism end to end. Second, even with
+a distinct attester wallet, nothing \emph{on-chain} binds \texttt{STUDIO\_ATTESTER\_ROLE}
+to a verified legal studio: the admin (TOONIQ) decides who is treated as a studio, so
+co-signing shifts the root of trust from the animator's self-report to TOONIQ's
+off-chain vetting of attesters rather than removing trust. Closing both gaps---an
+independent attester operated by a real studio, with an auditable identity
+binding---is what would convert a co-signed record from \emph{operator-attested} to
+\emph{independently authenticated}, and is the primary item of future work
 (\cref{sec:conclusion}). Honest framing of the present contribution is therefore
-``a self-sovereign, tamper-evident, portable contribution \emph{ledger}, plus the
-\emph{design} of the authenticity layer that would make it a verified credential.''
+``a self-sovereign, tamper-evident, portable contribution \emph{ledger}, plus a
+\emph{tested reference implementation} of the authenticity layer whose
+\emph{independent operation} would make it a verified credential.''

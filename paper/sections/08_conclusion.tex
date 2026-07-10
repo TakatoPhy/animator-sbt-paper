@@ -21,13 +21,17 @@ persistence, portability, and minimal friction),
 and assessed AnimatorSBT against all five. We find that it meets them by design,
 with two important caveats made explicit throughout: \emph{verifiability} is
 currently limited to integrity and existence---the authenticity of self-reported
-claims requires a studio co-signing layer that we design (\cref{subsec:cosigning})
-but do not yet implement---and the portability and minimal-friction claims rest on
-wallet abstraction that is not yet built and remains to be validated with users.
+claims requires a studio co-signing layer that we design and implement as a tested
+reference contract (\cref{subsec:cosigning}) but do not yet deploy on-chain or
+operate with independent studios---and the portability and minimal-friction claims
+rest on wallet abstraction that is not yet built and remains to be validated with users.
 
 A prototype---comprising the smart contract deployed on the Polygon Amoy testnet,
 an Issuance Service, and a Verification Portal---demonstrates technical feasibility
-and on-chain correctness. A cost analysis using on-chain gas measurements indicates
+and on-chain correctness, and we additionally provide a tested reference
+implementation of the co-signing authenticity layer and deterministic evidence
+hashing (60 passing tests), deployed locally but not yet on-chain. A cost analysis
+using on-chain gas measurements indicates
 that the \emph{blockchain layer} is not a cost barrier:
 minting a single certificate costs approximately \$0.0013 on-chain, and the
 dominant operating cost at scale is a flat IPFS pinning subscription (on the order
@@ -58,12 +62,14 @@ Several directions for future work emerge from this research:
     We report no such results here; this is a pre-registered-style plan, not an
     evaluation already performed.
 
-  \item \textbf{Studio co-signing protocol:}
-    Design and implement a two-party confirmation mechanism
-    where studios endorse animator contribution claims,
-    transforming self-attested SBTs into mutually verified credentials.
-    This requires careful incentive design to ensure studios
-    are motivated to participate.
+  \item \textbf{Independent operation of the co-signing protocol:}
+    We have implemented the two-party confirmation mechanism as a reference contract
+    (\cref{subsec:cosigning}). The remaining---and decisive---work is to deploy it
+    on-chain and operate it with \emph{independent, identity-bound} studio attesters
+    (rather than the single-operator MVP in which the issuer also holds the attester
+    role), to distinguish the peer-attested tier that the current binary
+    \texttt{attestationLevel} collapses, and to design the incentives that motivate
+    studios to participate despite the transparency they may prefer to avoid.
 
   \item \textbf{Interoperability with W3C Verifiable Credentials:}
     Extend AnimatorSBT to comply with the W3C Verifiable Credentials

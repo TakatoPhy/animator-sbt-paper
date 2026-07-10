@@ -82,11 +82,15 @@ SBT-aware tooling discover that a token is non-transferable), whereas our contra
 focuses on \emph{enforcement}, blocking transfers in \texttt{\_beforeTokenTransfer}
 and additionally overriding the approval-based vectors (\texttt{approve},
 \texttt{setApprovalForAll}) so that non-transferability holds through any
-ERC-721--compliant path. The prototype does not yet expose the ERC-5192
-\texttt{locked()} view; this is a small, recommended addition that would let
-wallets and explorers recognize the token as soulbound, and we plan to include it
-alongside our enforcement mechanism. We do not claim ERC-5192 is deficient---only
-that, on its own, signaling without enforcement was insufficient for our goal.
+ERC-721--compliant path. The v1 contract deployed on Amoy does not expose the
+ERC-5192 \texttt{locked()} view; the v2 reference contract (\cref{subsec:prototype})
+adds it---returning \texttt{true} for every minted token, emitting the ERC-5192
+\texttt{Locked} event at mint, and advertising interface id \texttt{0xb45a3c0e} via
+\texttt{supportsInterface}---so that wallets and explorers can recognize the token
+as soulbound through the standard signaling interface while our \texttt{\_beforeTokenTransfer}
+hook continues to provide enforcement. We do not claim ERC-5192 is deficient---only
+that, on its own, signaling without enforcement was insufficient for our goal; we
+now provide both.
 
 \subsubsection{Role-Based Access Control}
 
@@ -180,18 +184,25 @@ The \texttt{AnimatorSBT} contract was deployed on the Polygon Amoy testnet
 (block 35{,}058{,}633).\footnote{The deployment transaction and all subsequent
 interactions are publicly verifiable at
 \url{https://amoy.polygonscan.com/address/0x2cC31B9EFBD5dDfB5456EE4c76A0fcBCA5EEE117}.}
-A test suite of 35 unit tests was developed using Hardhat,
-covering deployment, minting, batch minting, soulbinding enforcement,
-revocation, view functions, and access control.
-All tests pass successfully.
-We note the scope of this suite plainly: it exercises the \emph{smart-contract}
-mechanics, which are the most standard and least error-prone part of the system.
-It does \emph{not} cover the Issuance Service's metadata construction, the
-deterministic (canonical) serialization on which \texttt{evidence\_hash} depends,
-the IPFS upload path, or the portal's hash-recompute logic---i.e., the components
-that carry the authenticity argument (\cref{subsec:verification}). Serialization
-determinism in particular is a classic source of hash-mismatch bugs and is
-currently untested; we flag testing of the off-chain pipeline as needed work.
+A test suite of 35 unit tests was developed using Hardhat for the deployed v1
+contract, covering deployment, minting, batch minting, soulbinding enforcement,
+revocation, view functions, and access control; all pass. Beyond the v1 contract,
+the repository adds a further 25 tests---17 for the v2 co-signing reference contract
+(\cref{subsec:cosigning}), 7 for the canonical evidence-hash serialization, and a
+local end-to-end issuance test---for 60 passing in total.
+We note the scope of this suite plainly. The v1 and v2 contract tests exercise the
+\emph{smart-contract} mechanics, which are the most standard and least error-prone
+part of the system. Importantly, the serialization-determinism gap flagged in an
+earlier version of this work is now closed: the \texttt{evidence\_hash} is computed
+over a \emph{canonical} (recursively key-sorted) serialization, and 7 unit tests
+confirm that it is independent of key insertion order, stable, and sensitive to any
+value change---removing a classic source of silent hash-mismatch bugs. What the
+suite still does \emph{not} cover is the live IPFS upload/pinning path and the
+in-browser portal's hash-recompute logic against real pinned metadata, and---most
+consequentially---the v2 co-signing contract is exercised only in the local EVM and
+is \emph{not deployed on-chain}. These off-chain and on-chain-deployment gaps,
+which carry the authenticity argument (\cref{subsec:verification}), remain needed
+work.
 An end-to-end demonstration of the Tanaka scenario
 (\cref{subsec:flow}) was executed on the testnet,
 successfully minting an SBT with IPFS-hosted metadata
@@ -222,6 +233,40 @@ and displays the contribution details including project, role, task count, and d
 The portal also supports evidence hash verification by recomputing
 the Keccak-256 hash from the IPFS metadata and comparing it
 to the stored \texttt{evidence\_hash} field.
+
+\subsubsection{Co-signing Reference Contract and Canonical Hashing}
+\label{subsubsec:v2}
+
+To make the authenticity layer of \cref{subsec:cosigning} concrete rather than
+merely sketched, the repository includes a reference implementation that is
+validated locally but, consistent with our scoping, is \emph{not} deployed on-chain
+and does \emph{not} replace the v1 contract on Amoy:
+
+\begin{itemize}
+  \item \textbf{\texttt{AnimatorSBTV2}}: the v1 contract extended with a
+    \texttt{STUDIO\_ATTESTER\_ROLE}, an idempotent multi-studio
+    \texttt{coSign(uint256)} (the attester is \texttt{msg.sender}), the
+    \texttt{attesters}/\texttt{attestationCount}/\texttt{hasCoSigned}/\texttt{attestationLevel}
+    views, and ERC-5192 \texttt{locked()} signaling. A \texttt{coSign} costs
+    \textasciitilde95{,}000 gas in the local EVM; deployment costs
+    \textasciitilde2.06M gas. We report these as local-EVM figures, since the
+    contract is not deployed on-chain.
+  \item \textbf{Canonical serialization module}: a dependency-light, recursively
+    key-sorted JSON serializer (a JCS/RFC~8785 subset) over which
+    \texttt{evidence\_hash} is computed, so that two parties building the same
+    attributes in different key order obtain the same hash. This closes the
+    hash-determinism gap previously flagged as untested.
+  \item \textbf{Issuance Service v2}: the v1 issuance flow extended with the
+    canonical hash and an optional co-signing step using a separate attester wallet,
+    plus a swappable wallet-provisioning seam (a non-custodial embedded-wallet
+    interface) that is currently an unconfigured skeleton.
+\end{itemize}
+
+We emphasize what this does and does not establish: it demonstrates that the
+co-signing mechanism, canonical hashing, mint, and soulbinding \emph{compose}
+correctly off-chain and in the local EVM. It does not establish on-chain behavior,
+independent-studio operation, or end-to-end issuance from real application data---all
+of which remain future work (\cref{subsec:eval_limitations}).
 
 % ----- 5.4 Integration with Production Management Client -----
 \subsection{Integration with Production Management Client}
