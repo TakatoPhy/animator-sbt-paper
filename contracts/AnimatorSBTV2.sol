@@ -34,6 +34,9 @@ contract AnimatorSBTV2 is ERC721, AccessControl {
     /// @notice Role held by studios (or production managers) authorized to co-sign.
     bytes32 public constant STUDIO_ATTESTER_ROLE = keccak256("STUDIO_ATTESTER_ROLE");
 
+    /// @dev ERC-5192 (minimal soulbound) interface id == bytes4(keccak256("locked(uint256)")).
+    bytes4 private constant _INTERFACE_ID_ERC5192 = 0xb45a3c0e;
+
     // ===== State =====
     Counters.Counter private _tokenIdCounter;
 
@@ -68,6 +71,10 @@ contract AnimatorSBTV2 is ERC721, AccessControl {
         address indexed attester,
         uint256 timestamp
     );
+
+    /// @notice ERC-5192: emitted when a token becomes permanently locked (at mint).
+    /// No `Unlocked` event is declared: AnimatorSBTs never unlock.
+    event Locked(uint256 tokenId);
 
     // ===== Errors =====
     error SoulboundTransferDisabled();
@@ -122,6 +129,7 @@ contract AnimatorSBTV2 is ERC721, AccessControl {
         _issuedAt[tokenId] = block.timestamp;
 
         emit SBTMinted(tokenId, to, uri, block.timestamp);
+        emit Locked(tokenId); // ERC-5192: token is soulbound from issuance
         return tokenId;
     }
 
@@ -139,6 +147,7 @@ contract AnimatorSBTV2 is ERC721, AccessControl {
             _issuedAt[tokenId] = block.timestamp;
 
             emit SBTMinted(tokenId, recipients[i], uris[i], block.timestamp);
+            emit Locked(tokenId); // ERC-5192
         }
     }
 
@@ -181,6 +190,18 @@ contract AnimatorSBTV2 is ERC721, AccessControl {
 
     function isRevoked(uint256 tokenId) external view returns (bool) {
         return _revoked[tokenId];
+    }
+
+    /**
+     * @notice ERC-5192: every minted AnimatorSBT is permanently locked (soulbound).
+     * @dev Always returns true for an existing token; reverts for a non-existent one.
+     *      Exposed so SBT-aware wallets and explorers can recognize the token as
+     *      non-transferable via the standard signaling interface, complementing the
+     *      enforcement in `_beforeTokenTransfer`.
+     */
+    function locked(uint256 tokenId) external view returns (bool) {
+        _requireMinted(tokenId);
+        return true;
     }
 
     function issuedAt(uint256 tokenId) external view returns (uint256) {
@@ -246,6 +267,8 @@ contract AnimatorSBTV2 is ERC721, AccessControl {
     function supportsInterface(
         bytes4 interfaceId
     ) public view override(ERC721, AccessControl) returns (bool) {
-        return super.supportsInterface(interfaceId);
+        return
+            interfaceId == _INTERFACE_ID_ERC5192 ||
+            super.supportsInterface(interfaceId);
     }
 }

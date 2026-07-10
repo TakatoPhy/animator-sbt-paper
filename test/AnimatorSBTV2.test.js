@@ -122,6 +122,29 @@ describe("AnimatorSBTV2 (co-signing layer)", function () {
     });
   });
 
+  // ===== ERC-5192 (minimal soulbound) signaling =====
+  describe("ERC-5192 locked() interface", function () {
+    it("reports every minted token as permanently locked", async function () {
+      expect(await sbt.locked(1)).to.be.true;
+    });
+
+    it("reverts locked() for a non-existent token", async function () {
+      await expect(sbt.locked(999)).to.be.revertedWith(
+        "ERC721: invalid token ID"
+      );
+    });
+
+    it("emits Locked(tokenId) on mint", async function () {
+      await expect(sbt.connect(issuer).mint(animator1.address, URI))
+        .to.emit(sbt, "Locked")
+        .withArgs(2); // token 1 minted in beforeEach
+    });
+
+    it("advertises the ERC-5192 interface id (0xb45a3c0e) via supportsInterface", async function () {
+      expect(await sbt.supportsInterface("0xb45a3c0e")).to.be.true;
+    });
+  });
+
   // ===== Sanity: v1 behavior preserved =====
   describe("Inherited behavior still holds", function () {
     it("Soulbinding still blocks transfers", async function () {
