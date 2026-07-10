@@ -36,3 +36,7 @@ typechain-types/
 
 # Zotero export (keep .bib only)
 *.json.bak
+
+# Poster materials are kept out of the repo entirely (owner decision 2026-07-10:
+# repo stays source-only for the paper; poster is a local/presentation artifact).
+poster/
