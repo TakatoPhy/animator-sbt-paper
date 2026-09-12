@@ -17,9 +17,25 @@ internal to the design. Co-signing is what converts a self-report into a
 credential, and the transparency it creates is what a studio has reason to avoid:
 a countersigned record of who did which cut also documents how deep the
 outsourcing chain runs. The party whose participation the credential needs is
-therefore the party it exposes. We can see no way to resolve this from the design
-side, and we have no evidence about studio willingness either way; obtaining it is
-the priority we identify in \cref{sec:conclusion}.
+therefore the party it exposes.
+
+Anchoring issuance on an accepted order separates two objections that are easily
+conflated. One is effort: a studio asked to vouch for work must review it, decide,
+and stand behind the decision. That objection largely dissolves, because accepting
+a delivery and paying for it \emph{is} the review, and it has already happened by
+the time a certificate could be issued; the co-signature is a signature on a
+determination the studio made for its own commercial reasons, against a record it
+already keeps. The marginal cost is one transaction.
+
+The other objection is disclosure, and it does not dissolve. The fact that this
+studio commissioned this person pre-exists the certificate, but its publication
+does not, and publication is precisely what the credential is for. The metadata
+schema can omit the studio name where a non-disclosure agreement applies
+(\cref{subsec:privacy}), but an attestation whose attester is unnamed cannot be
+weighed by a verifier, so the privacy lever and the value of the credential move
+against each other. We therefore expect willingness to co-sign to vary with what a
+studio believes its subcontracting depth would reveal, and we have no evidence
+either way; obtaining it is the priority we identify in \cref{sec:conclusion}.
 
 Regulatory pressure is a weaker inducement than it first appears. The Fair Trade
 Commission's findings concern unilateral pricing and unpaid retakes, not
