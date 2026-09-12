@@ -186,13 +186,12 @@ measured gas and exclude mainnet priority and L1 data costs. They are a model.
 parameters, but the specific figures should be read as projections rather than
 observed costs.
 
-The evidence hash is more self-referential than the phrase ``no co-signing''
-conveys. It is computed over issuer-authored attributes stored in the same
-metadata object, so recomputing it detects tampering after minting and nothing
-else---it establishes no correspondence to an independent source. Comparing
-against the animator's own local log is stronger and still circular, since that
-log is the self-report. The serialisation this comparison depends on is now
-tested; the live pinning path and the in-browser recomputation are not.
+The evidence hash establishes less than its presence suggests, for the reason set
+out in \cref{subsec:verification}: it is computed over attributes the issuer
+authored and stored alongside them, so it witnesses that nothing changed after
+minting and nothing about correspondence to anything outside the record. The
+serialisation it depends on is now tested; the live pinning path and the
+in-browser recomputation are not.
 
 No user study has been run. Perceived value, comprehension of what the credential
 does and does not prove, and whether studios would co-sign are all unmeasured, and

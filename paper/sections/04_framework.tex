@@ -144,7 +144,7 @@ contribution data is stored under an \texttt{attributes} object.}
 \texttt{description}       & string   & Human-readable summary \\
 \midrule
 \multicolumn{3}{@{}l}{\textit{attributes} (contribution data):} \\
-\texttt{animator\_name}    & string   & Animator's display name \\
+\texttt{animator\_name}    & string   & Name the animator is credited under \\
 \texttt{animator\_wallet}  & address  & Animator's wallet address \\
 \texttt{project}           & string   & Anime project or episode title \\
 \texttt{role}              & enum     & e.g., \texttt{key\_anim}, \texttt{in\_between}, \texttt{coloring} \\
@@ -160,23 +160,14 @@ contribution data is stored under an \texttt{attributes} object.}
 \end{tabular}
 \end{table}
 
-The \texttt{evidence\_hash} field provides a cryptographic link between the on-chain certificate
-and the off-chain work log stored in the PMC.
-This allows verifiers to confirm that the SBT corresponds to actual recorded work
-without exposing the raw work log data.
-
-The \texttt{studio\_name} field is intentionally nullable to accommodate cases where
-non-disclosure agreements prevent public attribution to a specific project or studio.
-Even without a studio name, the SBT still records the animator's self-declared role,
-task volume, and time period, providing more information than the current system of
-no record at all.
-There is, however, a direct tension between this privacy affordance and authenticity
-(\cref{subsec:cosigning}): when \texttt{studio\_name} is null there is no named
-counterparty who could co-sign or be contacted, so a null-studio SBT cannot be
-elevated above a self-attestation. The privacy feature is thus most needed
-precisely for confidential, high-value projects---exactly the cases where
-third-party verification is weakest. We make this trade-off explicit rather than
-implying that every SBT can attain the same level of trust.
+Two fields carry the design rather than the data. \texttt{evidence\_hash} links
+the certificate to the work log it was built from, so a verifier can check
+correspondence without being shown the log; \cref{subsec:verification} sets out
+how little that establishes. \texttt{studio\_name} is nullable, which matters more
+than it appears: a certificate with no named counterparty has nobody who could
+co-sign it, so the privacy affordance is available exactly on the confidential,
+high-value productions where third-party verification would be worth most. The
+trade-off is real and we do not design it away.
 
 % ----- 4.3 Issuance Flow -----
 \subsection{Issuance Flow}
@@ -208,34 +199,23 @@ r\'esum\'e, and less than a credential.
 \subsection{Verification Mechanism}
 \label{subsec:verification}
 
-Third parties can verify an animator's credentials through two methods:
+A verifier with an animator's address queries the contract for the tokens it holds
+and their metadata URIs. Because the tokens cannot be transferred, holding one is
+evidence that the holder is who it was issued to. A portal renders the resulting
+portfolio and can recompute the evidence hash, with the animator's consent,
+against the work log the certificate was built from.
 
-\textbf{On-chain query:}
-Given an animator's wallet address (or an Ethereum Name Service (ENS) name / human-readable identifier),
-a verifier can query the AnimatorSBT contract's \texttt{balanceOf()} and
-\texttt{tokenURI()} functions to retrieve all issued SBTs and their metadata.
-Since the tokens are non-transferable, possession of an SBT at a given address
-constitutes proof that the address holder earned the credential.
-
-\textbf{Verification Portal:}
-A web-based interface renders an animator's SBT portfolio in a human-readable format,
-displaying project titles, roles, task counts, and time periods.
-The portal can also recompute the \texttt{evidence\_hash} and, with the animator's
-consent, compare it against the PMC's locally stored work logs.
-
-What this check establishes is narrow, and worth stating precisely.
-The \texttt{evidence\_hash} is a Keccak-256 hash of the serialized attributes;
-recomputing it from the pinned metadata alone (as the static portal does,
-\cref{subsec:prototype}) only detects whether the IPFS file was altered after
-minting---a weak guarantee, since the issuer authored both the attributes and the
-hash. Comparing it against the animator's \emph{local} work log is stronger: it ties
-the on-chain certificate to a contemporaneous record. But even this establishes
-only \emph{integrity} (the certificate corresponds to the work log that was hashed
-at issuance), not \emph{authenticity} (that the work log reflects work actually
-performed)---the log is self-reported. The local-log comparison also requires
-the animator's consent and the continued existence of the local data, and is
-therefore fragile to device loss. Authenticity requires the co-signing layer of
-\cref{subsec:cosigning}.
+What that recomputation establishes is narrow enough to be worth stating exactly.
+Recomputed from the pinned metadata alone, the hash detects whether the file
+changed after minting---and nothing more, because the issuer authored both the
+attributes and the hash over them. Compared against the animator's own local log
+it is stronger, tying the certificate to a contemporaneous record, but it
+establishes integrity rather than authenticity: the log is self-reported, so a
+match shows the certificate agrees with what was claimed, not with what was done.
+That comparison is also fragile, requiring consent and the survival of local data
+on a device. Authenticity is the co-signature's job (\cref{subsec:cosigning}), and
+anchoring on an accepted order (\cref{subsec:integration}) is what gives the
+co-signature something already determined to sign.
 
 % ----- 4.5 Privacy Considerations -----
 \subsection{Privacy Considerations}
