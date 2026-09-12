@@ -38,61 +38,33 @@ were publishing is worse than no credential.
 \subsection{Trust Model and Abuse Prevention}
 \label{subsec:trust}
 
-\textbf{It is important to acknowledge a fundamental limitation:}
-AnimatorSBT's current trust model relies on self-reported work logs.
-The blockchain guarantees that a \textit{claim was recorded at a specific time
-by a specific issuer}, but it does not independently verify
-that the claimed work was actually performed.
-In other words, the SBT certifies the existence and immutability
-of a contribution claim, not the truth of that claim.
-This distinction is critical for understanding the system's
-current trust boundary.
+The chain guarantees that a claim was recorded at a time by an issuer. It does not
+guarantee that the work was done. Everything in this subsection follows from that
+boundary.
 
-Without studio co-signing, AnimatorSBT-issued SBTs are
-functionally \textit{self-attestations with cryptographic integrity}---
-more reliable than verbal claims (due to timestamping, immutability,
-and evidence hashing) but less authoritative than
-mutually verified credentials.
-This introduces potential abuse vectors that must be addressed:
+The obvious attack is a fabricated log. An animator who controls their own entries
+can mint a certificate for work they did not do, and no amount of hashing changes
+that, because the hash fixes the claim rather than checking it. Anchoring issuance
+on an accepted order (\cref{subsec:integration}) narrows the attack considerably:
+the animator does not control whether a studio accepts and pays for a delivery, so
+fabricating a certificate requires fabricating a commercial transaction. It does
+not close the attack, because the studio's acceptance is recorded in a system the
+operator runs, and a co-signature is what puts a second party's key behind it.
 
-\textbf{Fabricated contributions.}
-An animator could create false work log entries in the PMC
-to mint SBTs for work they did not perform.
-We propose three mitigation layers:
+Sybil resistance and open enrolment pull against each other, and we have not
+resolved it. Tying wallet creation to registration in the management client gates
+identity only as far as that registration is closed; completeness and minimal
+friction both argue for letting any animator enrol freely. An external identity
+protocol would settle it at the cost of the onboarding friction the design set out
+to avoid. We state this as a trade-off we have chosen one side of, not as a solved
+problem.
 
-\begin{enumerate}
-  \item \textbf{Studio co-signing (recommended):}
-    Extend the smart contract with a two-party confirmation mechanism
-    where the studio (or production manager) countersigns the SBT.
-    This transforms the SBT from a self-attestation into a mutually verified record.
-  \item \textbf{Peer attestation:}
-    Allow other animators who worked on the same production to attest
-    to a colleague's contribution, creating a social verification layer.
-  \item \textbf{Statistical anomaly detection:}
-    The Issuance Service can flag statistically improbable claims
-    (e.g., an animator claiming 500 cuts in a single week)
-    for manual review before minting.
-\end{enumerate}
-
-\textbf{Sybil attacks.}
-A malicious actor could create multiple wallets to fabricate a diverse portfolio.
-Account abstraction mitigates this partially by linking wallet creation
-to PMC registration, but a determined attacker could create multiple PMC accounts.
-We acknowledge a tension here that we did not initially make explicit: tying wallet
-creation to PMC registration as a Sybil gate is only as strong as PMC enrollment is
-\emph{closed}, yet R1 (completeness) and R5 (minimal friction) call for \emph{open},
-low-friction self-enrollment so that any animator can self-report. A meaningful
-identity gate and frictionless open onboarding cannot both hold fully; resolving
-this likely requires external identity protocols (e.g., Proof of Humanity,
-Worldcoin), at the cost of some onboarding friction---a deliberate trade-off rather
-than a solved problem.
-
-\textbf{Issuer key compromise.}
-If the Issuance Service's private key is compromised,
-an attacker could mint arbitrary SBTs.
-The AccessControl pattern mitigates this:
-the admin role (held by TOONIQ) can revoke the compromised issuer role
-and assign a new key, and all fraudulently minted SBTs can be revoked on-chain.
+Two smaller vectors are handled by construction. A compromised issuer key can mint
+arbitrary certificates, which the role separation limits: the admin revokes the
+issuer role and the fraudulent tokens are revoked on chain, leaving the audit
+trail intact. Statistically implausible claims---an animator reporting several
+hundred cuts in a week---can be held for review before minting, which is a
+heuristic rather than a guarantee.
 
 \textbf{Wallet loss and credential recovery.}
 Because SBTs are bound to a specific wallet address,
