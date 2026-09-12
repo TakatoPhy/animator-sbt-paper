@@ -1,13 +1,5 @@
 % Discussion
 
-This section examines the practical challenges of deploying AnimatorSBT
-in the anime industry (\cref{subsec:adoption_barriers}),
-discusses the trust model and potential abuse vectors (\cref{subsec:trust}),
-considers legal and regulatory implications (\cref{subsec:legal}),
-explains why a technological solution is particularly needed
-in Japan's anime industry (\cref{subsec:why_japan}),
-and explores generalizability to other creative industries (\cref{subsec:generalizability}).
-
 % ----- 7.1 Adoption Barriers -----
 \subsection{Adoption Barriers}
 \label{subsec:adoption_barriers}
@@ -155,67 +147,6 @@ the Fair Trade Commission's findings on unilateral pricing~\cite{jftc2025anime}.
 It would evidence less than that suggests. A timestamped evidence hash establishes
 that a claim existed at a time, not that the work was done or what was owed for it;
 only a co-signature reaches the former, and nothing here reaches the latter.
-
-\subsection{Why a Technological Solution Is Needed}
-\label{subsec:why_japan}
-
-A natural question is why the anime industry requires a blockchain-based solution
-when other entertainment industries manage attribution through institutional means.
-In Hollywood, labour unions such as the Screen Actors Guild--American Federation
-of Television and Radio Artists (SAG-AFTRA),
-the Writers Guild of America (WGA),
-and the International Alliance of Theatrical Stage Employees (IATSE) enforce credit rights through collective bargaining
-agreements. These unions maintain records of members' work history,
-negotiate credit arbitration processes, and can call strikes
-to enforce compliance---as demonstrated by the 2023 SAG-AFTRA and WGA strikes.
-
-Japan's anime industry lacks comparable institutional infrastructure.
-Although JAniCA exists as an industry association,
-it functions primarily as a survey and advocacy body
-rather than a collective bargaining agent with enforcement power.
-The key structural differences are:
-
-\begin{itemize}
-  \item \textbf{Unionization rate:}
-    The anime industry has no equivalent of SAG-AFTRA's mandatory membership.
-    JAniCA membership is voluntary and does not confer negotiating rights.
-  \item \textbf{Freelance prevalence:}
-    At roughly half the workforce (47.3\% in 2023~\cite{janica2023survey},
-    69.6\% in 2019~\cite{janica2019survey}), the freelance share in anime far exceeds
-    the ratio in unionized Western entertainment industries.
-  \item \textbf{Credit governance:}
-    In Hollywood, unions define credit rules (e.g., the WGA's credit arbitration process).
-    In anime, credit decisions rest with studios and production committees
-    with no external oversight.
-  \item \textbf{Multi-layer subcontracting:}
-    While Hollywood outsources VFX,
-    anime's gross-subcontracting (\textit{gurosu}) system
-    routinely delegates entire episodes through two or three tiers of subcontractors,
-    creating deeper attribution gaps.
-\end{itemize}
-
-In the absence of institutional solutions,
-a technological approach that gives individual animators
-tamper-evident, self-sovereign records becomes not merely useful
-but, we argue, structurally valuable.
-AnimatorSBT aims to provide part of what unions provide elsewhere:
-a persistent, portable record of who did what---though, as discussed,
-turning that record into a fully \emph{trusted} one requires the co-signing layer
-of \cref{subsec:cosigning}.
-
-More broadly, verifiable career records \emph{could} contribute to the social
-capital of the animator profession---but we are careful not to overstate this.
-The records this system produces attest to \emph{work performed}, not \emph{income},
-and Japanese institutions such as banks and immigration authorities rely on income
-documents (e.g., tax returns and withholding statements), not on-chain records,
-which they do not currently recognize (\cref{subsec:legal}). We therefore do
-\emph{not} claim that AnimatorSBT directly unlocks mortgages, visas, or credit.
-The realistic, longer-term possibility is that a co-signed
-(\cref{subsec:cosigning}), institutionally recognized attribution record could one
-day \emph{complement} the income documentation these processes require---contingent
-on co-signing, legal recognition, and integration with recognized institutional
-rails. We frame this as aspiration, not a
-demonstrated capability.
 
 % ----- 7.5 Generalizability -----
 \subsection{Generalizability to Other Creative Industries}
