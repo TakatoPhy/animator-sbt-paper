@@ -21,44 +21,29 @@ The design decisions worth defending are not the components but three choices a
 reader may reasonably question.
 
 \textbf{Why blockchain rather than a centralized database?}
-A conventional approach would store contribution records in
-a centralized database operated by a single entity (e.g., TOONIQ or a studio).
-However, this fails to satisfy the requirements defined in \cref{subsec:formalization}
-for three reasons:
-\begin{enumerate}
-  \item \textbf{Persistence beyond any single organization:}
-    Anime studios frequently close or restructure.
-    A centralized database disappears with its operator.
-    The on-chain record---token ownership, issuance timestamp, and the metadata
-    URI---persists independently of any company's survival; even if TOONIQ ceases
-    operations, these facts remain on the public blockchain.
-    We flag one caveat here and quantify it in \cref{subsec:requirements_eval}:
-    the \emph{human-readable} metadata lives off-chain on IPFS and depends on
-    continued pinning, and the verification portal and issuance service are
-    operated by TOONIQ. What strictly survives issuer death is therefore
-    proof of existence and ownership, not the full human-readable credential
-    unless the IPFS data is preserved by another party.
-  \item \textbf{Cross-organizational portability:}
-    Freelance animators work across dozens of studios over their careers.
-    In a centralized model, each studio holds a fragment of an animator's history
-    in its own siloed system, with no standard way to aggregate them.
-    With SBTs, all credentials accumulate in a single wallet address.
-    An animator can present one link that aggregates their PMC-tracked
-    contributions across studios (subject to the authenticity caveat of
-    \cref{subsec:cosigning} and the completeness caveat of
-    \cref{subsec:requirements_eval}).
-  \item \textbf{Tamper resistance without trust:}
-    A centralized database administrator can modify or delete records.
-    Blockchain records are append-only and cryptographically linked;
-    once an SBT is minted, neither the issuer nor any third party
-    can alter the fact that it was issued, when, and to whom.
-    This provides animators with an independent guarantee
-    that their credentials cannot be retroactively revoked or falsified
-    without an auditable on-chain trace.
-    (Issuance itself is \emph{permissioned}---only holders of the
-    \texttt{ISSUER\_ROLE} may mint---so the system is not trustless at the point
-    of issuance; \cref{subsec:trust} discusses the resulting trust assumptions.)
-\end{enumerate}
+The conventional answer is a database run by one party---a studio, or us. It
+fails the requirements of \cref{subsec:formalization} in three places, and it is
+worth being exact about how far the chain actually rescues each.
+
+Studios close and restructure, and a database goes with its operator. What
+survives on chain is ownership, the issuance timestamp and the metadata pointer;
+those persist whether or not we do. What does not survive is the human-readable
+credential, because the metadata sits off chain and depends on someone continuing
+to pin it, and because the portal and issuance service are ours to operate. Proof
+that a certificate exists and whose it is outlives the issuer. The content does
+not, unless another party keeps it.
+
+An animator works across dozens of studios, and in the centralised model each
+holds a fragment in its own system with no way to combine them. Certificates
+accumulate instead at one address, so a career is presentable as a single link
+rather than assembled from testimony---subject to the authenticity caveat
+throughout this paper.
+
+An administrator can rewrite or delete records; an on-chain record cannot be
+altered after the fact without leaving a trace. The guarantee is narrower than
+"trustless", since issuance is permissioned and only role-holders can mint. What
+the animator gets is not a system nobody controls, but one in which what was
+issued, when, and to whom cannot be quietly changed afterwards.
 
 \textbf{Why SBTs rather than Verifiable Credentials?}
 An alternative design would use W3C Verifiable Credentials (VCs)~\cite{sporny2022vc}
@@ -83,43 +68,24 @@ and nothing in the design forecloses it.
 
 \textbf{Why a bespoke contract rather than a general attestation service or a
 signed log?}
-Two lighter-weight alternatives deserve explicit treatment, as a reviewer might
-reasonably prefer them.
-First, a generic on-chain attestation registry such as the Ethereum Attestation
-Service (EAS) could carry the same attestations without a custom contract.
-We regard EAS as a genuinely viable substrate and do not claim our contract is the
-only option; indeed the co-signing design of \cref{subsec:cosigning} could be
-expressed as EAS attestations. We chose a minimal dedicated ERC-721 contract for
-three pragmatic reasons: (i)~it bundles soulbound semantics, role-gated issuance,
-and role-gated co-signing into a single auditable unit with no dependency on an
-external registry's schema, governance, or continued operation; (ii)~it yields the
-\emph{token-balance-as-portfolio} ergonomic (R4/R5) that a non-transferable token
-gives natively and a raw attestation does not; and (iii)~it lets SBT-aware wallets
-recognize the credential directly (via ERC-5192, \cref{subsec:contract}). These are
-ergonomic and self-containment arguments, not claims of technical superiority.
-Second, one could forgo blockchain entirely and publish a centrally operated,
-cryptographically signed append-only log (e.g., a Certificate-Transparency--style
-Merkle log with periodic public anchoring). Such a design achieves tamper-evidence
-and is cheaper, but \emph{verification still depends on the operator continuing to
-publish and serve the log and its signing key}; a public-chain record is verifiable
-by anyone via any RPC node with no dependency on the issuer's survival, which is
-precisely the property R3 (persistence beyond issuer death) and R4 (portability)
-demand. We therefore view the signed-log approach as a reasonable lighter option for
-integrity alone, but not for operator-independent persistence and portability.
+Two lighter alternatives deserve an answer. A generic on-chain attestation
+registry such as the Ethereum Attestation Service could carry these attestations
+without a custom contract, and we regard it as a viable substrate---the co-signing
+design of \cref{subsec:cosigning} could be expressed as EAS attestations. We chose
+a dedicated ERC-721 contract because it bundles soulbound semantics, role-gated
+issuance and role-gated co-signing into one auditable unit that depends on no
+external registry's schema or continued operation, and because a non-transferable
+token gives the portfolio-as-balance ergonomic natively where a raw attestation
+does not. Those are arguments from self-containment, not from technical
+superiority.
 
-A key design principle is \textbf{transparency to the end user}:
-the animator should not need to understand blockchain technology,
-manage a wallet manually, or pay gas fees.
-In the production design, the PMC handles wallet creation
-(embedded wallet via account abstraction~\cite{buterin2021erc4337})
-and the Issuance Service sponsors gas fees through a relayer (ERC-2771),
-so that from the animator's perspective the intended experience is:
-``I finished my cuts $\rightarrow$ I got a certificate in my profile.''
-We emphasize that this walletless, gasless experience is a \emph{design target}:
-the current prototype uses a standard externally owned account and pays gas directly
-(\cref{subsec:stack}), and the embedded-wallet/relayer integration---together with
-its own failure modes such as wallet recovery (\cref{subsec:trust})---is not yet
-implemented or evaluated with users.
+One could also forgo the chain entirely and publish a signed append-only log, in
+the manner of certificate transparency. That achieves tamper-evidence more
+cheaply, and it fails on the requirement that matters here: verification depends
+on the operator continuing to serve the log and its key, whereas a public-chain
+record is checkable through any node whether or not the issuer still exists. For
+integrity alone the signed log is the lighter and better answer; for persistence
+beyond the issuer, it is not an answer.
 
 % ----- 4.2 SBT Metadata Schema -----
 \subsection{SBT Metadata Schema}
@@ -275,20 +241,13 @@ unresolved (\cref{subsec:legal}).
 \subsection{Co-signing and the Authenticity Layer}
 \label{subsec:cosigning}
 
-The mechanisms above produce a record that is \emph{tamper-evident}, timestamped,
-and portable, but---as we are careful to repeat---authenticity (that the claimed
-work was actually performed) is not established by issuance alone, because the
-underlying work log is self-reported (\cref{subsec:trust}).
-This subsection presents the design of an authenticity layer and a reference
-implementation of it.
-\textbf{We are precise about its status. The co-signing mechanism is \emph{not}
-part of the contract currently deployed on Polygon Amoy (\cref{subsec:contract}),
-which is the v1 contract exposing only \texttt{mint}, \texttt{mintBatch},
-\texttt{revoke}, and view functions. It \emph{is}, however, implemented in a
-separate reference contract, \texttt{AnimatorSBTV2}, with a passing test suite and
-local gas measurements (\cref{subsec:prototype}). What remains undone is the part
-that actually delivers authenticity: on-chain deployment, and operation by an
-independent, identity-bound studio attester.}
+Everything above produces a record that is tamper-evident, timestamped and
+portable, and none of it makes the record true. This subsection designs the layer
+that would, and implements it far enough to measure. The co-signing mechanism is
+not in the contract deployed on Amoy, which exposes only minting, revocation and
+views; it lives in a separate reference contract with a passing test suite. What
+is undone is the part that delivers authenticity rather than describes it:
+deployment, and operation by an attester the issuer does not control.
 
 \paragraph{What a credential is worth depends on who signed it.}
 A self-attested certificate, minted from the animator's own log, establishes
