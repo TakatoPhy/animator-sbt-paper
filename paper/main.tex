@@ -4,6 +4,11 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{hyperref}
+\usepackage{xurl}    % allow URLs to break at any character
+\usepackage{seqsplit}
+% Long unbroken identifiers (contract addresses, IPFS CIDs) do not fit a column
+% and TeX cannot break them; \hexid inserts breakpoints between characters.
+\newcommand{\hexid}[1]{\texttt{\seqsplit{#1}}}
 \usepackage{cleveref}
 \usepackage{xcolor}
 \usepackage{listings}
