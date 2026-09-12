@@ -66,38 +66,35 @@ and contribution certificates are issued automatically
 upon project milestones without requiring blockchain knowledge,
 wallet management, or gas fee payment.
 
-Our contributions are as follows:
+This paper contributes an analysis of where an attestation can come from when no
+body holds jurisdiction to make one, and a measurement of what it costs to carry
+that attestation on a public chain.
 
-\begin{enumerate}
-  \item We formalize the \textbf{contribution invisibility problem}
-    in the anime industry, defining it as the gap between the set
-    of actual contributors and the set of credited contributors,
-    and establish five requirements for an ideal solution
-    (\cref{sec:problem}).
-  \item We propose the \textbf{AnimatorSBT framework},
-    consisting of an SBT smart contract, an issuance service,
-    and a verification portal integrated with a production management tool
-    (\cref{sec:framework}).
-  \item We present a \textbf{prototype on the Polygon Amoy testnet}---a smart contract,
-    an issuance service, and a static verification portal---that demonstrates
-    technical feasibility and on-chain correctness (not yet an integrated product,
-    and not yet evaluated with users). A cost analysis using on-chain gas measurements
-    shows that the marginal operating cost is low and is dominated by a flat
-    IPFS pinning fee (on the order of \$240/year) rather than blockchain costs
-    (\cref{sec:evaluation}).
-  \item We provide a \textbf{reference implementation of the authenticity layer}:
-    a separate co-signing contract (\texttt{AnimatorSBTV2}) adding a studio-attester
-    role, an idempotent multi-studio \texttt{coSign} operation, an
-    \texttt{attestationLevel} view, and ERC-5192 soulbound signaling; together with a
-    deterministic (canonical) evidence-hash serialization module that closes a
-    hash-determinism gap. The combined system is exercised by a 60-test suite. These
-    components are validated locally but, in keeping with our honest scoping, are not
-    yet deployed on-chain or operated with independent studios (\cref{subsec:cosigning,subsec:prototype}).
-  \item We identify \textbf{adoption barriers and abuse vectors},
-    including studio cooperation challenges, self-reporting risks,
-    and regulatory considerations specific to Japan,
-    and propose mitigation strategies (\cref{sec:discussion}).
-\end{enumerate}
+The analysis is that the attestation already exists. A studio that accepts a
+delivery and pays for it has made a determination about who did the work, for its
+own commercial reasons, recorded in a system it already keeps; a certificate
+anchored to that determination records it rather than manufacturing it, which is a
+different design from anchoring on a self-reported log and has different security
+properties (\cref{subsec:integration,subsec:trust}). We reach it by way of a
+formalisation of the contribution invisibility problem as the gap between actual
+and credited contributors, and of why the institutional route that closed the same
+gap in film and television is unavailable here (\cref{sec:problem}).
+
+The measurements are that on-chain issuance costs about a tenth of a cent per
+certificate and is governed less by the contract than by the length of the
+metadata pointer it stores, which makes any per-certificate figure
+uninterpretable without its storage scheme; and that the binding operating cost is
+a flat off-chain pinning subscription, which reintroduces the single-operator
+dependency that anchoring on chain was meant to remove
+(\cref{sec:evaluation}). Both generalise beyond this application.
+
+Supporting these, we deploy a soulbound contract on a public testnet and provide
+tested reference implementations of a studio co-signing layer and of a
+deterministic evidence-hash serialisation, the latter closing a determinism gap
+that made the earlier hash meaningless under key reordering
+(\cref{subsec:cosigning,subsec:canonical}). We claim no novelty for the token
+mechanism itself, which composes existing standards, and we identify the adoption
+and authenticity problems the design does not solve (\cref{sec:discussion}).
 
 The remainder of this paper is organized as follows.
 \Cref{sec:related_work} surveys related work across anime production,
