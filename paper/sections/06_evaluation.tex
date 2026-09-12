@@ -39,7 +39,7 @@ The simulation assumes the following industry parameters based on public data:
 
 \subsubsection{Results}
 
-\begin{table}[ht]
+\begin{table*}[ht]
 \centering
 \caption{Modelled annual operating cost across five adoption scenarios, split by
 where the cost falls. USD at 30~gwei and POL~=~\$0.22 (March 2026), from the
@@ -61,18 +61,18 @@ Full (low est.)    & 2{,}601 & 15{,}606 & \$17.56 & \$240   & \$257.56 & \$0.099
 Full (high est.)   & 3{,}827 & 22{,}962 & \$25.83 & \$240   & \$265.83 & \$0.070 \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
-\begin{figure}[t]
+\begin{figure*}[t]
   \centering
-  \includegraphics[width=\columnwidth]{figures/cost_simulation}
+  \includegraphics[width=\textwidth]{figures/cost_simulation}
   \caption{Left: annual operating cost by scale, split between on-chain issuance
   and the flat pinning subscription. The pilot scenario stays under the pinning
   provider's free-tier file ceiling and therefore pays nothing for storage. Right:
   gas per certificate by attestation level; a studio co-signature costs about half
   again as much as the mint it accompanies.}
   \label{fig:cost_simulation}
-\end{figure}
+\end{figure*}
 
 The operating cost is dominated by a flat off-chain subscription rather than by
 the chain. At full adoption the modelled total is \$266 a year, of which \$240 is
@@ -152,127 +152,61 @@ integrity/existence aspect of R2 and the cost and throughput results of
 but has not yet validated} with users, at scale, or with the unbuilt components
 (R1, R4, R5, and the authenticity aspect of R2).
 
-\begin{itemize}
-  \item \textbf{R1 (Completeness):} \textit{Satisfied by design, with a noted tension.}
-    Any animator using the PMC can receive an SBT regardless of their
-    position in the subcontracting hierarchy, because issuance is triggered by
-    work-log data in the PMC, not by studio approval or credit-committee decisions.
-    Two caveats: (i)~completeness presupposes PMC adoption---an animator who does
-    not use the tool remains invisible; and (ii)~the open, low-friction
-    self-enrollment that R1 requires is in tension with the Sybil mitigation of
-    \cref{subsec:trust}, which treats PMC registration as an identity gate. One
-    cannot simultaneously have fully open self-onboarding and PMC registration as a
-    meaningful Sybil barrier; we revisit this trade-off in \cref{subsec:trust}.
+Completeness holds by construction. Issuance is triggered by the work log rather
+than by studio approval or a credit committee, so an animator's position in the
+subcontracting chain does not determine whether they can receive a certificate.
+It presupposes that they use the client at all, and it pulls against Sybil
+resistance for the reason given in \cref{subsec:trust}.
 
-  \item \textbf{R2 (Verifiability):} \textit{Partially satisfied (integrity and
-    existence, not authenticity).}
-    Third parties can verify, by querying the public blockchain and recomputing the
-    evidence hash, that a contribution claim \emph{exists}, is \emph{unaltered}, and
-    carries a \emph{timestamp}, without contacting the original studio. They cannot,
-    from the chain alone, verify that the claimed work was actually performed: the
-    metadata derives from a self-reported log, and \texttt{evidence\_hash} is
-    computed over issuer-authored attributes (\cref{subsec:verification,subsec:trust}).
-    Authenticity requires the studio co-signing layer of \cref{subsec:cosigning},
-    which we now provide as a tested reference contract but have not yet deployed
-    on-chain or operated with an \emph{independent, identity-bound} studio attester.
-    Until that independent operation exists, a co-signed record is
-    \emph{operator-attested}, not independently authenticated. This gap---from a
-    working mechanism to trustworthy independent attestation---is the single most
-    important qualification in this paper.
+Verifiability is the qualification that matters. A third party can establish from
+the chain that a claim exists, is unaltered and carries a timestamp, without
+contacting the studio that issued it. They cannot establish that the work was
+done, because the metadata derives from a self-reported log and the evidence hash
+is computed over issuer-authored attributes. Anchoring issuance on an accepted
+order (\cref{subsec:integration}) puts a commercial act behind the claim, and the
+co-signing layer puts a second key behind it, but until that layer is operated by
+an attester the issuer does not control, a co-signed record is operator-attested
+rather than independently authenticated.
 
-  \item \textbf{R3 (Persistence):} \textit{Partially satisfied.}
-    On-chain data (token ownership, issuance timestamp) persists
-    as long as the Polygon network operates.
-    However, the detailed metadata stored on IPFS depends on
-    continued pinning by at least one party.
-    If the pinning service subscription lapses and no other node
-    holds a copy, the metadata becomes inaccessible
-    despite the on-chain record remaining intact.
-    This is a known limitation of IPFS-based storage;
-    mitigation strategies include multi-provider pinning,
-    community-operated IPFS nodes, and Arweave-based
-    permanent storage as a fallback.
+Persistence is split. Token ownership and issuance timestamps last as long as the
+network does; the metadata lasts as long as someone pins it. If the subscription
+lapses and no other node holds a copy, the on-chain record survives while the
+content it points to does not---which is the same off-chain dependency that
+dominates the cost.
 
-  \item \textbf{R4 (Portability):} \textit{Satisfied by design, pending implementation.}
-    The SBT is bound to the animator's wallet address, which they control
-    via account abstraction, and can be presented to any verifier independent of
-    any platform. This rests, however, on the embedded-wallet layer that is not yet
-    built (\cref{subsec:stack}), and the unsolved wallet-loss/recovery problem
-    (\cref{subsec:trust}) directly threatens portability: losing wallet access today
-    would mean losing the entire portfolio. We thus regard R4 as satisfied in design
-    but contingent on a recovery mechanism that remains future work.
-
-  \item \textbf{R5 (Minimal Friction):} \textit{Satisfied by design, not yet validated.}
-    In the intended design the animator's workflow is unchanged and issuance is
-    automatic upon project milestones. Three qualifications apply: (i)~the
-    walletless, gasless experience depends on ERC-4337 and relayer components that
-    are unimplemented (\cref{subsec:stack}); (ii)~the system also \emph{introduces}
-    friction not captured by ``unchanged workflow''---wallet provisioning, issuance
-    consent, and managing selective disclosure; and (iii)~no user study has yet
-    measured perceived friction (\cref{subsec:eval_limitations}). We therefore mark
-    R5 as satisfied by design but requiring empirical user validation.
-\end{itemize}
+Portability and minimal friction are properties of a design rather than of a
+running system. Both rest on the embedded-wallet layer, which is not built, and
+portability is additionally hostage to wallet recovery, which is unsolved: losing
+access today would mean losing the portfolio. The friction claim also understates
+what the system adds---wallet provisioning, issuance consent, and decisions about
+selective disclosure are new work for the animator, and no study has measured how
+much.
 
 % ----- 6.4 Limitations -----
 \subsection{Limitations}
 \label{subsec:eval_limitations}
 
-The current evaluation has several limitations that should be addressed
-in future work:
+Four limitations bound what this evaluation shows, beyond the qualifications
+already stated against each requirement.
 
-\begin{itemize}
-  \item \textbf{Testnet deployment only:}
-    The prototype has been deployed on the Polygon Amoy testnet,
-    not on mainnet.
-    While gas costs are measured accurately (the EVM execution
-    is identical), a mainnet deployment would be required
-    for production use.
-  \item \textbf{No user study:}
-    We have not yet conducted a formal user study with practicing animators.
-    The cost simulation and measured gas data provide quantitative validation,
-    but real-world usability and perceived value remain to be evaluated.
-  \item \textbf{Cost figures are testnet-derived projections:}
-    We measured gas \emph{used} on the Polygon Amoy testnet, which transfers
-    faithfully to mainnet because EVM execution is identical. The USD figures,
-    however, are \emph{projections}: they apply a fixed gas price (30~gwei) and a
-    fixed POL/USD rate (\$0.22) to that gas, and they exclude mainnet priority fees
-    and any L1 data costs. Testnet POL has no market value, so the dollar column is
-    a model, not an observed cost. We provide a sensitivity analysis over gas and
-    POL prices (\cref{tab:sensitivity}); the qualitative conclusion is robust, but
-    the specific dollar figures should be read as projections rather than measured
-    market costs.
-  \item \textbf{Self-reported data and a self-referential evidence hash:}
-    The SBT metadata is derived from self-reported work logs in the PMC.
-    We have now implemented the co-signing mechanism as a reference contract
-    (\cref{subsec:cosigning}), but until it is deployed and operated by an
-    independent, identity-bound studio it adds no authenticity, so as evaluated the
-    system still cannot independently verify the truth of contribution claims---only
-    their existence and integrity. The limitation is in fact sharper than ``no
-    co-signing'': \texttt{evidence\_hash} is a hash of the issuer-authored attributes
-    stored in the \emph{same} metadata object, so recomputing it from that object
-    detects only post-mint tampering, not correspondence to any independent source
-    (\cref{subsec:verification}). Comparison against the animator's local work log
-    is stronger but still self-referential to a self-reported log. The
-    serialization/hashing pipeline that this comparison relies on \emph{is} now
-    tested (7 canonical-serialization unit tests, \cref{subsec:prototype}), closing a
-    determinism gap noted earlier; what remains untested is the live IPFS path and
-    the in-browser portal recompute. We discuss the trust model and mitigation
-    strategies in \cref{sec:discussion}.
+The prototype is on a testnet. Gas transfers faithfully to mainnet because EVM
+execution is identical, but the dollar column does not: testnet POL has no market
+value, so the USD figures apply a fixed gas price and a fixed token price to
+measured gas and exclude mainnet priority and L1 data costs. They are a model.
+\Cref{tab:sensitivity} shows the conclusion survives large moves in both
+parameters, but the specific figures should be read as projections rather than
+observed costs.
 
-  \item \textbf{Wallet loss and recovery (unsolved):}
-    Because SBTs are bound to a wallet address, loss of wallet access means loss of
-    all accumulated credentials. The social-recovery / \texttt{migrate()} direction
-    discussed in \cref{subsec:trust} is \emph{unimplemented} and is an open problem
-    in the broader SBT literature. This directly undercuts R3 (persistence of an
-    \emph{accessible} record) and R4 (portability), and is a prerequisite for any
-    real deployment.
-  \item \textbf{IPFS metadata persistence:}
-    Detailed SBT metadata resides on IPFS, which requires active pinning
-    to remain accessible. If all pinning providers stop hosting the data,
-    the on-chain token record persists but the contribution details
-    become unrecoverable.
-  \item \textbf{Adoption assumptions:}
-    The simulation assumes uniform adoption across the industry.
-    In practice, adoption will be uneven and influenced by
-    network effects, studio policies, and cultural factors.
-\end{itemize}
+The evidence hash is more self-referential than the phrase ``no co-signing''
+conveys. It is computed over issuer-authored attributes stored in the same
+metadata object, so recomputing it detects tampering after minting and nothing
+else---it establishes no correspondence to an independent source. Comparing
+against the animator's own local log is stronger and still circular, since that
+log is the self-report. The serialisation this comparison depends on is now
+tested; the live pinning path and the in-browser recomputation are not.
+
+No user study has been run. Perceived value, comprehension of what the credential
+does and does not prove, and whether studios would co-sign are all unmeasured, and
+the cost model assumes uniform adoption where in practice it would be uneven and
+shaped by exactly the incentives \cref{subsec:adoption_barriers} argues are
+unfavourable.
