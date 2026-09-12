@@ -280,9 +280,20 @@ determination about who did the work, made for commercial reasons and recorded i
 a system the studio keeps for its own purposes. A certificate issued per accepted
 order, keyed on the order identifier, is idempotent by construction, and the
 co-signature of \cref{subsec:cosigning} then records a determination rather than
-soliciting one. We take the anchor, and not the token, to be the part of the design
-that carries the trust, and we argue it here on those grounds rather than
-demonstrating it.
+soliciting one. We take the anchor, and not the token, to be the part of the design that carries
+the trust, and we argue it here on those grounds rather than demonstrating it.
+
+The pattern is not new, only newly applied. Triple-entry accounting adds a third,
+cryptographically verifiable entry witnessing a transaction that two parties have
+already recorded in their own books, and Sarwar et al.\ survey its blockchain
+implementations for business-to-business
+settlement~\cite{sarwar2023tea}. A certificate anchored to an accepted order is
+that third entry, with the transaction being the commissioning of work rather than
+the sale of goods, and the party the entry protects being the one whose name the
+books record but the credits do not. Reading the design this way also names what
+it inherits: a third entry is only as good as the two it witnesses, so a studio
+that mis-records who did the work produces a faithful certificate of a false
+premise.
 
 Two consequences follow that a self-reported log does not raise. An accepted order
 can be adjusted afterwards---in Japanese practice through a correcting credit
