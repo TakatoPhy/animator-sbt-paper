@@ -185,9 +185,9 @@ interactions are publicly verifiable at
 A test suite of 35 unit tests was developed using Hardhat for the deployed v1
 contract, covering deployment, minting, batch minting, soulbinding enforcement,
 revocation, view functions, and access control; all pass. Beyond the v1 contract,
-the repository adds a further 25 tests---17 for the v2 co-signing reference contract
-(\cref{subsec:cosigning}), 7 for the canonical evidence-hash serialization, and a
-local end-to-end issuance test---for 60 passing in total.
+the repository adds a further 35 tests---17 for the v2 co-signing reference contract
+(\cref{subsec:cosigning}), 7 for the canonical evidence-hash serialisation, 10 for
+the disclosure commitment of \cref{subsec:privacy}, and a local end-to-end issuance test---for 70 passing in total.
 The suite exercises contract mechanics, which are the most standard part of the
 system, and one thing that is not: the evidence hash is computed over a
 recursively key-sorted serialisation, and seven of the tests confirm that it is
