@@ -59,6 +59,29 @@ fabricating a certificate requires fabricating a commercial transaction. It does
 not close the attack, because the studio's acceptance is recorded in a system the
 operator runs, and a co-signature is what puts a second party's key behind it.
 
+Two attacks come from outside the design's assumptions rather than from within
+them, and both are recent enough that we can only note them.
+
+The first breaks the premise that an address corresponds to a person. Austgen et
+al.\ show that trusted-execution techniques let a holder rent, share or pool a
+single address without leaving a trace on chain, and name soulbound tokens among
+the mechanisms this defeats~\cite{austgen2025liquefaction}. A credential bound to
+an address inherits the problem: non-transferability of the token does not imply
+non-transferability of control over the address holding it. Anchoring on an
+accepted order limits what such an arrangement can manufacture, since the studio's
+acceptance is not the attacker's to forge, but it does not restore the assumption
+that one soul is one animator.
+
+The second concerns what a holder chooses to show. Song et al.\ identify
+cherry-picking as the structural weakness of holder-controlled credentials: a
+portfolio that omits unfavourable entries is indistinguishable from a complete
+one, and they enforce disclosure per issuer-domain to close it~\cite{song2026chaincred}.
+Nothing here prevents an animator from presenting only the productions that went
+well. That is not obviously a defect for a portfolio, which has never claimed
+completeness, but it does bound what a verifier may infer from what they are
+shown, and a verifier who treats a set of certificates as a career record rather
+than a selection will over-read it.
+
 Sybil resistance and open enrolment pull against each other, and we have not
 resolved it. Tying wallet creation to registration in the management client gates
 identity only as far as that registration is closed; completeness and minimal
