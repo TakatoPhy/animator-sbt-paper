@@ -1,50 +1,72 @@
-\documentclass[conference]{IEEEtran}
+% Ledger submission build.
+% Shares sections/ and figures/ with main.tex (IEEEtran / SSRN version).
+% Build with pdflatex (Ledger's preferred processor):
+%   pdflatex main-ledger && bibtex main-ledger && pdflatex main-ledger && pdflatex main-ledger
+\documentclass{ledger}
 
-\usepackage{amsmath,amssymb}
-\usepackage{graphicx}
+% Editor fills these at layout; leave the X's for submission.
+\newcommand{\thefirstpagenum}[0]{X}
+\newcommand{\thelastpagenum}[0]{X}
+\newcommand{\theyear}[0]{20XX}
+\newcommand{\thevol}[0]{X}
+\newcommand{\thedoi}[0]{DOI 10.5195/LEDGER.\theyear.XXX}
+\newcommand{\ledgerpages}[0]{\thefirstpagenum-\thelastpagenum}
+
+\newcommand{\edit}[1]{#1}
+\overfullrule=10pt
+\setlength{\emergencystretch}{3em}
+
+% Packages the sections rely on that ledger.cls does not already load.
+% (ledger.cls provides: cite[superscript,biblabel], subfig, numprint, mathptmx,
+%  microtype, geometry, graphicx, xcolor, fancyhdr, hyperref, breakurl, caption,
+%  amsmath, amssymb, cleveref, fnpct, enumitem[inline], endnotes, listings.)
 \usepackage{booktabs}
-\usepackage{hyperref}
 \usepackage{xurl}    % allow URLs to break at any character
 \usepackage{seqsplit}
 % Long unbroken identifiers (contract addresses, IPFS CIDs) do not fit a column
 % and TeX cannot break them; \hexid inserts breakpoints between characters.
 \newcommand{\hexid}[1]{\texttt{\seqsplit{#1}}}
-\setlength{\emergencystretch}{2em}
-\usepackage{cleveref}
-\usepackage{xcolor}
-\usepackage{listings}
+\usepackage{multirow}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
-\usepackage{cite}
-\usepackage{url}
-\usepackage{tikz}
-\usepackage{subcaption}
-\usepackage{orcidlink}
-\usepackage{multirow}
 \crefname{lstlisting}{Listing}{Listings}
 \Crefname{lstlisting}{Listing}{Listings}
 
-\title{Certifying the Work That Credits Omit:\\
-  Non-Transferable Records Anchored to Accepted Orders in Japanese Animation}
-
-\author{
-  \IEEEauthorblockN{Takato Oki\,\orcidlink{0009-0001-8009-4929}}
-  \IEEEauthorblockA{TOONIQ LLC, Tokyo, Japan\\
-  Tokyo University of Science, Tokyo, Japan\\
-  oki@tooniq.co.jp}
+\hypersetup{
+  pdfauthor={Oki, Takato},
+  pdftitle={Certifying the Work That Credits Omit: Non-Transferable Records Anchored to Accepted Orders in Japanese Animation}
 }
+
+\title{Certifying the Work That Credits Omit:\\
+Non-Transferable Records Anchored to Accepted Orders in Japanese Animation}
+
+% Ledger house style: author bio + contact as a \thanks footnote.
+% (An optional first \thanks may carry a BTC/BCH/ETH tipping address; omitted here.)
+\author{Takato Oki\thanks{T. Oki (oki@tooniq.co.jp) is the founder of TOONIQ LLC, Tokyo, Japan, and a graduate student at Tokyo University of Science, Tokyo, Japan, working on production-management and quality-control tools for the animation industry.}}
+
+\pagestyle{pagemain}
+
+\pretitle{
+  \centering \selectfont RESEARCH ARTICLE \par
+  Submission Under Consideration at Ledger \par
+  \fontsize{24pt}{28pt}\selectfont}
 
 \begin{document}
 
 \maketitle
+\thispagestyle{pagefirst}
 
 \begin{abstract}
 \input{sections/00_abstract}
-\end{abstract}
 
-\begin{IEEEkeywords}
-Soulbound Token, Blockchain, Anime Production, Freelance, Credential Verification, Decentralized Identity
-\end{IEEEkeywords}
+\begin{keywords}
+\item Soulbound tokens.
+\item Digital credentials.
+\item Creative labour.
+\item Contribution attribution.
+\item Anime production.
+\end{keywords}
+\end{abstract}
 
 \section{Introduction}
 \label{sec:introduction}
@@ -78,6 +100,14 @@ Soulbound Token, Blockchain, Anime Production, Freelance, Credential Verificatio
 \label{sec:conclusion}
 \input{sections/08_conclusion}
 
+\appendix
+\section{Testnet Deployment Details}
+\input{sections/09a_testnet}
+
+% NOTE: the rest of sections/09_appendix.tex is deliberately not included here.
+% Its contents (testnet deployment details, unit-test results, metadata JSON,
+% contract source) live in the companion repository and are cited from the body.
+
 \section*{Acknowledgements}
 The author thanks Yuto Yamaguchi, co-founder of TOONIQ LLC, for discussions on
 anime production workflows and on the operational realities of managing freelance
@@ -109,12 +139,9 @@ The author is the founder of TOONIQ LLC, which develops production-management
 software for the animation industry and would be a party to any deployment of the
 framework described here.
 
-\bibliographystyle{IEEEtran}
-\bibliography{../references/references}
+\theendnotes
 
-\appendix
-\section{Supplementary Materials}
-\label{sec:appendix}
-\input{sections/09_appendix}
+\bibliographystyle{ledgerbib}
+\bibliography{../references/references}
 
 \end{document}

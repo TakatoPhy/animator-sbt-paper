@@ -1,0 +1,38 @@
+% ----- A. Testnet Deployment Details -----
+\subsection{Testnet Deployment Details}
+\label{app:testnet}
+
+\Cref{tab:testnet_txs} lists the transaction hashes for all on-chain operations
+executed on the Polygon Amoy testnet (Chain ID: 80002).
+All transactions are publicly verifiable on Polygonscan.\footnote{%
+\url{https://amoy.polygonscan.com/address/0x2cC31B9EFBD5dDfB5456EE4c76A0fcBCA5EEE117}}
+
+\begin{table}[ht]
+\centering
+\caption{Testnet transaction log on Polygon Amoy.}
+\label{tab:testnet_txs}
+\footnotesize
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}{@{}llr@{}}
+\toprule
+\textbf{Operation} & \textbf{TX Hash (truncated)} & \textbf{Gas} \\
+\midrule
+Deploy
+  & \texttt{0xb230...6bf5}
+  & 1{,}824{,}117 \\
+\texttt{mint()} (Tanaka)
+  & \texttt{0x5461...8c30}
+  & 189{,}792 \\
+\texttt{mintBatch(10)}
+  & \texttt{0xfcee...9182}
+  & 1{,}025{,}449 \\
+\texttt{revoke()}
+  & \texttt{0x9fad...5ecd}
+  & 50{,}027 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Contract address: \hexid{0x2cC31B9EFBD5dDfB5456EE4c76A0fcBCA5EEE117}\\
+Deployer address: \hexid{0x91eca41e060de63871dFb0Fe8Fdc78897d6119b8}\\
+Deployment block: 35{,}058{,}633
