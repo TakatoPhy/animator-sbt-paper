@@ -319,30 +319,38 @@ demonstrated capability.
 \subsection{Generalizability to Other Creative Industries}
 \label{subsec:generalizability}
 
-While AnimatorSBT is designed for the anime industry,
-the underlying framework is applicable to any project-based creative industry
-where freelancers face similar attribution challenges:
+The problem this framework addresses is not particular to animation. It recurs
+wherever work is organised in projects, subcontracted through several layers,
+credited under a cap, and produced by an organisation that may not outlive the
+work. What varies across those settings is only whether an institution exists to
+adjudicate attribution, and the evidence from settings where none does is
+consistent.
 
-\begin{itemize}
-  \item \textbf{Video game development:}
-    Game credits face similar issues with outsourced QA testers,
-    localization staff, and contract artists often going uncredited.
-  \item \textbf{Film and television (live action):}
-    Below-the-line crew members, particularly in visual effects,
-    frequently work through layers of subcontractors.
-  \item \textbf{Music production:}
-    Session musicians, ghost producers, and uncredited songwriters
-    lack standardized contribution records.
-  \item \textbf{Architecture and design:}
-    Junior architects and designers contribute substantially
-    to projects credited to senior partners.
-\end{itemize}
+Video game development has had a voluntary crediting standard since 2007. Its
+current revision reports that 299 of 582 surveyed developers---51.3\%---never,
+seldom or only sometimes receive official credit, and that 83.1\% were unsure of
+or denied having any employer credit policy; the word ``enforce'' does not appear
+in the document, and the remedy it offers an uncredited developer is to file a
+bug~\cite{igda2023crediting}. A stratified study of 100 games found the omission
+to be systematic rather than incidental~\cite{svelch2022credit}. Visual effects
+supplies a sharper test, because it sits inside the same films as the crafts that
+do have jurisdiction: on one 2023 release, 27 of more than 160 visual-effects
+workers at a single vendor were credited, and the absence of a union was given as
+the reason no remedy existed~\cite{amidi2023vfx}. Scholarly publishing has the
+most widely adopted attribution standard of any field and states in the same
+document that it has no authority to enforce it and that arbitrating authorship is
+not the editor's role~\cite{icmje2026recommendations}.
 
-The AnimatorSBT metadata schema (\cref{tab:metadata}) can be adapted
-to these domains by modifying the \texttt{role} enum and
-adjusting the \texttt{task\_count} semantics.
-The smart contract, issuance service, and verification portal
-require no domain-specific modifications.
+The pattern is that a standard without an adjudicator does not produce accurate
+attribution, and that building the adjudicator requires an institution with
+authority over the parties---which is available in some industries and not in
+others. A certification layer is a different response to the same problem: rather
+than creating an authority, it makes an attestation that already occurred, at the
+moment work was accepted and paid for, durable and portable beyond the party that
+made it. Nothing in that argument is specific to animation. Adapting the framework
+to another setting requires changing the role vocabulary and the unit that
+\texttt{task\_count} measures; the contract, issuance service and verification
+portal do not change.
 
 \textbf{International subcontracting.}
 Anime production increasingly involves cross-border outsourcing,

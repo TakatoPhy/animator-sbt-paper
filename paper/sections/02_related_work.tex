@@ -176,42 +176,73 @@ credential. The anime-and-web3 space and the worker-credential space remain disj
 \subsection{Research Gap}
 \label{subsec:gap}
 
-\Cref{fig:research_gap} and \Cref{tab:related_work_gap} summarize the positioning
-of our work relative to existing research along two dimensions:
-domain specificity (general to anime-specific) and granularity (IP-level to task-level).
-While SBTs have been applied to healthcare, education, and agriculture,
-and blockchain has been explored for creative industry applications at the IP level,
-\textbf{to the best of our knowledge, no prior work combines SBT-based contribution
-certification with anime production workflow integration at the individual task level.}
-This paper addresses this gap.
+Credit attribution is not an unsolved problem everywhere. Film and television
+solved it institutionally: under the Writers Guild of America's Basic Agreement,
+credit for screen authorship may be given \emph{only} through the Guild's
+procedure, is the one term a writer may not bargain individually, and the
+employer is contractually bound to accept the arbitration committee's
+determination~\cite{wga2023mba}. Fisk~\cite{fisk2010jurisdiction} argues that the
+operative variable is jurisdiction---the Guild's exclusive authority to define
+individual authorship of a collective work---and traces how that authority became
+the Guild's central function~\cite{fisk2012screencredit}. The same form reaches
+animation in the United States, where The Animation Guild's agreement requires
+screen credit for the animation, background and layout classifications and names
+a final adjudicator for disputes~\cite{tag2024cba}.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\columnwidth]{figures/research_gap}
-  \caption{Research positioning map. AnimatorSBT occupies the unexplored
-  intersection of anime-specific domain and task-level granularity.}
-  \label{fig:research_gap}
-\end{figure}
+That route is unavailable in Japanese animation, and not for want of trying. The
+route requires three things at once: exclusive craft jurisdiction, a collective
+agreement binding employers to the determination, and a standing arbitration
+apparatus. The bodies representing Japanese animators are general incorporated
+associations rather than unions with bargaining jurisdiction; performers in the
+same productions, organised as a cooperative, do hold collective agreements,
+which isolates the missing variable as organisational form rather than law or
+custom. Japanese copyright law offers no substitute: Article~16 confines
+authorship of a cinematographic work to those who contribute to its
+\emph{overall} shaping, which excludes artists working cut by cut, and
+Article~19(3) permits the author's name to be omitted where consistent with fair
+practice. The government's own model contract for freelance animators has the
+animator agree not to exercise moral rights, and makes crediting the
+commissioner's election.
+
+\Cref{tab:provenance} places the present work among the mechanisms that do
+operate in this setting, classified by where the record comes
+from~\cite{oki2026survey}. The distinctions that matter are who vouches for an
+entry, whether the record outlives the organisation that made it, and whether it
+reaches work that never shipped.
 
 \begin{table}[ht]
 \centering
-\caption{Positioning of AnimatorSBT relative to existing work.}
-\label{tab:related_work_gap}
+\caption{Mechanisms that produce a record of who did what, by provenance. ``Cut
+level'' asks whether the record resolves to an individual task rather than a
+production or a company; ``unreleased work'' asks whether it can cover a
+production that never aired.}
+\label{tab:provenance}
 \footnotesize
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}lccccc@{}}
+\begin{tabular}{@{}lllccc@{}}
 \toprule
-\textbf{Work} & \textbf{SBT} & \textbf{Cre.} & \textbf{Ani.} & \textbf{Task} & \textbf{Proto.} \\
+\textbf{Provenance} & \textbf{Example} & \textbf{Who vouches} &
+\textbf{Outlives issuer} & \textbf{Cut level} & \textbf{Unreleased work} \\
 \midrule
-Buterin et al.~'22       & \checkmark & -- & -- & -- & -- \\
-SBT Healthcare~'24       & \checkmark & -- & -- & -- & \checkmark \\
-SBT Agriculture~'25      & \checkmark & -- & -- & -- & \checkmark \\
-Animechain.ai~'24        & -- & \checkmark & \checkmark & -- & -- \\
-Four Pillars~'25         & -- & \checkmark & \checkmark & -- & -- \\
-VCP / Cardano~'23        & \checkmark & \checkmark & -- & -- & \checkmark \\
-Blockchain Cre.~'23      & -- & \checkmark & -- & -- & -- \\
+Institutional determination & Guild arbitration & Union, binding on employer & \checkmark & -- & -- \\
+Official credits & Credit databases & The staff roll & \checkmark & -- & -- \\
+Self-reported & Matching platforms & No one & -- & \checkmark & \checkmark \\
+Community identification & Fan archives & Connoisseurship & -- & \checkmark & -- \\
 \midrule
-\textbf{Ours}            & \checkmark & \checkmark & \checkmark & \checkmark & \checkmark \\
+Production data (this work) & AnimatorSBT & Studio co-signature & \checkmark & \checkmark & \checkmark \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+No mechanism in the table covers all three columns, and the reason is
+structural rather than technical. Institutional determination is authoritative
+precisely because it is scarce: the Guild caps credited writers at two, three
+only through arbitration, which is a policy of concentrating attribution rather
+than recording it. Records derived from credits inherit whatever the credits
+omit, and an unreleased production has no staff roll at all. Self-reported
+records reach every task but carry no attestation. What is missing is not a
+record---production already generates a per-cut, per-person paper trail as a
+byproduct---but a mechanism that makes that trail durable, portable and
+contestable outside the organisation that holds it. That is the gap this paper
+addresses, and to the best of our knowledge no prior work applies
+non-transferable tokens to it.
