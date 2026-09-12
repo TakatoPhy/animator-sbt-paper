@@ -1,11 +1,7 @@
 % Introduction
 
-Japan's anime industry is experiencing unprecedented commercial success.
-The domestic anime production market reached a record \textyen 362.1 billion
-in 2024~\cite{tdb2025anime}, and the global anime market is projected to
-grow at a 10.6\% compound annual growth rate, reaching USD~49.6 billion
-by 2031~\cite{mordor2026anime}.
-Yet behind this growth lies a persistent structural problem:
+Japanese animation is commercially successful and its production market is at a
+record (\cref{subsec:labor}). Behind that growth is a structural problem:
 the creative workforce that produces anime remains largely invisible.
 
 An exceptionally large share of anime production labor is performed by freelancers.
@@ -80,13 +76,10 @@ formalisation of the contribution invisibility problem as the gap between actual
 and credited contributors, and of why the institutional route that closed the same
 gap in film and television is unavailable here (\cref{sec:problem}).
 
-The measurements are that on-chain issuance costs about a tenth of a cent per
-certificate and is governed less by the contract than by the length of the
-metadata pointer it stores, which makes any per-certificate figure
-uninterpretable without its storage scheme; and that the binding operating cost is
-a flat off-chain pinning subscription, which reintroduces the single-operator
-dependency that anchoring on chain was meant to remove
-(\cref{sec:evaluation}). Both generalise beyond this application.
+The measurements say where the cost of doing this actually falls, and it is not
+where the design puts its attention: not on the chain, and not in the contract's
+logic, but in the arrangement that keeps the metadata reachable
+(\cref{sec:evaluation}). Both results generalise beyond this application.
 
 Supporting these, we deploy a soulbound contract on a public testnet and provide
 tested reference implementations of a studio co-signing layer and of a

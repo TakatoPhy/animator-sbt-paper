@@ -71,32 +71,27 @@ The chain guarantees that a claim was recorded at a time by an issuer. It does n
 guarantee that the work was done. Everything in this subsection follows from that
 boundary.
 
-The obvious attack is a fabricated log. An animator who controls their own entries
-can mint a certificate for work they did not do, and no amount of hashing changes
-that, because the hash fixes the claim rather than checking it. Anchoring issuance
-on an accepted order (\cref{subsec:integration}) narrows the attack considerably:
-the animator does not control whether a studio accepts and pays for a delivery, so
-fabricating a certificate requires fabricating a commercial transaction. It does
-not close the attack, because the studio's acceptance is recorded in a system the
-operator runs, and a co-signature is what puts a second party's key behind it.
-
 \Cref{sec:problem} left a question here: a signal separates types only if it is
 costly to send falsely, so does a studio countersignature qualify? Taken as a
 quality signal it does not, and we should not claim otherwise. Signing truthfully
-costs one transaction, which is to say nothing, so if the mechanism worked as
-intended every studio would sign for every accepted delivery and the presence of a
-certificate would not distinguish a good animator from an adequate one. The
-separation it achieves is cruder and, we think, the one that is missing: between
-an animator who did the work and one who says so. That is closer to Akerlof's
-remedy than to Spence's---a warranty that makes a claim checkable rather than a
-cost that only some can bear---and it is why we describe the framework as a
-verification device throughout, and not as a measure of merit.
+costs one transaction, so if the mechanism worked as intended every studio would
+sign for every accepted delivery and the presence of a certificate would not
+distinguish a good animator from an adequate one. What is costly to send falsely
+is a countersignature for work that was never accepted, since it contradicts the
+studio's own books and sits in public beside them. The separation the mechanism
+achieves is therefore cruder than merit and, we think, the one that is missing:
+between an animator who did the work and one who says so. That is closer to
+Akerlof's remedy than to Spence's---a warranty that makes a claim checkable rather
+than a cost only some can bear---and it is why we call this a verification device
+and not a measure of quality.
 
-What would be costly to send falsely is a countersignature for work that was never
-accepted, since it contradicts the studio's own books and sits in public next to
-them. The mechanism's strength is therefore against fabrication rather than
-against mediocrity, and a verifier who reads a certificate as evidence of skill
-reads more than is there.
+This is also what the anchor is for, and it bounds the attacks that follow. The
+obvious one is a fabricated log: an animator who controls their own entries can
+mint a certificate for work they did not do, and hashing does not help, because
+the hash fixes a claim rather than checking it. Issuing against an accepted order
+means fabricating a commercial transaction instead, which the animator cannot do
+alone. It does not close the attack---the acceptance is recorded in a system the
+operator runs---and a co-signature is what puts a second party's key behind it.
 
 Two attacks come from outside the design's assumptions rather than from within
 them, and both are recent enough that we can only note them.
@@ -106,10 +101,9 @@ al.\ show that trusted-execution techniques let a holder rent, share or pool a
 single address without leaving a trace on chain, and name soulbound tokens among
 the mechanisms this defeats~\cite{austgen2025liquefaction}. A credential bound to
 an address inherits the problem: non-transferability of the token does not imply
-non-transferability of control over the address holding it. Anchoring on an
-accepted order limits what such an arrangement can manufacture, since the studio's
-acceptance is not the attacker's to forge, but it does not restore the assumption
-that one soul is one animator.
+non-transferability of control over the address holding it. The anchor bounds what
+such an arrangement can manufacture, for the reason above, and does not restore the
+assumption that one soul is one animator.
 
 The second concerns what a holder chooses to show. Song et al.\ identify
 cherry-picking as the structural weakness of holder-controlled credentials: a

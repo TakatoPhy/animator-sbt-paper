@@ -214,8 +214,8 @@ co-signature something already determined to sign.
 \subsection{Privacy Considerations}
 \label{subsec:privacy}
 
-Privacy in this design turns on a question the schema got wrong, and the answer
-is in the industry's own practice rather than in cryptography.
+Privacy in this design turns on a question the schema got wrong: what has to be
+published for a certificate to be useful.
 
 The prototype stored an \texttt{animator\_name} field in cleartext on public IPFS,
 which was indefensible and is no longer the default. Writing a name to permanent,
@@ -230,8 +230,13 @@ keeps---while what is pinned carries only role, volume, period and the address.
 A verifier shown the name and the salt recomputes the hash and learns that this
 certificate was issued for that person. Anyone else sees a certified role and
 volume bound to an address and cannot search for the name, because they do not
-have the salt. Distinct salts also mean two certificates held by the same person
-do not, through their digests, reveal that they are the same person.
+have the salt.
+
+Linkability then comes from one place instead of two. The certificates a person
+holds are linkable because they sit at one address, which is what makes a
+portfolio a portfolio; distinct salts mean the digests add nothing to that. The
+holder can therefore decide what an address is worth revealing about them, rather
+than having each certificate publish the answer independently.
 
 This is not zero knowledge, and we do not claim it is: the holder reveals the name
 in full to whoever they choose to show it to. What changes is who performs the
@@ -242,18 +247,21 @@ same certificate and that altered public attributes fail against a valid
 disclosure.
 
 What this does not fix is inference. Role, volume, period and a co-signing studio
-may identify someone in a small industry whether or not the name is published, and
-the model contract's convention of crediting under a professional
-name~\cite{bunka2024model} reduces rather than removes that. We do not claim the
-published record is anonymous.
+may identify someone in a small industry whether or not the name is published, so
+we do not claim the published record is anonymous. It is worth noting that the
+industry's own convention already points the same way: the state's model contract
+provides for crediting under a stage or pen name rather than a legal
+one~\cite{bunka2024model}, so a certificate that carries a professional identity
+and not a legal one is behaving like a credit rather than departing from one.
 
 This is also where we part company with the direction the recent literature has
 taken. Lyu et al.\ bind a soulbound token to an identity engine that spawns
 per-service child identities, precisely so that verifiers cannot link a holder's
 credentials to one another~\cite{lyu2026ssi}. That is the right goal for
-credentials presented bilaterally, and the wrong one here: a portfolio is
-valuable because its entries are linkable to a single professional identity, and
-unlinkability would remove the property the animator needs. Zero-knowledge
+credentials presented bilaterally and the wrong one here. A portfolio is valuable
+because its entries gather at one identity; severing that link would remove the
+property the animator needs, which is why our construction hides the name and
+keeps the address rather than the reverse. Zero-knowledge
 techniques have a place in this design, but at the level of attributes rather
 than holders---proving that an animator has completed some volume of work across
 some number of productions without naming them (\cref{subsec:trust})---not in
