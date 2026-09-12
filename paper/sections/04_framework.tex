@@ -200,7 +200,7 @@ Privacy in this design turns on a question the schema got wrong, and the answer
 is in the industry's own practice rather than in cryptography.
 
 The prototype stores an \texttt{animator\_name} field in cleartext on public IPFS
-(\cref{app:metadata}), so the pseudonymity of the wallet address does not reach
+(an example artifact is in the accompanying repository), so the pseudonymity of the wallet address does not reach
 the metadata: anyone holding the URI reads the name and the production. But the
 name a credential of this kind should carry is not a legal identity. The Agency
 for Cultural Affairs model contract for freelance animators specifies that, when
@@ -280,7 +280,7 @@ attested, with no spoofable parameter. The mechanism is idempotent (the same
 attester cannot co-sign twice), supports multiple distinct studios co-signing one
 token, and refuses to co-sign a revoked token. Companion views expose the result:
 \texttt{attesters(tokenId)}, \texttt{attestationCount(tokenId)},
-\texttt{hasCoSigned(tokenId, attester)}, and \texttt{attestationLevel(tokenId)}.
+\texttt{hasCoSigned(\allowbreak{}tokenId, attester)}, and \texttt{attestationLevel(tokenId)}.
 Studios are granted the attester role through the same admin pathway used for
 issuers. A single \texttt{coSign} consumes 96{,}997~gas in the local
 EVM (\textasciitilde\$0.0006 at the baseline rate of \cref{tab:gas}); we report this
