@@ -260,22 +260,34 @@ of which remain future work (\cref{subsec:eval_limitations}).
 \subsection{Integration and the Attestation Anchor}
 \label{subsec:integration}
 
-The design assumes the certificate is anchored to something the studio has already
-accepted. In a production-management system the natural anchor is the accepted
-purchase order: when a studio takes delivery of a set of cuts and pays for them,
-it has attested to that work as a commercial act. Issuing one certificate per
-accepted order, keyed on the order identifier, makes issuance idempotent and moves
-the attestation from something the animator asserts to something the studio has
-already done. The co-signature of \cref{subsec:cosigning} then records an
-attestation that exists rather than manufacturing one, which is why we treat the
-anchor, and not the token, as the part of the design that carries the trust.
+Where a certificate is anchored is a design choice, and it is the one that decides
+what a co-signature is worth. Anchoring on a self-reported work log means the
+studio, asked to countersign, must review work and reach a judgment it had not
+otherwise recorded. Anchoring on an accepted order means it has already reached
+that judgment: taking delivery of a set of cuts and paying for them is a
+determination about who did the work, made for commercial reasons and recorded in
+a system the studio keeps for its own purposes. A certificate issued per accepted
+order, keyed on the order identifier, is idempotent by construction, and the
+co-signature of \cref{subsec:cosigning} then records a determination rather than
+soliciting one. We take the anchor, and not the token, to be the part of the design
+that carries the trust, and we argue it here on those grounds rather than
+demonstrating it.
 
-Two consequences follow that a self-reported work log does not raise. An accepted
-order can later be adjusted---in Japanese practice by a correcting credit
-note---after a certificate referring to it has been issued, so an implementation
-must detect that the underlying record has changed and cannot simply rely on the
-token's immutability. And the anchor requires a system the studio itself operates,
-which a device-local tool belonging to the animator cannot be. We have implemented
-this issuance path behind a feature flag in a commercial production-management
-system, and it is not enabled; no certificates have been issued from production
-data, and we make no claim about deployment here.
+Two consequences follow that a self-reported log does not raise. An accepted order
+can be adjusted afterwards---in Japanese practice through a correcting credit
+note---including after a certificate referring to it has been issued, so an
+implementation cannot rest on the token's immutability and must detect that the
+underlying record changed. And the anchor presupposes a system the studio itself
+operates, which a tool holding an animator's data on their own device cannot be;
+the choice of anchor therefore constrains where such a system can live.
+
+We are precise about what is and is not evaluable here. The issuance service in
+the accompanying repository builds metadata from supplied attributes and is not
+keyed on an order, so the anchor described above is a design argument that the
+open artifact does not implement; what the repository demonstrates is the
+contract, the co-signing mechanism, the canonical hash and the costs. An
+order-keyed issuance path does exist behind a feature flag in a commercial
+production-management system, which establishes that the integration is
+constructible and nothing more. That system is not open source, no certificates
+have been issued from production data, and we exclude it from the evidence this
+paper rests on.
