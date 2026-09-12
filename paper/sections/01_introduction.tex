@@ -99,9 +99,18 @@ and authenticity problems the design does not solve (\cref{sec:discussion}).
 The remainder of this paper is organized as follows.
 \Cref{sec:related_work} surveys related work across anime production,
 labor conditions, SBTs, and blockchain in the creative economy.
-\Cref{sec:problem} formalizes the problem and evaluates existing solutions.
-\Cref{sec:framework} describes the AnimatorSBT framework.
-\Cref{sec:implementation} presents the technical specification and prototype implementation.
-\Cref{sec:evaluation} presents the cost simulation and requirements evaluation.
-\Cref{sec:discussion} discusses practical challenges and generalizability.
-\Cref{sec:conclusion} concludes with directions for future work.
+A note on vocabulary, since this paper's argument should be followed by readers
+who do not work with public ledgers. A \emph{non-transferable}, or
+\emph{soulbound}, token is a record that its holder cannot sell or pass to anyone
+else; to \emph{mint} one is to create it. \emph{On chain} means stored in the
+public ledger itself, which every participant replicates and none can silently
+alter; \emph{off chain} means stored elsewhere, with the ledger holding only a
+pointer. \emph{Gas} is the unit in which a network charges for executing a
+transaction, and the fee is that quantity priced in the network's token, so a cost
+in gas is stable while a cost in dollars is not. A \emph{testnet} is a public
+network running the same software with tokens that have no monetary value, used
+for measurement rather than operation. \emph{IPFS} addresses files by a hash of
+their contents rather than by location, so a file is retrievable from anyone
+holding it and unretrievable when nobody does---which is what a \emph{pinning}
+subscription buys. A \emph{wallet} is the key pair controlling an address, and an
+address is what a certificate is issued to.
