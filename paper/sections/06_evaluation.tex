@@ -107,7 +107,7 @@ adoption.
 
 Because the dollar figures depend on two volatile parameters---gas price and the
 POL/USD rate---\Cref{tab:sensitivity} reports the per-mint cost over a range of
-each, computed arithmetically from the on-chain mint gas (189{,}792). The
+each, computed from the reproducible local mint gas of 195{,}423 (\cref{tab:gas}). The
 parameter values are \emph{hypothetical scenarios}, not observed market prices.
 Even in the most adverse cell (300~gwei, POL at \$1.00), a single mint costs under
 \$0.06; the qualitative conclusion---that on-chain cost is not a barrier---is robust
@@ -116,7 +116,7 @@ to large swings in both parameters.
 \begin{table}[ht]
 \centering
 \caption{Sensitivity of the per-\texttt{mint()} cost (USD) to gas price and POL/USD
-rate, computed from the on-chain mint gas of 189{,}792. Values are hypothetical
+rate, computed from the mint gas of 195{,}423. Values are hypothetical
 price scenarios, not observed market rates. The shaded baseline used elsewhere in
 this paper is 30~gwei / \$0.22.}
 \label{tab:sensitivity}
@@ -126,9 +126,9 @@ this paper is 30~gwei / \$0.22.}
 \toprule
 \textbf{Gas price} & \textbf{POL \$0.22} & \textbf{POL \$0.50} & \textbf{POL \$1.00} \\
 \midrule
-30~gwei  & \$0.0013 & \$0.0028 & \$0.0057 \\
-100~gwei & \$0.0042 & \$0.0095 & \$0.0190 \\
-300~gwei & \$0.0125 & \$0.0285 & \$0.0569 \\
+30~gwei  & \$0.0013 & \$0.0029 & \$0.0059 \\
+100~gwei & \$0.0043 & \$0.0098 & \$0.0195 \\
+300~gwei & \$0.0129 & \$0.0293 & \$0.0586 \\
 \bottomrule
 \end{tabular}
 \end{table}
