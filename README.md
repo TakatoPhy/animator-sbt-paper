@@ -1,8 +1,9 @@
-# Soulbound Tokens for Anime Production
+# Certifying the Work That Credits Omit
 
-**Paper:** "Soulbound Tokens for Anime Production: A Blockchain-Based Contribution Certification Framework for Freelance Animators"
+**Paper:** "Certifying the Work That Credits Omit: Non-Transferable Records Anchored to Accepted Orders in Japanese Animation"
 
-**Target:** SSRN preprint
+**Target:** Ledger (ledgerjournal.org). An earlier version is on SSRN as
+*Soulbound Tokens for Anime Production*, DOI 10.2139/ssrn.6391520.
 
 ## Structure
 

@@ -3,19 +3,20 @@
 Takato Oki
 TOONIQ LLC, Tokyo
 oki@tooniq.co.jp
-2026-09-12
+2026-09-13
 
 To the Editors of *Ledger*:
 
-Please consider our manuscript, "Soulbound Tokens for Anime Production: A
-Blockchain-Based Contribution Certification Framework for Freelance
-Animators" (framework name: AnimatorSBT), for publication in *Ledger*.
+Please consider my manuscript, "Certifying the Work That Credits Omit:
+Non-Transferable Records Anchored to Accepted Orders in Japanese
+Animation" (framework name: AnimatorSBT), for publication in *Ledger*.
 
 **The problem and its prevalence.** Project-based production splits work
 across many hands, and credit fails wherever no body holds jurisdiction
 over who gets named. In game development, a 2023 IGDA survey found that
-51.3% of respondents (299 of 582) rarely or never receive official credit,
-and 83.1% did not know whether their employer had a credit policy at all;
+51.3% of respondents (299 of 582) never, seldom or only sometimes receive
+official credit, and 83.1% were unsure of or denied having any employer
+credit policy;
 a study of 100 games released 2016-2020 found the omissions systematic
 rather than accidental (Švelch, 2022). In film visual effects — inside the
 same unionized industry as screenwriting but outside its jurisdiction —
@@ -23,8 +24,9 @@ Double Negative credited 277 of the roughly 600 people who worked on
 *Fantastic Beasts*, and 27 of more than 160 on *Oppenheimer*. In scholarly
 publishing, the ICMJE states it has no authority to enforce its own
 authorship criteria and that adjudicating disputes is "not the role of
-journal editors"; a 2018 review of the literature found "no generally
-recognized avenues for authors to seek help." Where jurisdiction
+journal editors"; a 2018 paper proposing that the field import
+mediation and arbitration opens by observing that "there are no generally
+recognized avenues" for authors to resolve such disputes. Where jurisdiction
 exists — the WGA's exclusive authority over screen credit, backed by an
 agreement binding employers to its arbitration — attribution is reliable,
 but that combination is rare, and the WGA itself later added a second,
@@ -82,8 +84,8 @@ tradeoffs, not a commercial outcome.
   — first author, "Blockchain technology for creative industries,"
   *International Journal of Research in Marketing* 40(1):38-48 (2023).
 
+I am not institutionally supported with funding earmarked for open-access
+publication, and request the full fee waiver *Ledger* offers on that basis.
+
 Sincerely,
 Takato Oki
-
-I am not institutionally supported with funding earmarked for open-access
-publication and request the full fee waiver *Ledger* offers on that basis.
