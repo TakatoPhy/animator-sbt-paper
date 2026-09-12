@@ -38,45 +38,22 @@ The credit gap has concrete consequences for the large share of animators
 who work as freelancers (47.3\% in 2023~\cite{janica2023survey}, and 69.6\% in
 2019~\cite{janica2019survey}):
 
-\begin{itemize}
-  \item \textbf{Portfolio asymmetry:}
-    When seeking new contracts, freelancers must demonstrate their track record.
-    Without credits, they rely on verbal claims, personal networks,
-    or physical samples that lack independent verification.
-    Studios hiring freelancers have no standardized way to verify
-    a candidate's claimed experience.
-  \item \textbf{Bargaining disadvantage:}
-    Animators cannot leverage uncredited work in fee negotiations.
-    A key animator who completed 30 cuts on a high-profile production
-    but was not credited has no verifiable evidence to justify higher rates.
-  \item \textbf{Career fragility:}
-    Freelancers' career histories exist primarily in the memories
-    of colleagues and in informal industry networks.
-    When studios close---a frequent occurrence in the anime industry---
-    or when key contacts retire, these informal records disappear.
-  \item \textbf{Industry-level data loss:}
-    At the aggregate level, the absence of comprehensive contribution records
-    makes it difficult to study workforce dynamics, identify labor shortages
-    in specific roles, or design effective industry policy.
-    The surveys by JAniCA and NAFCA provide valuable snapshots
-    but cannot capture project-level attribution data.
-  \item \textbf{Barriers to social participation:}
-    The consequences may extend beyond the industry.
-    Mortgage applications, visa procedures, and bank credit assessments
-    typically require documented proof of \emph{income} and stable employment---
-    in Japan, instruments such as tax returns and withholding statements
-    (\textit{gensen-ch\=osh\=uhy\=o}).
-    A contribution record is not itself such a document: it attests to
-    \emph{what work was done}, not to income, and institutions do not currently
-    recognize on-chain records (\cref{subsec:legal}).
-    We therefore do not claim that a contribution credential directly unlocks
-    mortgages or visas. Rather, the absence of \emph{any} verifiable professional
-    record is one contributing factor among several in animators' weak institutional
-    standing; a portable attribution record could become a useful complement
-    \emph{if} paired with co-signing (\cref{subsec:cosigning}) and integration
-    with recognized institutional rails---a direction we treat as future work
-    of the design, not a demonstrated capability.
-\end{itemize}
+The consequences are ordinary and compounding. A freelancer seeking the next
+contract has to demonstrate a track record, and without credits that means verbal
+claims, personal networks, or samples nobody can independently attribute; a studio
+hiring them has no standard way to check. The same absence removes the evidence
+from fee negotiation: a key animator who delivered thirty cuts on a well-known
+production, uncredited, has nothing to point at. And because the record lives in
+colleagues' memories, it degrades when studios close---which they do---or when the
+people who remember move on.
+
+A weaker claim is sometimes made for records of this kind, and we want to be
+precise about not making it. Mortgage applications, visa procedures and credit
+assessments require documented \emph{income}, evidenced in Japan by tax returns
+and withholding statements. A contribution record attests to work performed, not
+to earnings, and no institution recognises an on-chain record for these purposes
+(\cref{subsec:why_japan}). We claim only that the absence of any verifiable
+professional record is one component of animators' weak institutional standing.
 
 % ----- 3.3 Limitations of Existing Solutions -----
 \subsection{Limitations of Existing Solutions}
@@ -85,37 +62,25 @@ who work as freelancers (47.3\% in 2023~\cite{janica2023survey}, and 69.6\% in
 Five recent initiatives have addressed aspects of the freelance animator problem,
 but none fully resolves the contribution invisibility issue:
 
-\begin{itemize}
-  \item \textbf{Freelance Protection Act (2024):}
-    Japan's new legislation introduces protections for independent contractors,
-    including written contract requirements and payment term regulations.
-    However, it does not mandate contribution recording or attribution;
-    an animator can have a legally compliant contract while still being uncredited.
-  \item \textbf{NAFCA standard contracts:}
-    NAFCA has developed template contracts for studio--animator agreements.
-    While these improve transaction transparency,
-    they are bilateral documents between two parties
-    and do not create a publicly verifiable record
-    that the animator can carry to future engagements.
-  \item \textbf{Community databases (e.g., Sakugabooru, AniList):}
-    Fan-maintained databases attempt to track animator contributions.
-    These are valuable but rely on volunteer effort,
-    are inherently incomplete, and lack official verification.
-  \item \textbf{Centralized portfolio platforms:}
-    Platforms such as ArtStation, and in Japan creator-portfolio services like
-    foriio and Lancers, allow animators to showcase their work, but they depend on
-    self-reported claims without third-party attestation or cryptographic proof,
-    and they are controlled by a single operator that may change terms or shut down.
-  \item \textbf{Production-management tools:}
-    Animation/VFX production trackers---e.g., Autodesk Flow (ShotGrid), ftrack,
-    the open-source Kitsu, and Japanese anime-specific tools such as Save Point
-    and Anikuro---capture genuinely task-level data (per-shot/per-cut assignment
-    and completion) as a byproduct of the workflow. However, that record is
-    \emph{studio-owned}: it lives in the studio's instance, is not a third-party
-    attestation the freelancer holds, and effectively disappears for the animator
-    at offboarding or studio closure. They solve production tracking, not a
-    portable, freelancer-owned credential.
-\end{itemize}
+None of the responses in place produces what is missing.
+\Cref{tab:provenance} classifies them by where their record comes from; here we
+note only what each leaves open. The Freelance Protection Act regulates written
+terms and payment, not attribution, so a contract can be fully compliant and the
+animator still uncredited. NAFCA's template agreements improve bilateral
+transparency but produce a document between two parties, not something the
+animator can carry forward. Fan-maintained databases and portfolio platforms
+record at the level the credential needs but carry no attestation, the first
+resting on volunteer effort and the second on self-report.
+
+Production-management tools are the interesting case, because they already hold
+the right data. Trackers used in animation and visual effects---Autodesk Flow,
+ftrack, the open-source Kitsu, and Japanese anime-specific tools---capture
+per-cut assignment and completion as a byproduct of running the work. That record
+is studio-owned: it lives in the studio's instance, is not an attestation the
+freelancer holds, and stops being reachable at offboarding or closure. They solve
+production tracking, which is a different problem from a portable credential, and
+they are also the system in which an accepted order is recorded---which is why the
+design in \cref{sec:framework} starts there rather than from a new data source.
 
 % ----- 3.4 Problem Formalization -----
 \subsection{Problem Formalization}

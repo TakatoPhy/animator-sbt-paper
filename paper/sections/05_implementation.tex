@@ -10,32 +10,20 @@ and the integration design with an existing production management client (\cref{
 \subsection{Technology Stack}
 \label{subsec:stack}
 
-The proposed system uses the following components:
+The contract is Solidity 0.8.20 against OpenZeppelin Contracts v4, deployed to
+Polygon PoS for its transaction costs and EVM compatibility. Metadata is
+content-addressed on IPFS through a pinning service; the issuance service is a
+Node.js backend using ethers.js and the pinning provider's SDK. The client an
+animator sees is a progressive web application for tracking cuts and deadlines.
 
-\begin{itemize}
-  \item \textbf{Blockchain:} Polygon PoS~\cite{gangwal2023layer2} (targeted for production deployment). Polygon was selected for its low
-    transaction costs (on the order of $10^{-3}$~USD per mint at typical gas prices;
-    see \cref{tab:gas}), Ethereum Virtual Machine (EVM) compatibility, and established ecosystem.
-  \item \textbf{Smart contract:} Solidity 0.8.20 with OpenZeppelin Contracts v4.x
-    (ERC-721, AccessControl, Counters). We note that OpenZeppelin Contracts v5 has
-    since superseded the \texttt{\_beforeTokenTransfer} hook used here with a unified
-    \texttt{\_update} hook and removed the \texttt{Counters} utility; porting to v5
-    (using \texttt{\_update} for soulbinding enforcement and a plain counter) is a
-    straightforward, recommended step for a production deployment, which we note as
-    future work.
-  \item \textbf{Metadata storage:} IPFS via Pinata pinning service.
-    Metadata JSON files are content-addressed and immutable once pinned.
-  \item \textbf{Issuance service:} Node.js backend using ethers.js v6
-    for blockchain interaction and Pinata SDK for IPFS uploads.
-  \item \textbf{Production management client:} Progressive Web Application (PWA)
-    built with a standard web framework, providing cut management,
-    deadline tracking, and income calculation features for freelance animators.
-  \item \textbf{Wallet management (production target):} Embedded wallets via account abstraction
-    (ERC-4337), eliminating the need for animators to install
-    wallet software or manage private keys.
-    The current prototype uses standard externally owned accounts (EOAs);
-    ERC-4337 integration is planned for the production deployment.
-\end{itemize}
+Two notes on the stack rather than the design. OpenZeppelin v5 has since replaced
+the \texttt{\_beforeTokenTransfer} hook this contract overrides with a unified
+\texttt{\_update} hook and removed the \texttt{Counters} utility, so a production
+deployment should port to it; the soulbinding logic moves across unchanged. And
+the walletless experience the design assumes rests on account abstraction
+(ERC-4337) that the prototype does not implement---it uses ordinary externally
+owned accounts, which is why the friction claim of \cref{sec:evaluation} is a
+property of the design rather than of what we built.
 
 % ----- 5.2 Smart Contract -----
 \subsection{Smart Contract Design}
