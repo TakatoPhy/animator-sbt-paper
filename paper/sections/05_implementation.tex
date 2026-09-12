@@ -14,8 +14,7 @@ Two notes on the stack rather than the design. OpenZeppelin v5 has since replace
 the \texttt{\_beforeTokenTransfer} hook this contract overrides with a unified
 \texttt{\_update} hook and removed the \texttt{Counters} utility, so a production
 deployment should port to it; the soulbinding logic moves across unchanged. And
-the walletless experience the design assumes rests on account abstraction
-(ERC-4337) that the prototype does not implement---it uses ordinary externally
+the walletless experience the design assumes rests on account abstraction~\cite{buterin2021erc4337} that the prototype does not implement---it uses ordinary externally
 owned accounts, which is why the friction claim of \cref{sec:evaluation} is a
 property of the design rather than of what we built.
 

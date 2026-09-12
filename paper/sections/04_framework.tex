@@ -46,7 +46,9 @@ the animator gets is not a system nobody controls, but one in which what was
 issued, when, and to whom cannot be quietly changed afterwards.
 
 \textbf{Why SBTs rather than Verifiable Credentials?}
-An alternative design would use W3C Verifiable Credentials (VCs)~\cite{sporny2022vc}
+An alternative design would use W3C Verifiable Credentials (VCs)~\cite{sporny2022vc},
+the credential layer of the self-sovereign identity architecture surveyed by
+M{\"u}hle et al.~\cite{muhle2018ssi},
 instead of on-chain SBTs.
 VCs offer mature standards, selective disclosure, and off-chain storage,
 making them well suited for scenarios where a trusted issuer exists
@@ -76,7 +78,7 @@ and nothing in the design forecloses it.
 \textbf{Why a bespoke contract rather than a general attestation service or a
 signed log?}
 Two lighter alternatives deserve an answer. A generic on-chain attestation
-registry such as the Ethereum Attestation Service could carry these attestations
+registry such as the Ethereum Attestation Service~\cite{eas} could carry these attestations
 without a custom contract, and we regard it as a viable substrate---the co-signing
 design of \cref{subsec:cosigning} could be expressed as EAS attestations. We chose
 a dedicated ERC-721 contract because it bundles soulbound semantics, role-gated
@@ -108,8 +110,9 @@ beyond the issuer, it is not an answer.
 \label{subsec:metadata}
 
 Each AnimatorSBT encodes a structured record of a single project contribution.
-The metadata follows a JSON schema stored on IPFS, with the content hash
-referenced by the on-chain token URI. \Cref{tab:metadata} defines the schema.
+The metadata follows a JSON schema stored on IPFS~\cite{benet2014ipfs}, which
+addresses content by a hash of itself rather than by location, with that hash
+referenced from the on-chain token URI. \Cref{tab:metadata} defines the schema.
 
 \begin{table}[ht]
 \centering
@@ -141,6 +144,13 @@ contribution data is stored under an \texttt{attributes} object.}
 \bottomrule
 \end{tabular}
 \end{table}
+
+Storing the record itself on chain was never an option at this size, and the
+alternatives for binding off-chain data to a ledger have been compared before:
+Sward et al.\ survey the methods and their costs and permanence
+trade-offs~\cite{sward2018insertion}. We take the cheapest of them---anchor a hash,
+keep the content elsewhere---and \cref{sec:evaluation} shows where the cost then
+lands instead.
 
 Two fields carry the design rather than the data. \texttt{evidence\_hash} links
 the certificate to the work log it was built from, so a verifier can check

@@ -38,6 +38,18 @@ against each other. We therefore expect willingness to co-sign to vary with what
 studio believes its subcontracting depth would reveal, and we have no evidence
 either way; obtaining it is the priority we identify in \cref{sec:conclusion}.
 
+There is also a case that credentials of this kind make things worse. Wheelahan
+and Moodie argue that micro-credentialing in casualised labour markets can
+reproduce the dynamics of the waterfront shape-up, sorting an oversupplied
+workforce more finely without improving anyone's
+position~\cite{wheelahan2021gig}. The concern applies here. A record that makes
+contribution legible also makes it comparable, and in a market with more animators
+than work, finer comparison is not obviously in the animator's interest. Our
+answer is narrow: what this framework certifies is that work was done and accepted,
+not how well, so it adds an axis of verification rather than one of ranking. That
+distinction holds only as long as nobody builds a score on top of it, which we
+cannot prevent.
+
 Regulatory pressure is a weaker inducement than it first appears. The Fair Trade
 Commission's findings concern unilateral pricing and unpaid retakes, not
 attribution~\cite{jftc2025anime}, and an attestation of who did the work does not
@@ -67,6 +79,24 @@ the animator does not control whether a studio accepts and pays for a delivery, 
 fabricating a certificate requires fabricating a commercial transaction. It does
 not close the attack, because the studio's acceptance is recorded in a system the
 operator runs, and a co-signature is what puts a second party's key behind it.
+
+\Cref{sec:problem} left a question here: a signal separates types only if it is
+costly to send falsely, so does a studio countersignature qualify? Taken as a
+quality signal it does not, and we should not claim otherwise. Signing truthfully
+costs one transaction, which is to say nothing, so if the mechanism worked as
+intended every studio would sign for every accepted delivery and the presence of a
+certificate would not distinguish a good animator from an adequate one. The
+separation it achieves is cruder and, we think, the one that is missing: between
+an animator who did the work and one who says so. That is closer to Akerlof's
+remedy than to Spence's---a warranty that makes a claim checkable rather than a
+cost that only some can bear---and it is why we describe the framework as a
+verification device throughout, and not as a measure of merit.
+
+What would be costly to send falsely is a countersignature for work that was never
+accepted, since it contradicts the studio's own books and sits in public next to
+them. The mechanism's strength is therefore against fabrication rather than
+against mediocrity, and a verifier who reads a certificate as evidence of skill
+reads more than is there.
 
 Two attacks come from outside the design's assumptions rather than from within
 them, and both are recent enough that we can only note them.
@@ -161,9 +191,23 @@ linked to an identifiable individual is personal data. Pseudonymous wallet
 addresses separate the record from the person only weakly---project title, role and
 period together may identify someone in a small industry---and in the present
 schema the separation does not arise at all, because identifying fields are stored
-in cleartext on public IPFS (\cref{subsec:privacy}). The Act also confers rights of
-correction and deletion that an immutable ledger cannot honour: \texttt{revoke()}
-marks a record invalid, it does not remove it. Encrypting the off-chain metadata
+in cleartext on public IPFS (\cref{subsec:privacy}). Whether the hash itself escapes this is not settled: Finck, analysing the same
+question under the GDPR, concludes that a hash of personal data can remain personal
+data, because it still singles out an individual to anyone able to test candidate
+inputs~\cite{finck2018blockchains}. Our evidence hash is computed over attributes
+that include a name, so we do not claim the on-chain record is anonymous.
+
+The Act also confers rights of correction and deletion that an immutable ledger
+cannot honour: \texttt{revoke()} marks a record invalid, it does not remove it. We
+should be careful not to present that as a law of nature. Ateniese et al.\ show
+that a chameleon hash permits authorised redaction of a chain's
+contents~\cite{ateniese2017redactable}, and the architecture we use---personal data
+off chain, a hash and pointer on it---is itself a known response to this problem,
+set out as such by Truong et al.~\cite{truong2020gdpr}. We adopt the second and not
+the first, because redaction requires a trapdoor holder and we would be that
+holder, which reintroduces at the protocol layer exactly the single-operator
+dependency the design is trying to shed. The consequence is that our erasure story
+remains the weaker one. Encrypting the off-chain metadata
 and discarding the key would keep identifying data off the immutable layer, but we
 have not implemented it. We treat metadata privacy as unresolved and would expect a
 data protection impact assessment before any deployment with real personal data.
