@@ -68,8 +68,8 @@ function _beforeTokenTransfer(
 }
 \end{lstlisting}
 
-Additionally, the \texttt{approve()} and \texttt{setApprovalForAll()} functions
-are overridden to revert unconditionally, preventing any approval-based transfer mechanisms.
+The \texttt{approve()} and \texttt{setApprovalForAll()} functions are likewise
+overridden to revert unconditionally, preventing any approval-based transfer mechanisms.
 This ensures that SBTs cannot be transferred through any ERC-721--compliant interface.
 
 \subsubsection{Why Not ERC-5192?}
@@ -143,7 +143,7 @@ holder costs 195{,}423~gas, within 3\% of the 189{,}792 observed on-chain.
 
 This matters beyond reconciling two columns. The one cost lever an implementer
 controls is metadata addressing: a deployment that stores a CIDv1 pointer per
-certificate pays roughly \textbf{50\% more gas than one that stores a short
+certificate pays \textbf{53\% more gas than one that stores a short
 identifier} and resolves the pointer off-chain. It also means any reported
 per-certificate cost is uninterpretable unless the URI scheme is stated, and we
 state ours.
@@ -175,7 +175,7 @@ gas used, and exclude any mainnet priority or L1 fees
 \midrule
 Deploy                 & 1{,}824{,}117 & 1{,}824{,}117 & 0.0547 & \$0.0120 \\
 \texttt{mint()}        &   195{,}423 & 189{,}792$^{\dagger}$ & 0.0059 & \$0.0013 \\
-\texttt{mintBatch(10)} & 1{,}704{,}591 & 1{,}025{,}449$^{\ddagger}$ & 0.0511 & \$0.0112 \\
+\texttt{mintBatch(10)} & 1{,}704{,}591 & 1{,}025{,}449$^{\ddagger}$ & 0.0511 & \$0.0113 \\
 \texttt{coSign()}      &    96{,}997 & --- & 0.0029 & \$0.0006 \\
 \texttt{revoke()}      &    50{,}027 &  50{,}027 & 0.0015 & \$0.0003 \\
 \bottomrule
@@ -221,7 +221,7 @@ the repository adds a further 25 tests---17 for the v2 co-signing reference cont
 local end-to-end issuance test---for 60 passing in total.
 We note the scope of this suite plainly. The v1 and v2 contract tests exercise the
 \emph{smart-contract} mechanics, which are the most standard and least error-prone
-part of the system. Importantly, the serialization-determinism gap flagged in an
+part of the system. The serialisation-determinism gap flagged in an
 earlier version of this work is now closed: the \texttt{evidence\_hash} is computed
 over a \emph{canonical} (recursively key-sorted) serialization, and 7 unit tests
 confirm that it is independent of key insertion order, stable, and sensitive to any
