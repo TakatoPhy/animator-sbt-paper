@@ -12,83 +12,27 @@ and explores generalizability to other creative industries (\cref{subsec:general
 \subsection{Adoption Barriers}
 \label{subsec:adoption_barriers}
 
-While AnimatorSBT is designed for minimal friction (R5),
-several non-technical barriers may impede real-world adoption:
+The barriers to this framework are not technical, and the sharpest of them is
+internal to the design. Co-signing is what converts a self-report into a
+credential, and the transparency it creates is what a studio has reason to avoid:
+a countersigned record of who did which cut also documents how deep the
+outsourcing chain runs. The party whose participation the credential needs is
+therefore the party it exposes. We can see no way to resolve this from the design
+side, and we have no evidence about studio willingness either way; obtaining it is
+the priority we identify in \cref{sec:conclusion}.
 
-\textbf{Blockchain skepticism.}
-The anime industry's workforce skews toward traditional craft skills
-rather than digital technology.
-The association of blockchain with cryptocurrency speculation and NFT scams
-may generate initial resistance.
-Our design mitigates this by making the blockchain layer invisible
-to end users---animators interact only with the familiar PMC interface.
-However, marketing and communication strategies must carefully position
-the technology as a ``digital certificate'' rather than an ``NFT'' or ``crypto token''
-to avoid triggering negative associations.
-We pair this with an explicit \textbf{informed-consent} principle: precisely
-because the interface hides the blockchain, onboarding must clearly disclose that
-issuance creates a \emph{permanent, public, on-chain record} (including, in the
-current design, cleartext metadata, \cref{subsec:privacy}). Abstraction must not
-become obfuscation; ``invisible'' should describe the mechanics, not the
-consequences, of holding a public credential.
+Regulatory pressure is a weaker inducement than it first appears. The Fair Trade
+Commission's findings concern unilateral pricing and unpaid retakes, not
+attribution~\cite{jftc2025anime}, and an attestation of who did the work does not
+establish that it was fairly priced. It is a tailwind, not a compliance obligation
+the framework discharges.
 
-\textbf{Studio cooperation.}
-While AnimatorSBT can function without studio cooperation
-(animators self-report their contributions through the PMC),
-studio endorsement would significantly increase the credibility of issued SBTs.
-A co-signing mechanism, where studios countersign contribution claims,
-would transform the SBT from a self-attestation to a verified credential.
-However, studios may resist transparency in subcontracting arrangements,
-as it would expose the depth of outsourcing chains
-that the industry has historically kept opaque.
-
-\textbf{Network effects.}
-The value of AnimatorSBT increases with adoption:
-verifiers (studios hiring freelancers) will only check SBTs
-if a critical mass of animators holds them.
-This creates a chicken-and-egg problem common to credentialing platforms.
-We propose addressing this through a phased rollout:
-(1)~integrate SBT issuance into the existing PMC user base,
-(2)~partner with progressive studios willing to recognize SBTs in hiring,
-and (3)~expand to the broader industry as demonstrated value accumulates.
-
-\textbf{Studio incentives.}
-AnimatorSBT is designed primarily for animators, but studio cooperation
-significantly increases credential value.
-Why would studios participate?
-We identify three incentive pathways:
-(1)~\textit{talent retention}: studios that endorse SBTs signal
-transparency and respect for creators, making them more attractive
-to high-quality freelancers in a competitive labor market;
-(2)~\textit{regulatory compliance}: Japan's Fair Trade Commission
-has flagged opaque subcontracting practices~\cite{jftc2025anime},
-and SBT co-signing provides auditable evidence of fair attribution;
-(3)~\textit{production quality assurance}: verifiable animator portfolios
-reduce hiring risk by allowing studios to confirm a freelancer's
-actual track record before assignment.
-
-We must, however, be candid about the limits of these pathways.
-The transparency that co-signing creates is precisely what some studios have an
-incentive to \emph{avoid}, since it exposes outsourcing depth---so pathway~(1) and
-the cooperation barrier above pull in opposite directions.
-Pathway~(2) is weaker than it may first appear: the Fair Trade Commission's concern
-is unilateral pricing and unpaid additional/retake work, and an attribution
-co-signature does not by itself establish pricing fairness; we therefore frame
-regulatory pressure as a general tailwind, not as compliance that SBTs directly
-satisfy. Pathway~(3) is partly circular: a portfolio reduces hiring risk only to
-the extent it is trustworthy, which---absent co-signing---is exactly what is in
-question. These pathways thus motivate the \emph{phased} rollout below rather than
-guaranteeing uptake; we have no empirical evidence of studio willingness to adopt,
-and we identify obtaining it as a priority for future work.
-
-\textbf{Cultural norms.}
-Japanese business culture emphasizes relationships and trust
-built through personal networks (\textit{kone}).
-A cryptographic verification system may be perceived as undermining
-this relationship-based hiring model.
-We argue that AnimatorSBT complements rather than replaces personal networks:
-it provides a baseline of verifiable facts
-that enhances (rather than substitutes for) trust-based relationships.
+One barrier is ours to manage rather than to observe. The design deliberately
+hides the chain from the animator, and that abstraction must not extend to the
+consequences: issuance creates a permanent public record, in the present schema
+with identifying fields in cleartext (\cref{subsec:privacy}). Onboarding has to
+disclose that plainly, because a credential the holder did not understand they
+were publishing is worse than no credential.
 
 % ----- 7.2 Trust Model and Abuse Prevention -----
 \subsection{Trust Model and Abuse Prevention}
@@ -199,61 +143,31 @@ against the benefit rather than assumed away.
 \subsection{Legal and Regulatory Considerations}
 \label{subsec:legal}
 
-\textbf{Personal data protection.}
-AnimatorSBT stores contribution metadata (project title, role, task count, period)
-on IPFS with a reference on-chain.
-Under Japan's Act on the Protection of Personal Information (APPI),
-work history linked to an identifiable individual constitutes personal data.
-The use of pseudonymous wallet addresses provides a degree of separation,
-but two issues undercut it. First, re-identification: the combination of project
-title, role, and time period may be sufficient to identify an individual in
-practice. Second, and more directly, the current metadata stores identifying
-fields---including \texttt{animator\_name}---in \emph{cleartext} on public IPFS
-(\cref{subsec:privacy}), so for those records the wallet's pseudonymity is moot.
-Furthermore, APPI confers rights of correction and deletion that are in fundamental
-tension with blockchain immutability: an on-chain token and timestamp cannot be
-erased, and our \texttt{revoke()} preserves rather than removes the record
-(\cref{subsec:privacy}). The candidate mitigation is to encrypt off-chain metadata
-and discard the key (``crypto-shredding''), keeping directly identifying data off
-the immutable layer. The nullable studio field and selective disclosure provide
-only partial mitigation; we therefore consider metadata-layer privacy unresolved
-and recommend a formal data protection impact assessment, and ideally consultation
-with the Personal Information Protection Commission, before production deployment.
+The unresolved legal problem is data protection, and it is not incidental to the
+design. Under Japan's Act on the Protection of Personal Information, a work history
+linked to an identifiable individual is personal data. Pseudonymous wallet
+addresses separate the record from the person only weakly---project title, role and
+period together may identify someone in a small industry---and in the present
+schema the separation does not arise at all, because identifying fields are stored
+in cleartext on public IPFS (\cref{subsec:privacy}). The Act also confers rights of
+correction and deletion that an immutable ledger cannot honour: \texttt{revoke()}
+marks a record invalid, it does not remove it. Encrypting the off-chain metadata
+and discarding the key would keep identifying data off the immutable layer, but we
+have not implemented it. We treat metadata privacy as unresolved and would expect a
+data protection impact assessment before any deployment with real personal data.
 
-\textbf{Token classification.}
-We offer the following as preliminary authorial analysis, not legal advice.
-AnimatorSBT tokens are non-transferable and, in the attribution-only design,
-carry no monetary value. Our reading is that, under Japan's Financial Instruments
-and Exchange Act (FIEA) and the Payment Services Act, a non-transferable token with
-no monetary value and no secondary market is unlikely to be classified as a
-crypto-asset or a security. We flag two qualifications. First, classification can
-turn on economic substance over form: were any profit-distribution right attached,
-the collective-investment-scheme (\textit{sh\=udan t\=oshi sukii\=mu}) analysis under
-the FIEA would need to be considered. Second, and importantly, the
-contribution-based revenue-sharing extension we list as future work
-(\cref{sec:conclusion}) \emph{would} attach monetary entitlements and could
-materially change this analysis---so the ``no monetary value'' premise holds only
-for the present attribution-only system, not for that extension. Regulatory clarity
-on SBTs specifically is still evolving, and formal legal review should precede any
-production deployment, especially one that adds financial features.
+On classification we offer a reading, not advice: a non-transferable token with no
+monetary value and no secondary market is unlikely to be a crypto-asset or a
+security under the Financial Instruments and Exchange Act or the Payment Services
+Act. That reading depends on the token carrying no entitlement, so it would not
+survive an extension that attached one.
 
-\textbf{Labor law implications.}
-The Fair Trade Commission's December 2025 report~\cite{jftc2025anime}
-found that unilateral price determination without negotiation
-may violate the Subcontract Act (the \textit{Shitauke H\=o}; note that this act
-is being reorganized and renamed---commonly rendered the Act on Promotion of Fair
-Subcontracting Transactions, \textit{Torihiki Tekiseika H\=o}---with changes taking
-effect in 2026, alongside the Freelance Protection Act enacted in November 2024).
-AnimatorSBT could in principle serve as a supporting evidence tool in such disputes,
-as the \texttt{evidence\_hash} provides a timestamped record. We are careful about
-what it would prove, however: consistent with the trust model
-(\cref{subsec:trust}), it evidences the \emph{existence and timing of a
-self-reported claim}, not the underlying fact of what work was done or at what
-price---studio co-signing (\cref{subsec:cosigning}) would be needed for the latter.
-Moreover, the legal admissibility and probative weight of on-chain evidence in
-Japanese courts have not been established through precedent.
+The framework is sometimes suggested as evidence in transactional disputes, given
+the Fair Trade Commission's findings on unilateral pricing~\cite{jftc2025anime}.
+It would evidence less than that suggests. A timestamped evidence hash establishes
+that a claim existed at a time, not that the work was done or what was owed for it;
+only a co-signature reaches the former, and nothing here reaches the latter.
 
-% ----- 7.4 Why Japan's Anime Industry? -----
 \subsection{Why a Technological Solution Is Needed}
 \label{subsec:why_japan}
 

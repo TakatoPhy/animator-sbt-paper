@@ -344,7 +344,7 @@ AnimatorSBT addresses privacy through several mechanisms:
 \end{itemize}
 
 % ----- 4.6 Co-signing / Attestation Design -----
-\subsection{Co-signing and the Authenticity Layer (Designed and Prototyped; Not Yet Deployed or Independently Operated)}
+\subsection{Co-signing and the Authenticity Layer}
 \label{subsec:cosigning}
 
 The mechanisms above produce a record that is \emph{tamper-evident}, timestamped,
@@ -360,10 +360,7 @@ which is the v1 contract exposing only \texttt{mint}, \texttt{mintBatch},
 separate reference contract, \texttt{AnimatorSBTV2}, with a passing test suite and
 local gas measurements (\cref{subsec:prototype}). What remains undone is the part
 that actually delivers authenticity: on-chain deployment, and operation by an
-\emph{independent, identity-bound} studio attester. In the present single-operator
-configuration the deployer holds \texttt{ISSUER\_ROLE} and \texttt{STUDIO\_ATTESTER\_ROLE}
-simultaneously, so a co-signature it produces adds no authenticity over the mint
-itself (see the attester-independence caveat below).}
+independent, identity-bound studio attester.}
 
 \paragraph{A trust-level taxonomy.}
 We distinguish three levels of credential strength, which the same SBT can move
