@@ -2,12 +2,6 @@
 
 We propose \textbf{AnimatorSBT}, a framework designed to integrate Soulbound Token issuance
 into the anime production workflow through an existing production management tool.
-This section describes the system architecture (\cref{subsec:architecture}),
-the SBT metadata schema (\cref{subsec:metadata}),
-the issuance flow (\cref{subsec:flow}),
-the verification mechanism (\cref{subsec:verification}),
-and privacy considerations (\cref{subsec:privacy}).
-
 % ----- 4.1 System Architecture -----
 \subsection{System Architecture}
 \label{subsec:architecture}
@@ -316,23 +310,15 @@ local gas measurements (\cref{subsec:prototype}). What remains undone is the par
 that actually delivers authenticity: on-chain deployment, and operation by an
 independent, identity-bound studio attester.}
 
-\paragraph{A trust-level taxonomy.}
-We distinguish three levels of credential strength, which the same SBT can move
-through over time:
-\begin{enumerate}
-  \item \textbf{Self-attested} (the current prototype): minted from the animator's
-    own work log. Establishes existence, integrity, and timestamp---stronger than
-    an unverifiable claim, but not authenticated.
-  \item \textbf{Peer-attested:} one or more co-workers on the same production
-    endorse the claim, providing a social-verification signal short of an
-    institutional one.
-  \item \textbf{Studio-attested:} the contracting studio (or production manager)
-    countersigns, converting the record into a mutually verified credential.
-    This is the strongest level and the one most likely to satisfy a hiring
-    verifier.
-\end{enumerate}
-A verifier can then weight a credential by its attestation level, and the
-verification portal can surface that level explicitly.
+\paragraph{What a credential is worth depends on who signed it.}
+A self-attested certificate, minted from the animator's own log, establishes
+existence, integrity and a timestamp: more than an unverifiable claim, less than
+an authenticated one. A studio-attested certificate, countersigned by the party
+that accepted the work, is the level a hiring verifier can actually weigh. A
+middle level is conceivable---co-workers on the same production endorsing a
+claim, a social signal short of an institutional one---but we have not built it,
+and the contract's \texttt{attestationLevel} is accordingly binary rather than
+graded. A verifier should read the level, not just the token.
 
 \paragraph{Reference implementation.}
 The realization reuses the contract's existing role-based access control
