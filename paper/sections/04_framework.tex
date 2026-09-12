@@ -208,63 +208,27 @@ implying that every SBT can attain the same level of trust.
 \subsection{Issuance Flow}
 \label{subsec:flow}
 
-The SBT issuance process follows five steps,
-illustrated in \Cref{fig:issuance_flow}:
+Issuance is automatic after the animator's ordinary work. They record cut
+assignments, status changes and completion times in the management client as they
+already do. At a milestone---delivery of an episode, or a request from the
+animator---the client asks the issuance service to certify the period. The service
+aggregates the relevant log entries, computes the evidence hash over their
+canonical serialisation (\cref{subsec:canonical}), pins the metadata, and calls
+\texttt{mint()} with the animator's address and the resulting URI. The animator
+sees a certificate appear. In the production design the issuance service sponsors
+gas through a meta-transaction relayer, so the animator neither holds tokens nor
+signs a transaction; the prototype pays gas directly from an operational wallet.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.85\columnwidth]{figures/issuance_flow}
-  \caption{Five-step SBT issuance flow. The animator's only interaction
-  is with the PMC (Step~1); all subsequent steps are automated.}
-  \label{fig:issuance_flow}
-\end{figure}
-
-\begin{enumerate}
-  \item \textbf{Work Recording:}
-    The animator logs their daily work in the PMC as part of their normal workflow
-    (cut assignments, status updates, completion timestamps).
-    No additional effort is required for SBT issuance.
-  \item \textbf{Milestone Trigger:}
-    When a predefined milestone is reached (e.g., project completion, episode delivery,
-    or manual request by the animator), the PMC sends a certification request
-    to the Issuance Service.
-  \item \textbf{Metadata Construction:}
-    The Issuance Service aggregates the work log entries for the specified period,
-    computes the \texttt{evidence\_hash}, constructs the JSON metadata, and uploads
-    it to IPFS via a pinning service (e.g., Pinata).
-  \item \textbf{Minting:}
-    The Issuance Service calls the \texttt{mint()} function on the AnimatorSBT
-    smart contract, passing the animator's wallet address and the IPFS content URI.
-    In the production design, gas fees are covered by the Issuance Service
-    through a meta-transaction relayer (ERC-2771);
-    in the current prototype, the Issuance Service pays gas directly
-    from its operational wallet.
-  \item \textbf{Confirmation:}
-    The PMC receives a transaction receipt and displays the newly issued SBT
-    in the animator's profile, including a link to the Verification Portal.
-\end{enumerate}
-
-\textbf{Example scenario.}
-Consider a freelance key animator, Tanaka, who is assigned 25 cuts
-for Episode~7 of an anime series through a secondary subcontractor.
-Over roughly ten weeks, Tanaka logs each cut assignment, status update,
-and completion in the PMC as part of her normal workflow.
-When Episode~7 wraps, the PMC triggers a certification request.
-The Issuance Service aggregates Tanaka's work log
-(role: \texttt{key\_anim}, task count: 25, period: 2025-01-15 to 2025-03-30),
-computes the evidence hash, and mints an SBT to her embedded wallet.
-Tanaka sees a new certificate in her PMC profile.
-Three months later, when applying to a different studio,
-she shares her wallet address.
-The studio queries the blockchain and sees a tamper-evident, timestamped record
-that Tanaka \emph{declared} 25 key animation cuts on a production during that
-period. Absent a studio co-signature (\cref{subsec:cosigning}), this remains a
-self-declaration rather than an independently confirmed fact---but it is stronger
-evidence than an unverifiable r\'esum\'e line (it is timestamped, immutable, and
-tied to a contemporaneous work log), and, combined with the usual interview and
-portfolio review, it strengthens her case even though her name never appeared in
-the episode's broadcast credits. Had the subcontractor co-signed the SBT, the same
-record would rise to an independently verified credential.
+The resulting record is narrower than it looks. Suppose a key animator is assigned
+25 cuts for an episode through a secondary subcontractor, works ten weeks, and is
+never named in the broadcast credits. The certificate establishes that she
+declared 25 key-animation cuts on a production in that period, and that the
+declaration existed at that time and has not changed since. It does not establish
+that she did the work. That distinction is the whole subject of
+\cref{subsec:cosigning}: with the subcontractor's co-signature the same record
+becomes an attestation by the party that accepted the work, and without it the
+certificate is a timestamped self-report---better than an unverifiable line on a
+r\'esum\'e, and less than a credential.
 
 % ----- 4.4 Verification Mechanism -----
 \subsection{Verification Mechanism}
