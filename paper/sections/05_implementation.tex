@@ -241,7 +241,8 @@ what attestation level, and ERC-5192 \texttt{locked()} signalling. A co-signatur
 costs 96{,}997~gas and the contract deploys for 2{,}058{,}959.
 
 The canonical serialisation module is the component that makes the evidence hash
-mean anything. It is a dependency-light, recursively key-sorted JSON serialiser---a
+mean anything. \Cref{fig:canonical} shows what it buys, with the hashes the
+implementation produces. It is a dependency-light, recursively key-sorted JSON serialiser---a
 subset of JCS (RFC~8785)---over which \texttt{evidence\_hash} is computed, so that
 two parties assembling the same attributes in different key order arrive at the
 same hash and a verifier can tell a reordering from a change. Without it the hash
@@ -249,6 +250,16 @@ fixes one serialisation of a claim rather than the claim, which was a gap in the
 earlier design. The issuance service extends the v1 flow with this hash and an
 optional co-signing step using a separate attester wallet, behind a
 wallet-provisioning seam that is currently an unconfigured skeleton.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.92\textwidth]{figures/canonical_hash}
+  \caption{The evidence hash fixes the claim rather than one spelling of it. The
+  same attributes serialised with keys in different orders reduce to the same
+  digest; changing a single value does not. Hashes are the values produced by the
+  implementation in the accompanying repository.}
+  \label{fig:canonical}
+\end{figure*}
 
 We emphasize what this does and does not establish: it demonstrates that the
 co-signing mechanism, canonical hashing, mint, and soulbinding \emph{compose}
