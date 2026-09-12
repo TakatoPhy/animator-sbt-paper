@@ -1,0 +1,31 @@
+{
+  "environment": {
+    "solc_version": "0.8.20",
+    "optimizer_enabled": true,
+    "optimizer_runs": 200,
+    "evm": "Hardhat local network",
+    "measured_at": "2026-09-12",
+    "note": "Gas is deterministic for a given bytecode and call; the local EVM reproduces testnet gas. Fiat conversion is applied downstream from explicitly stated gas and token prices."
+  },
+  "deployment_gas": {
+    "AnimatorSBT": 1824117,
+    "AnimatorSBTV2": 2058959
+  },
+  "operation_gas": {
+    "mint (first certificate to a holder)": 144667,
+    "mint (subsequent certificate to the same holder)": 110467,
+    "mintBatch(1)": 129202,
+    "mintBatch(5)": 527414,
+    "mintBatch(10)": 1025353,
+    "mintBatch(25)": 2519088,
+    "revoke": 50027,
+    "grantRole (studio attester)": 51459,
+    "mint (v2)": 145764,
+    "coSign (studio attestation)": 96997
+  },
+  "per_certificate_gas": {
+    "self-attested (v1 mint, subsequent)": 110467,
+    "self-attested, amortised in a batch of 10": 102535,
+    "studio-attested (v2 mint + coSign)": 242761
+  }
+}
