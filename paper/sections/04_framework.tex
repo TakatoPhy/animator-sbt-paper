@@ -79,6 +79,15 @@ token gives the portfolio-as-balance ergonomic natively where a raw attestation
 does not. Those are arguments from self-containment, not from technical
 superiority.
 
+A third alternative questions the binary itself. Wang et al.\ propose bounded
+rather than prohibited transfer, standardised as a limited transfer count, arguing
+that the choice between freely tradable and permanently bound is
+artificial~\cite{wang2026counted}. For a credential of this kind we think the
+binary is the right one: a work record that can change hands even a fixed number
+of times is a record of whose account holds it, not of who did the work, and the
+property the animator needs is precisely that it cannot be sold when they are
+short of money.
+
 One could also forgo the chain entirely and publish a signed append-only log, in
 the manner of certificate transparency. That achieves tamper-evidence more
 cheaply, and it fails on the requirement that matters here: verification depends
