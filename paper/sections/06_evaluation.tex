@@ -174,6 +174,16 @@ lapses and no other node holds a copy, the on-chain record survives while the
 content it points to does not---which is the same off-chain dependency that
 dominates the cost.
 
+Portability is also less automatic than putting a record in the holder's hands
+suggests. Hesse et al.\ find that reputation carried between platforms is
+discounted by those receiving it~\cite{hesse2021portability}, and Kokkodis and
+Ipeirotis measure freelance reputation as only partially transferable even under
+favourable conditions~\cite{kokkodis2016transferability}. Both study scores
+assembled inside one platform, which a certificate anchored to a studio's own
+acceptance is not, so we expect the discount to be smaller here---but we have not
+measured it, and a record being portable in the technical sense is not the same as
+a verifier treating it as portable.
+
 Portability and minimal friction are properties of a design rather than of a
 running system. Both rest on the embedded-wallet layer, which is not built, and
 portability is additionally hostage to wallet recovery, which is unsolved: losing
