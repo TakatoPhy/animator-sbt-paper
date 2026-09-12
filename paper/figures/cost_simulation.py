@@ -51,7 +51,7 @@ def main() -> None:
     op = GAS["operation_gas"]
     per_cert = GAS["per_certificate_gas"]
 
-    mint_gas = op["mint (subsequent certificate to the same holder)"]
+    mint_gas = op["mint (new holder, steady state)"]
     batch10 = op["mintBatch(10)"]
 
     mpl.rcParams.update({

@@ -13,46 +13,46 @@
       "scenario": "Pilot (50)",
       "animators": 50,
       "certificates_per_year": 300,
-      "onchain_usd_year": 0.203,
+      "onchain_usd_year": 0.3375,
       "ipfs_usd_year": 0.0,
-      "total_usd_year": 0.2,
-      "usd_per_animator_year": 0.0041
+      "total_usd_year": 0.34,
+      "usd_per_animator_year": 0.0068
     },
     {
       "scenario": "Early (500)",
       "animators": 500,
       "certificates_per_year": 3000,
-      "onchain_usd_year": 2.0302,
+      "onchain_usd_year": 3.3751,
       "ipfs_usd_year": 240.0,
-      "total_usd_year": 242.03,
-      "usd_per_animator_year": 0.4841
+      "total_usd_year": 243.38,
+      "usd_per_animator_year": 0.4868
     },
     {
       "scenario": "Moderate (1,300)",
       "animators": 1300,
       "certificates_per_year": 7800,
-      "onchain_usd_year": 5.2785,
+      "onchain_usd_year": 8.7752,
       "ipfs_usd_year": 240.0,
-      "total_usd_year": 245.28,
-      "usd_per_animator_year": 0.1887
+      "total_usd_year": 248.78,
+      "usd_per_animator_year": 0.1914
     },
     {
       "scenario": "Full, low (2,601)",
       "animators": 2601,
       "certificates_per_year": 15606,
-      "onchain_usd_year": 10.5611,
+      "onchain_usd_year": 17.5572,
       "ipfs_usd_year": 240.0,
-      "total_usd_year": 250.56,
-      "usd_per_animator_year": 0.0963
+      "total_usd_year": 257.56,
+      "usd_per_animator_year": 0.099
     },
     {
       "scenario": "Full, high (3,827)",
       "animators": 3827,
       "certificates_per_year": 22962,
-      "onchain_usd_year": 15.5391,
+      "onchain_usd_year": 25.8329,
       "ipfs_usd_year": 240.0,
-      "total_usd_year": 255.54,
-      "usd_per_animator_year": 0.0668
+      "total_usd_year": 265.83,
+      "usd_per_animator_year": 0.0695
     }
   ]
 }
