@@ -12,39 +12,19 @@ and privacy considerations (\cref{subsec:privacy}).
 \subsection{System Architecture}
 \label{subsec:architecture}
 
-AnimatorSBT consists of four components:
+Four components carry the design. A production management client---the
+application an animator already uses to track cut assignments, status and
+deadlines---is the source of the contribution record. An issuance service
+aggregates those entries at a milestone, pins the metadata, and calls the
+contract. The contract itself is an ERC-721 token~\cite{entriken2018erc721} on
+Polygon PoS with transfers disabled, exposing minting, revocation and metadata
+retrieval. A public verification portal resolves an address to the certificates it
+holds. Only the first of these is visible to the animator; the rest run behind it,
+which is a usability decision with a disclosure obligation attached
+(\cref{subsec:adoption_barriers}).
 
-\begin{enumerate}
-  \item \textbf{Production Management Client (PMC):}
-    A Progressive Web Application (PWA) used by freelance animators to track
-    their daily work---cut assignments, task status, deadlines, and deliverables.
-    This is the primary data source for contribution records.
-  \item \textbf{AnimatorSBT Smart Contract:}
-    An ERC-721--based~\cite{entriken2018erc721} non-transferable token contract deployed on a Layer~2 blockchain
-    (Polygon Proof of Stake (PoS)). The contract enforces soulbinding by overriding transfer functions
-    and provides minting, revocation, and metadata retrieval interfaces.
-  \item \textbf{Issuance Service:}
-    A lightweight backend that bridges the PMC and the smart contract.
-    Upon project completion (or at a user-defined milestone),
-    the service constructs SBT metadata from the PMC's work logs,
-    uploads it to the InterPlanetary File System (IPFS)~\cite{benet2014ipfs},
-    and triggers the minting transaction.
-  \item \textbf{Verification Portal:}
-    A public web interface where third parties (studios, clients, recruiters)
-    can verify an animator's contribution history by querying the blockchain
-    and rendering the associated metadata.
-\end{enumerate}
-
-\Cref{fig:architecture} illustrates the data flow between these components.
-
-\begin{figure*}[t]
-  \centering
-  \includegraphics[width=\textwidth]{figures/architecture}
-  \caption{AnimatorSBT system architecture. The animator interacts only with the
-  Production Management Client (PMC); SBT issuance and on-chain storage are handled
-  transparently by the Issuance Service.}
-  \label{fig:architecture}
-\end{figure*}
+The design decisions worth defending are not the components but three choices a
+reader may reasonably question.
 
 \textbf{Why blockchain rather than a centralized database?}
 A conventional approach would store contribution records in
