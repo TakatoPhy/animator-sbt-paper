@@ -83,9 +83,9 @@ individual credentials from a personal wallet, and verification typically routes
 through the issuer's published key or a status registry that the issuer maintains.
 For a low-friction, holder-passive experience aimed at non-technical animators,
 the address-as-portfolio model is a better fit. We stress that SBTs and VCs are
-\emph{not} mutually exclusive: future work (\cref{sec:conclusion}) explores
-VC-compliant wrappers for AnimatorSBT metadata, which would add selective
-disclosure and interoperability that on-chain SBTs lack.
+\emph{not} mutually exclusive: a VC-compliant wrapper over the same metadata
+would add the selective disclosure and interoperability that on-chain SBTs lack,
+and nothing in the design forecloses it.
 
 \textbf{Why a bespoke contract rather than a general attestation service or a
 signed log?}
@@ -229,7 +229,7 @@ displaying project titles, roles, task counts, and time periods.
 The portal can also recompute the \texttt{evidence\_hash} and, with the animator's
 consent, compare it against the PMC's locally stored work logs.
 
-It is important to state precisely what this check does and does not establish.
+What this check establishes is narrow, and worth stating precisely.
 The \texttt{evidence\_hash} is a Keccak-256 hash of the serialized attributes;
 recomputing it from the pinned metadata alone (as the static portal does,
 \cref{subsec:prototype}) only detects whether the IPFS file was altered after
@@ -238,7 +238,7 @@ hash. Comparing it against the animator's \emph{local} work log is stronger: it 
 the on-chain certificate to a contemporaneous record. But even this establishes
 only \emph{integrity} (the certificate corresponds to the work log that was hashed
 at issuance), not \emph{authenticity} (that the work log reflects work actually
-performed)---the log is self-reported. Moreover, the local-log comparison requires
+performed)---the log is self-reported. The local-log comparison also requires
 the animator's consent and the continued existence of the local data, and is
 therefore fragile to device loss. Authenticity requires the co-signing layer of
 \cref{subsec:cosigning}.
@@ -247,7 +247,7 @@ therefore fragile to device loss. Authenticity requires the co-signing layer of
 \subsection{Privacy Considerations}
 \label{subsec:privacy}
 
-AnimatorSBT addresses privacy through several mechanisms:
+AnimatorSBT addresses privacy through five mechanisms:
 
 \begin{itemize}
   \item \textbf{Minimal on-chain data:}
@@ -338,7 +338,7 @@ token, and refuses to co-sign a revoked token. Companion views expose the result
 \texttt{attesters(tokenId)}, \texttt{attestationCount(tokenId)},
 \texttt{hasCoSigned(tokenId, attester)}, and \texttt{attestationLevel(tokenId)}.
 Studios are granted the attester role through the same admin pathway used for
-issuers. A single \texttt{coSign} consumes approximately 95{,}000 gas in the local
+issuers. A single \texttt{coSign} consumes 96{,}997~gas in the local
 EVM (\textasciitilde\$0.0006 at the baseline rate of \cref{tab:gas}); we report this
 as a local-EVM figure only, since \texttt{AnimatorSBTV2} is not deployed on-chain
 and, as \cref{subsec:contract} shows, local and on-chain gas can differ materially.
