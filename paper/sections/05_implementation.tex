@@ -54,25 +54,13 @@ The \texttt{approve()} and \texttt{setApprovalForAll()} functions are likewise
 overridden to revert unconditionally, preventing any approval-based transfer mechanisms.
 This ensures that SBTs cannot be transferred through any ERC-721--compliant interface.
 
-\subsubsection{Why Not ERC-5192?}
-
-The ERC-5192 standard~\cite{daubenschuetz2022erc5192} defines a minimal interface
-for soulbound NFTs via a \texttt{locked()} query function and a lock event.
-ERC-5192 and our approach address complementary concerns rather than competing
-ones: ERC-5192 is primarily a \emph{signaling/interoperability} standard (it lets
-SBT-aware tooling discover that a token is non-transferable), whereas our contract
-focuses on \emph{enforcement}, blocking transfers in \texttt{\_beforeTokenTransfer}
-and additionally overriding the approval-based vectors (\texttt{approve},
-\texttt{setApprovalForAll}) so that non-transferability holds through any
-ERC-721--compliant path. The v1 contract deployed on Amoy does not expose the
-ERC-5192 \texttt{locked()} view; the v2 reference contract (\cref{subsec:prototype})
-adds it---returning \texttt{true} for every minted token, emitting the ERC-5192
-\texttt{Locked} event at mint, and advertising interface id \texttt{0xb45a3c0e} via
-\texttt{supportsInterface}---so that wallets and explorers can recognize the token
-as soulbound through the standard signaling interface while our \texttt{\_beforeTokenTransfer}
-hook continues to provide enforcement. We do not claim ERC-5192 is deficient---only
-that, on its own, signaling without enforcement was insufficient for our goal; we
-now provide both.
+ERC-5192~\cite{daubenschuetz2022erc5192} solves an adjacent problem: it is a
+signalling interface, letting tooling discover that a token is non-transferable,
+where the hook above is enforcement. The two are complementary and the v2 contract
+provides both---\texttt{locked()} returning true for every token, the
+\texttt{Locked} event at mint, and the interface id advertised through
+\texttt{supportsInterface}---while the v1 contract on Amoy has only the
+enforcement.
 
 \subsubsection{Role-Based Access Control}
 
@@ -201,19 +189,14 @@ revocation, view functions, and access control; all pass. Beyond the v1 contract
 the repository adds a further 25 tests---17 for the v2 co-signing reference contract
 (\cref{subsec:cosigning}), 7 for the canonical evidence-hash serialization, and a
 local end-to-end issuance test---for 60 passing in total.
-We note the scope of this suite plainly. The v1 and v2 contract tests exercise the
-\emph{smart-contract} mechanics, which are the most standard and least error-prone
-part of the system. The serialisation-determinism gap flagged in an
-earlier version of this work is now closed: the \texttt{evidence\_hash} is computed
-over a \emph{canonical} (recursively key-sorted) serialization, and 7 unit tests
-confirm that it is independent of key insertion order, stable, and sensitive to any
-value change---removing a classic source of silent hash-mismatch bugs. What the
-suite still does \emph{not} cover is the live IPFS upload/pinning path and the
-in-browser portal's hash-recompute logic against real pinned metadata, and---most
-consequentially---the v2 co-signing contract is exercised only in the local EVM and
-is \emph{not deployed on-chain}. These off-chain and on-chain-deployment gaps,
-which carry the authenticity argument (\cref{subsec:verification}), remain needed
-work.
+The suite exercises contract mechanics, which are the most standard part of the
+system, and one thing that is not: the evidence hash is computed over a
+recursively key-sorted serialisation, and seven of the tests confirm that it is
+independent of key insertion order, stable across runs, and sensitive to any value
+change. That closes a determinism gap in the earlier design, under which the same
+claim serialised differently produced different hashes. \Cref{subsec:eval_limitations}
+states what the suite does not reach.
+
 An end-to-end demonstration of the Tanaka scenario
 (\cref{subsec:flow}) was executed on the testnet,
 successfully minting an SBT with IPFS-hosted metadata
