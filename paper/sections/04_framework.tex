@@ -247,45 +247,55 @@ therefore fragile to device loss. Authenticity requires the co-signing layer of
 \subsection{Privacy Considerations}
 \label{subsec:privacy}
 
-AnimatorSBT addresses privacy through five mechanisms:
+Privacy in this design turns on a question the schema got wrong, and the answer
+is in the industry's own practice rather than in cryptography.
 
-\begin{itemize}
-  \item \textbf{Minimal on-chain data:}
-    Only the token ID, owner address, and IPFS URI are stored on-chain.
-    All detailed metadata resides on IPFS.
-    We caution, however, that in the current prototype this metadata---including
-    \texttt{animator\_name}---is stored in \emph{cleartext} on public IPFS
-    (see the example artifact in \cref{app:metadata}). The pseudonymity of the
-    wallet address therefore does \emph{not} extend to the metadata: anyone with
-    the URI can read the name and project details. Encrypting the metadata (or
-    omitting directly identifying fields) is a recommended mitigation but is not
-    the default today; we treat metadata-layer privacy as an open issue
-    (\cref{subsec:legal}).
-  \item \textbf{Nullable fields:}
-    Sensitive information (studio name, project title) can be omitted
-    when non-disclosure agreements (NDAs) apply, while still certifying role and task volume.
-  \item \textbf{Selective disclosure:}
-    The animator controls which SBTs are visible on the Verification Portal.
-    Non-public SBTs can be shared via direct links with access control.
-  \item \textbf{Embedded wallets:}
-    By using account abstraction (ERC-4337), animators do not need to manage
-    private keys directly, reducing the risk of key loss or social engineering attacks.
-  \item \textbf{Erasure (a partial ``right to be forgotten''):}
-    We are deliberately careful here, because blockchain immutability is in
-    tension with erasure rights. Our \texttt{revoke()} function does \emph{not}
-    burn the token or delete its \texttt{tokenURI}: by design it only sets a
-    revocation flag, preserving the on-chain audit trail
-    (\cref{subsec:contract}). A revoked token therefore remains queryable and its
-    URI still resolves. Genuine erasure of the \emph{content} relies on unpinning
-    the IPFS metadata, which renders it inaccessible through standard gateways---but
-    any party that retained a copy can re-pin it, and the on-chain token, timestamp,
-    and revocation record persist permanently. The practical mitigation for the
-    PII this exposes is to encrypt the off-chain metadata and discard the key
-    (``crypto-shredding''); we did not implement this in the prototype.
-    We thus claim only a \emph{partial}, best-effort erasure capability, not a
-    guarantee of forgetting, and flag the immutability-versus-APPI tension as
-    unresolved in \cref{subsec:legal}.
-\end{itemize}
+The prototype stores an \texttt{animator\_name} field in cleartext on public IPFS
+(\cref{app:metadata}), so the pseudonymity of the wallet address does not reach
+the metadata: anyone holding the URI reads the name and the production. But the
+name a credential of this kind should carry is not a legal identity. The Agency
+for Cultural Affairs model contract for freelance animators specifies that, when
+crediting, the commissioner confirms the contractor's type of work and name, and
+it names the alternatives explicitly---a stage name or a pen
+name~\cite{bunka2024model}. The industry already credits people by a professional
+name, which is the name a portfolio is built under and the one a hiring studio
+recognises. Carrying that name rather than a legal one is not a weakening of the
+credential; it is the credential behaving like a credit. We regard the cleartext
+legal name in the prototype schema as a defect of the prototype rather than a
+property of the design, and re-identification from the surrounding attributes
+remains possible in a small industry, which is why we do not claim the problem is
+closed.
+
+This is also where we part company with the direction the recent literature has
+taken. Lyu et al.\ bind a soulbound token to an identity engine that spawns
+per-service child identities, precisely so that verifiers cannot link a holder's
+credentials to one another~\cite{lyu2026ssi}. That is the right goal for
+credentials presented bilaterally, and the wrong one here: a portfolio is
+valuable because its entries are linkable to a single professional identity, and
+unlinkability would remove the property the animator needs. Zero-knowledge
+techniques have a place in this design, but at the level of attributes rather
+than holders---proving that an animator has completed some volume of work across
+some number of productions without naming them (\cref{subsec:trust})---not in
+severing the link that makes a career record a record.
+
+Beyond the naming question, three smaller measures apply. Only the token
+identifier, owner address and metadata URI go on chain. Fields covered by a
+non-disclosure agreement, such as the studio and the production title, can be
+omitted while still certifying role and volume, at the cost discussed in
+\cref{subsec:adoption_barriers}. And account abstraction keeps animators from
+handling private keys directly.
+
+Erasure is the one we cannot engineer around. \texttt{revoke()} sets a flag; it
+does not burn the token or clear its URI, because preserving the audit trail is
+the point of putting the record on a chain in the first place. A revoked token
+stays queryable and its URI still resolves. Erasing the content means unpinning
+the metadata, which makes it unreachable through public gateways but not gone:
+anyone who kept a copy can re-pin it, and the token, its timestamp and the
+revocation record persist regardless. Encrypting the metadata and discarding the
+key would give a genuine erasure path, and we did not implement it. We therefore
+claim a partial, best-effort capability rather than a right to be forgotten, and
+treat the tension with the Act on the Protection of Personal Information as
+unresolved (\cref{subsec:legal}).
 
 % ----- 4.6 Co-signing / Attestation Design -----
 \subsection{Co-signing and the Authenticity Layer}
