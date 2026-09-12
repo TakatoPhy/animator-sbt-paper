@@ -61,7 +61,14 @@ the standard VC model requires the holder to store, manage, and selectively pres
 individual credentials from a personal wallet, and verification typically routes
 through the issuer's published key or a status registry that the issuer maintains.
 For a low-friction, holder-passive experience aimed at non-technical animators,
-the address-as-portfolio model is a better fit. We stress that SBTs and VCs are
+the address-as-portfolio model is a better fit. Kang and Lemieux build the fuller version of that stack: decentralised
+identifiers and verifiable credentials with encryption and usage control, so that
+a data subject licenses access and the licence itself constrains secondary
+use~\cite{kang2021ssi}. The contrast is instructive. Theirs is a general
+mechanism for governing what may be done with data a subject controls; ours is a
+narrow attestation that a discrete piece of work was accepted, which the animator
+wants read as widely as possible. Usage control is the wrong tool for a credential
+whose value is its publicity. We stress that SBTs and VCs are
 \emph{not} mutually exclusive: a VC-compliant wrapper over the same metadata
 would add the selective disclosure and interoperability that on-chain SBTs lack,
 and nothing in the design forecloses it.
@@ -241,7 +248,10 @@ stays queryable and its URI still resolves. Erasing the content means unpinning
 the metadata, which makes it unreachable through public gateways but not gone:
 anyone who kept a copy can re-pin it, and the token, its timestamp and the
 revocation record persist regardless. Encrypting the metadata and discarding the
-key would give a genuine erasure path, and we did not implement it. We therefore
+key would give a genuine erasure path, and we did not implement it. Revolidis et al.\ meet the same wall from the legal side, putting an immutable
+record against the erasure and correction obligations of EU law and finding no
+clean reconciliation~\cite{revolidis2025justice}; we do not claim to have found
+one either. We therefore
 claim a partial, best-effort capability rather than a right to be forgotten, and
 treat the tension with the Act on the Protection of Personal Information as
 unresolved (\cref{subsec:legal}).
@@ -304,9 +314,16 @@ authenticity and exists only to exercise the mechanism end to end. Second, even 
 a distinct attester wallet, nothing \emph{on-chain} binds \texttt{STUDIO\_ATTESTER\_ROLE}
 to a verified legal studio: the admin (TOONIQ) decides who is treated as a studio, so
 co-signing shifts the root of trust from the animator's self-report to TOONIQ's
-off-chain vetting of attesters rather than removing trust. Closing both gaps---an
-independent attester operated by a real studio, with an auditable identity
-binding---is what would convert a co-signed record from \emph{operator-attested} to
+off-chain vetting of attesters rather than removing trust. The second gap has been attacked directly elsewhere. Lauinger et al.\ let a holder
+verify that a credential issuer was itself legitimately authorised, using an
+accumulator and a zero-knowledge proof rather than a named
+administrator~\cite{lauinger2021apoa}. That is the cryptographic form of what we
+do administratively, and it is the direction a deployment ought to take; we do not
+adopt it here because our attester set is small enough to name and because doing
+so would add machinery to a mechanism we have not yet operated at all. Closing
+both gaps---an independent attester operated by a real studio, with an auditable
+identity binding---is what would convert a co-signed record from
+\emph{operator-attested} to
 \emph{independently authenticated}, and is the primary item of future work
 (\cref{sec:conclusion}). Honest framing of the present contribution is therefore
 ``a self-sovereign, tamper-evident, portable contribution \emph{ledger}, plus a
