@@ -1,6 +1,6 @@
 % The asymmetry the paper is about: the record that names the person does not
 % leave the studio, and the record that leaves names a company.
-% Designed to stay readable at slide size: one idea, few elements, large type.
+% One idea, few elements, large type, so that it survives slide size.
 \documentclass[tikz,border=3mm]{standalone}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,calc,backgrounds,fit}
@@ -12,37 +12,51 @@
 \begin{document}
 \begin{tikzpicture}[
   font=\rmfamily, ink,
-  tierbox/.style={draw=mute, line width=0.5pt, rounded corners=1pt,
-                  minimum height=0.55cm, inner xsep=5pt, font=\small,
-                  text=ink},
+  frame/.style={draw=ink, line width=0.5pt, minimum width=0.82cm,
+                minimum height=0.62cm, inner sep=0pt},
   record/.style={draw=ink, line width=1pt, minimum width=5.4cm,
                  align=left, inner sep=9pt},
-  flow/.style={-{Stealth[length=2.4mm]}, draw=accent, line width=0.9pt},
+  fwd/.style={-{Stealth[length=1.5mm]}, draw=mute, line width=0.5pt},
 ]
 
 % ============ the boundary: the hero of the figure ==========================
 \draw[draw=accent, line width=2pt, dash pattern=on 6pt off 4pt]
-  (0,1.35) -- (0,-4.3);
-\node[anchor=south, font=\bfseries\small, text=accent] at (0,1.4)
+  (0,2.15) -- (0,-4.55);
+\node[anchor=south, font=\bfseries\small, text=accent] at (0,2.2)
   {THE STUDIO'S BOUNDARY};
 
-% ============ left: what the studio knows ===================================
-\node[tierbox, anchor=west] (t1) at (-6.6,0.85) {Prime};
-\node[tierbox, anchor=west] (t2) at (-5.35,0.85) {Sub};
-\node[tierbox, anchor=west] (t3) at (-4.3,0.85) {Second tier};
-\draw[-{Stealth[length=1.6mm]}, draw=mute, line width=0.5pt] (t1) -- (t2);
-\draw[-{Stealth[length=1.6mm]}, draw=mute, line width=0.5pt] (t2) -- (t3);
+% ============ one cut, worked through three stages ==========================
+\node[frame] (f1) at (-5.35,1.35) {};
+\node[frame] (f2) at (-4.4,1.35) {};
+\node[frame] (f3) at (-3.45,1.35) {};
+\foreach \f in {f1,f2,f3}{
+  \draw[draw=mute, line width=0.3pt] ([yshift=2.5pt]\f.north west) --
+    ([yshift=2.5pt]\f.north east);
+  \draw[draw=mute, line width=0.3pt] ([yshift=-2.5pt]\f.south west) --
+    ([yshift=-2.5pt]\f.south east);
+}
+\draw[fwd] (f1) -- (f2);
+\draw[fwd] (f2) -- (f3);
+\node[font=\scriptsize, text=mute, anchor=north west, align=left]
+  at (-6.1,1.0)
+  {key animation \textrightarrow\ in-between \textrightarrow\ finishing};
+\node[font=\small, text=mute, anchor=east] at (-6.1,1.35) {one cut};
+\draw[fwd] (-6.0,1.35) -- (f1);
 
-\node[record, anchor=north east, draw=accent] (order) at (-0.75,0.3) {
+\node[font=\scriptsize, text=mute, anchor=north west, align=left] at (-6.1,0.72)
+  {commissioned down a chain of subcontractors};
+
+% ============ left: what the studio knows ===================================
+\node[record, anchor=north east, draw=accent] (order) at (-0.75,0.15) {
   \textbf{\large What the order records}\\[6pt]
-  {\normalsize \textbf{a named animator}}\\[3pt]
-  {\normalsize 25 cuts of key animation}\\[3pt]
+  {\normalsize \textbf{a named key animator}}\\[3pt]
+  {\normalsize 25 cuts, episode 7}\\[3pt]
   {\normalsize checked, accepted, paid}\\[7pt]
   {\small\itshape\textcolor{accent}{never leaves the studio}}
 };
 
 % ============ right: what the world sees ====================================
-\node[record, anchor=north west] (credits) at (0.75,0.3) {
+\node[record, anchor=north west] (credits) at (0.75,0.15) {
   \textbf{\large What the credits show}\\[6pt]
   {\normalsize \textbf{a company name}}\\[3pt]
   {\normalsize \textcolor{mute}{------}}\\[3pt]
@@ -52,12 +66,10 @@
 
 % ============ the certificate crosses ========================================
 \node[record, anchor=north, minimum width=8.6cm, draw=accent, align=center,
-      fill=white] (sbt) at (0,-2.75) {
+      fill=white] (sbt) at (0,-3.05) {
   \textbf{\large A co-signed certificate}\\[4pt]
   {\normalsize carries the left-hand record across the line}
 };
-
-
 
 \end{tikzpicture}
 \end{document}
