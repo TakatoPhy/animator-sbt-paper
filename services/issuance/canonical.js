@@ -54,3 +54,50 @@ function verifyEvidenceHash(attributes, expectedHash) {
 }
 
 module.exports = { canonicalStringify, computeEvidenceHash, verifyEvidenceHash };
+
+/**
+ * Selective disclosure by commitment.
+ *
+ * The published metadata should not carry a direct identifier. Writing an
+ * animator's name to public, content-addressed storage that the on-chain record
+ * points at permanently is not something a revocation flag can undo, and a hash
+ * of personal data can itself remain personal data where the input space is
+ * small enough to search (Finck 2018).
+ *
+ * So the certificate commits to a record that names the holder, and publishes
+ * the record without the name. `evidence_hash` is taken over the full private
+ * record — public attributes, plus the holder's name, plus a random salt the
+ * holder keeps. A verifier who is shown the name and the salt recomputes the
+ * hash and learns that this certificate was issued for that person; anyone else
+ * sees a certified role, volume and period bound to an address, and cannot brute
+ * force the name because they do not have the salt.
+ *
+ * This is not zero knowledge. The holder reveals the name in full to whoever
+ * they choose to show it to. What it buys is that disclosure becomes an act the
+ * holder performs per verifier, rather than a permanent publication performed
+ * once by the issuer.
+ */
+
+/** Split a record into what is published and what the holder keeps. */
+function buildDisclosure(attributes, { animatorName, salt } = {}) {
+  if (!animatorName) throw new Error("animatorName is required for the commitment");
+  const s = salt || ethers.hexlify(ethers.randomBytes(32));
+  const publicAttributes = { ...attributes };
+  delete publicAttributes.animator_name;
+  const privateRecord = { ...publicAttributes, animator_name: animatorName, salt: s };
+  return {
+    publicAttributes,
+    evidenceHash: computeEvidenceHash(privateRecord),
+    // the holder keeps these; they are never pinned and never go on chain
+    disclosureSecret: { animator_name: animatorName, salt: s },
+  };
+}
+
+/** Verify a disclosure a holder has presented against a published certificate. */
+function verifyDisclosure(publicAttributes, disclosureSecret, expectedHash) {
+  const rebuilt = { ...publicAttributes, ...disclosureSecret };
+  return computeEvidenceHash(rebuilt) === expectedHash;
+}
+
+module.exports.buildDisclosure = buildDisclosure;
+module.exports.verifyDisclosure = verifyDisclosure;

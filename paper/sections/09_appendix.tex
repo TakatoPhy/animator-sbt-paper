@@ -8,21 +8,24 @@
 
 A total of 35 unit tests were developed using Hardhat (Solidity 0.8.20,
 optimizer enabled with 200 runs) for the deployed v1 contract. All pass.
-\Cref{tab:test_results} lists this v1 suite. A further 25 tests accompany the
+\Cref{tab:test_results} lists this v1 suite. A further 35 tests accompany the
 reference implementation of \cref{subsubsec:v2}: 17 for the v2 co-signing contract
 (co-signing by a studio attester, elevation to \texttt{attestationLevel}~1,
 idempotent and multi-studio co-signing, refusal to co-sign a revoked token,
 attester-role management, ERC-5192 \texttt{locked()} signaling, and preservation of
 soulbinding), 7 for the canonical evidence-hash serialization (order-independence,
 stability, value-sensitivity, null/undefined handling, and nested-object
-canonicalization), and 1 local end-to-end issuance test (build metadata and
-canonical hash $\rightarrow$ mint $\rightarrow$ studio co-sign $\rightarrow$ verify),
-for \textbf{60 passing tests} in total.
+canonicalization), 10 for the disclosure commitment of \cref{subsec:privacy}
+(no identifier published, a presented disclosure verifies, a substituted name or
+salt fails, altered public attributes fail, and distinct salts leave two
+certificates for one person unlinkable), and 1 local end-to-end issuance test
+(build metadata and canonical hash $\rightarrow$ mint $\rightarrow$ studio co-sign
+$\rightarrow$ verify), for \textbf{70 passing tests} in total.
 
 \begin{table}[ht]
 \centering
 \caption{Unit test suite for the deployed v1 \texttt{AnimatorSBT} contract
-(35 tests, all passing). A further 25 tests cover the v2 co-signing reference
+(35 tests, all passing). A further 35 tests cover the v2 co-signing reference
 contract, canonical serialization, and a local end-to-end flow (60 total).}
 \label{tab:test_results}
 \footnotesize

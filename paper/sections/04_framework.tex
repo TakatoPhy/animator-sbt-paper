@@ -129,7 +129,7 @@ contribution data is stored under an \texttt{attributes} object.}
 \texttt{description}       & string   & Human-readable summary \\
 \midrule
 \multicolumn{3}{@{}l}{\textit{attributes} (contribution data):} \\
-\texttt{animator\_name}    & string   & Name the animator is credited under \\
+\texttt{animator\_name}    & string   & Held by the holder, not published (\cref{subsec:privacy}) \\
 \texttt{animator\_wallet}  & address  & Animator's wallet address \\
 \texttt{project}           & string   & Anime project or episode title \\
 \texttt{role}              & enum     & e.g., \texttt{key\_anim}, \texttt{in\_between}, \texttt{coloring} \\
@@ -140,7 +140,8 @@ contribution data is stored under an \texttt{attributes} object.}
 \texttt{issued\_at}        & datetime & ISO~8601 issuance timestamp \\
 \midrule
 \texttt{evidence\_files}   & array    & IPFS URIs of supporting files \\
-\texttt{evidence\_hash}    & bytes32  & Keccak-256 of serialized attributes \\
+\texttt{salt}              & bytes32  & Held by the holder, not published \\
+\texttt{evidence\_hash}    & bytes32  & Keccak-256 over the canonical private record \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -216,21 +217,35 @@ co-signature something already determined to sign.
 Privacy in this design turns on a question the schema got wrong, and the answer
 is in the industry's own practice rather than in cryptography.
 
-The prototype stores an \texttt{animator\_name} field in cleartext on public IPFS
-(an example artifact is in the accompanying repository), so the pseudonymity of the wallet address does not reach
-the metadata: anyone holding the URI reads the name and the production. But the
-name a credential of this kind should carry is not a legal identity. The Agency
-for Cultural Affairs model contract for freelance animators specifies that, when
-crediting, the commissioner confirms the contractor's type of work and name, and
-it names the alternatives explicitly---a stage name or a pen
-name~\cite{bunka2024model}. The industry already credits people by a professional
-name, which is the name a portfolio is built under and the one a hiring studio
-recognises. Carrying that name rather than a legal one is not a weakening of the
-credential; it is the credential behaving like a credit. We regard the cleartext
-legal name in the prototype schema as a defect of the prototype rather than a
-property of the design, and re-identification from the surrounding attributes
-remains possible in a small industry, which is why we do not claim the problem is
-closed.
+The prototype stored an \texttt{animator\_name} field in cleartext on public IPFS,
+which was indefensible and is no longer the default. Writing a name to permanent,
+content-addressed storage that an on-chain record points at is not something a
+revocation flag undoes, and a hash of personal data can itself remain personal data
+where the input space is small enough to search~\cite{finck2018blockchains}.
+
+The certificate now commits to a record that names the holder and publishes the
+record without the name. The evidence hash is taken over the full private
+record---the public attributes, the holder's name, and a random salt the holder
+keeps---while what is pinned carries only role, volume, period and the address.
+A verifier shown the name and the salt recomputes the hash and learns that this
+certificate was issued for that person. Anyone else sees a certified role and
+volume bound to an address and cannot search for the name, because they do not
+have the salt. Distinct salts also mean two certificates held by the same person
+do not, through their digests, reveal that they are the same person.
+
+This is not zero knowledge, and we do not claim it is: the holder reveals the name
+in full to whoever they choose to show it to. What changes is who performs the
+disclosure and how often. It becomes an act the holder repeats per verifier
+instead of a publication the issuer performs once, permanently, for everyone. Ten
+tests cover the construction, including that a substituted name fails against the
+same certificate and that altered public attributes fail against a valid
+disclosure.
+
+What this does not fix is inference. Role, volume, period and a co-signing studio
+may identify someone in a small industry whether or not the name is published, and
+the model contract's convention of crediting under a professional
+name~\cite{bunka2024model} reduces rather than removes that. We do not claim the
+published record is anonymous.
 
 This is also where we part company with the direction the recent literature has
 taken. Lyu et al.\ bind a soulbound token to an identity engine that spawns
