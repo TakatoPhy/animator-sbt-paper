@@ -9,7 +9,7 @@ read 2026-09-12; the reasoning behind the choices is in
 
 | File | What it is |
 |---|---|
-| `Ledger_manuscript.pdf` | The manuscript, built from `paper/main-ledger.tex` with the journal's own `ledger.cls`. 32 pages. |
+| `Ledger_manuscript.pdf` | The manuscript, built from `paper/main-ledger.tex` with the journal's own `ledger.cls`. 36 pages, of which the last seven are the reference list. |
 | `Ledger_cover_letter.pdf` | Cover letter. Uploaded as a supplementary file at Step 4, not as the manuscript. |
 
 Rebuild the manuscript with:
@@ -24,6 +24,13 @@ are applied, with the original kept as `paper/ledger.cls.orig`: an obsolete
 `compatibility=true` passed to `\captionsetup`, and a global redefinition of
 `\item` that broke every list in the body, now scoped to the keywords
 environment. Both are documented in the commit that introduced them.
+
+⚠️ A third `ledger.cls` constraint is handled in `main-ledger.tex` rather than in the
+class: `\@fnsymbol` defines only nine footnote symbols and raises `Counter too large`
+on the tenth, **discarding that footnote's text**. The paper has twelve footnotes, so
+body footnotes are switched to arabic numerals after `\maketitle`, leaving the author
+block on its symbol. When checking a build, grep the log for `! LaTeX Error` and
+`You've lost some text` as well as for undefined citations.
 
 ## Article type
 
@@ -68,9 +75,16 @@ Alternate if one declines: M. Magdalena Payeras-Capellá, UIB, `mpayeras@uib.cat
   posting a prepublication manuscript before and during review. Disclose the
   preprint; do not describe it as a separate work.
 - **Citations are real and not artificially generated, with doi.org links where
-  available.** All 59 entries were audited against DOI registrars, publisher
-  deposits and issuing bodies' own documents on 2026-09-12; the record of what was
-  wrong and what it was corrected to is in `references/AUDIT.md`.
+  available.** All 88 cited works were audited twice. The first pass, on 2026-09-12,
+  checked existence against DOI registrars, publisher deposits and issuing bodies' own
+  documents. The second, on 2026-09-13, checked whether each source actually supports
+  the claim made from it; six did not and were corrected or removed. Both records,
+  including what was wrong in each case, are in `references/AUDIT.md`.
+
+  One limitation to be able to state if asked: two Japanese monographs
+  (`nagata2022sociology`, and the Toei Animation history that was removed for this
+  reason) were verified bibliographically but not read. No claim in the paper now
+  rests on an unread source for a specific fact.
 - **Agreement with the AI policy.** Generative AI was used and is disclosed in the
   paper under *Statements → Use of generative AI*. It assisted with implementation
   and produced first drafts the author revised.
@@ -89,8 +103,23 @@ Alternate if one declines: M. Magdalena Payeras-Capellá, UIB, `mpayeras@uib.cat
   so in *Statements → Data and code availability*. The paper is explicit that the
   order-anchored issuance path exists only in a closed commercial system and is
   excluded from the evidence it rests on.
-- Authors are **strongly encouraged to sign the hash of the final PDF with a
-  Bitcoin key**. Optional; decide at acceptance.
+- **Digital signature.** Two separate things, from the journal's own pages. The
+  corresponding author is *strongly encouraged* to sign the file hash of the final
+  manuscript with a key, which the journal treats as standing in for the author
+  agreement other journals collect: the signature "implies that each author has seen
+  and approved the paper's content, and is aware of the responsibilities connected
+  with authorship". Staff verify it before publication and publish it alongside the
+  article. Separately, the submission page states that the author *agrees* to digitally
+  sign the publisher's final formatted PDF.
+
+  An address is the identity the signature is checked against, not a tip jar: the About
+  page asks authors to associate a Bitcoin, Bitcoin Cash or Ethereum address (or a PGP
+  public key) with their identity, with the corresponding author's on the first page.
+  `main-ledger.tex` has a commented slot for it in the author block and currently omits
+  it. If this is done, generate a key for the purpose rather than reusing the Polygon
+  deployment key, which would tie the author's name to the deployer address. Decide at
+  acceptance; the journal's signing tool is at
+  `ledger.pitt.edu/ojs/public/journals/1/simplesign.html` and needs a browser.
 
 ## What to expect
 
