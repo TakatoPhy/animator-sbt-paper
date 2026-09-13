@@ -40,3 +40,6 @@ typechain-types/
 # Poster materials are kept out of the repo entirely (owner decision 2026-07-10:
 # repo stays source-only for the paper; poster is a local/presentation artifact).
 poster/
+
+# Venue-strategy notes: kept locally, not published with the artifact
+lit/ledger_venue_analysis.md
