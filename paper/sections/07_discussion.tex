@@ -1,365 +1,236 @@
 % Discussion
 
-This section examines the practical challenges of deploying AnimatorSBT
-in the anime industry (\cref{subsec:adoption_barriers}),
-discusses the trust model and potential abuse vectors (\cref{subsec:trust}),
-considers legal and regulatory implications (\cref{subsec:legal}),
-explains why a technological solution is particularly needed
-in Japan's anime industry (\cref{subsec:why_japan}),
-and explores generalizability to other creative industries (\cref{subsec:generalizability}).
-
 % ----- 7.1 Adoption Barriers -----
 \subsection{Adoption Barriers}
 \label{subsec:adoption_barriers}
 
-While AnimatorSBT is designed for minimal friction (R5),
-several non-technical barriers may impede real-world adoption:
+The barriers to this framework are not technical, and the sharpest of them is
+internal to the design. Co-signing is what converts a self-report into a
+credential, and the transparency it creates is what a studio has reason to avoid:
+a countersigned record of who did which cut also documents how deep the
+outsourcing chain runs. The party whose participation the credential needs is
+therefore the party it exposes.
 
-\textbf{Blockchain skepticism.}
-The anime industry's workforce skews toward traditional craft skills
-rather than digital technology.
-The association of blockchain with cryptocurrency speculation and NFT scams
-may generate initial resistance.
-Our design mitigates this by making the blockchain layer invisible
-to end users---animators interact only with the familiar PMC interface.
-However, marketing and communication strategies must carefully position
-the technology as a ``digital certificate'' rather than an ``NFT'' or ``crypto token''
-to avoid triggering negative associations.
-We pair this with an explicit \textbf{informed-consent} principle: precisely
-because the interface hides the blockchain, onboarding must clearly disclose that
-issuance creates a \emph{permanent, public, on-chain record} (including, in the
-current design, cleartext metadata, \cref{subsec:privacy}). Abstraction must not
-become obfuscation; ``invisible'' should describe the mechanics, not the
-consequences, of holding a public credential.
+Anchoring issuance on an accepted order separates two objections that are easily
+conflated. One is effort: a studio asked to vouch for work must review it, decide and
+stand behind the decision. That largely dissolves, because accepting a delivery and
+paying for it \emph{is} the review, and it has already happened by the time a
+certificate could be issued. The co-signature signs a determination the studio made for
+its own commercial reasons against a record it already keeps, at a marginal cost of one
+transaction.
 
-\textbf{Studio cooperation.}
-While AnimatorSBT can function without studio cooperation
-(animators self-report their contributions through the PMC),
-studio endorsement would significantly increase the credibility of issued SBTs.
-A co-signing mechanism, where studios countersign contribution claims,
-would transform the SBT from a self-attestation to a verified credential.
-However, studios may resist transparency in subcontracting arrangements,
-as it would expose the depth of outsourcing chains
-that the industry has historically kept opaque.
+The opposite design choice exists and is worth naming. Zieglmeier et al.\ build
+transparency over employee data on a permissionless chain precisely to avoid a
+trusted arbiter, reasoning that in a workplace the party who would arbitrate is the
+party with power over the worker~\cite{zieglmeier2023inverse}. We do the reverse and
+make the employer the attester, because an attestation nobody authoritative stands
+behind is what the animator already has. Which choice is right depends on whether the
+asymmetry to be corrected is surveillance or invisibility, and here it is the latter.
 
-\textbf{Network effects.}
-The value of AnimatorSBT increases with adoption:
-verifiers (studios hiring freelancers) will only check SBTs
-if a critical mass of animators holds them.
-This creates a chicken-and-egg problem common to credentialing platforms.
-We propose addressing this through a phased rollout:
-(1)~integrate SBT issuance into the existing PMC user base,
-(2)~partner with progressive studios willing to recognize SBTs in hiring,
-and (3)~expand to the broader industry as demonstrated value accumulates.
+The other objection is disclosure, and it does not dissolve. That this studio
+commissioned this person pre-exists the certificate; its publication does not, and
+publication is what the credential is for. The schema can omit the studio name where a
+non-disclosure agreement applies (\cref{subsec:privacy}), but a verifier cannot weigh an
+attestation whose attester is unnamed, so the privacy lever and the value of the
+credential move against each other. We expect willingness to co-sign to vary with what a
+studio believes its subcontracting depth would reveal, and we have no evidence either
+way; obtaining it is the priority of \cref{sec:conclusion}.
 
-\textbf{Studio incentives.}
-AnimatorSBT is designed primarily for animators, but studio cooperation
-significantly increases credential value.
-Why would studios participate?
-We identify three incentive pathways:
-(1)~\textit{talent retention}: studios that endorse SBTs signal
-transparency and respect for creators, making them more attractive
-to high-quality freelancers in a competitive labor market;
-(2)~\textit{regulatory compliance}: Japan's Fair Trade Commission
-has flagged opaque subcontracting practices~\cite{jftc2025anime},
-and SBT co-signing provides auditable evidence of fair attribution;
-(3)~\textit{production quality assurance}: verifiable animator portfolios
-reduce hiring risk by allowing studios to confirm a freelancer's
-actual track record before assignment.
+Credentials of this kind may also make things worse. Wheelahan and Moodie argue that
+micro-credentialing in casualised labour markets reproduces the dynamics of the
+waterfront shape-up, sorting an oversupplied workforce more finely without improving
+anyone's position~\cite{wheelahan2021gig}. The concern applies here: a record that makes
+contribution legible makes it comparable, and where there are more animators than work,
+finer comparison is not obviously in the animator's interest. Our answer is narrow. What
+this certifies is that work was done and accepted, not how well, so it adds an axis of
+verification rather than one of ranking---a distinction that holds only as long as
+nobody builds a score on top of it, which we cannot prevent.
 
-We must, however, be candid about the limits of these pathways.
-The transparency that co-signing creates is precisely what some studios have an
-incentive to \emph{avoid}, since it exposes outsourcing depth---so pathway~(1) and
-the cooperation barrier above pull in opposite directions.
-Pathway~(2) is weaker than it may first appear: the Fair Trade Commission's concern
-is unilateral pricing and unpaid additional/retake work, and an attribution
-co-signature does not by itself establish pricing fairness; we therefore frame
-regulatory pressure as a general tailwind, not as compliance that SBTs directly
-satisfy. Pathway~(3) is partly circular: a portfolio reduces hiring risk only to
-the extent it is trustworthy, which---absent co-signing---is exactly what is in
-question. These pathways thus motivate the \emph{phased} rollout below rather than
-guaranteeing uptake; we have no empirical evidence of studio willingness to adopt,
-and we identify obtaining it as a priority for future work.
+Regulatory pressure is a weaker inducement than it first appears, and
+\cref{subsec:integration} gives the reason: the rules reaching this industry require a
+detailed transaction record and say nothing about attribution. An attestation of who
+did the work discharges no obligation under them. It is a tailwind, not a compliance
+requirement.
 
-\textbf{Cultural norms.}
-Japanese business culture emphasizes relationships and trust
-built through personal networks (\textit{kone}).
-A cryptographic verification system may be perceived as undermining
-this relationship-based hiring model.
-We argue that AnimatorSBT complements rather than replaces personal networks:
-it provides a baseline of verifiable facts
-that enhances (rather than substitutes for) trust-based relationships.
+One barrier is ours to manage rather than observe. The design hides the chain from the
+animator, and that abstraction must not extend to the consequences: issuance creates a
+permanent public record, and while the commitment of \cref{subsec:privacy} keeps the name
+out of it, role, volume and period stay legible by design. Onboarding has to say so
+plainly, because a credential the holder did not understand they were publishing is worse
+than no credential.
 
 % ----- 7.2 Trust Model and Abuse Prevention -----
 \subsection{Trust Model and Abuse Prevention}
 \label{subsec:trust}
 
-\textbf{It is important to acknowledge a fundamental limitation:}
-AnimatorSBT's current trust model relies on self-reported work logs.
-The blockchain guarantees that a \textit{claim was recorded at a specific time
-by a specific issuer}, but it does not independently verify
-that the claimed work was actually performed.
-In other words, the SBT certifies the existence and immutability
-of a contribution claim, not the truth of that claim.
-This distinction is critical for understanding the system's
-current trust boundary.
+The chain guarantees that a claim was recorded at a time by an issuer, not that the
+work was done. Everything here follows from that boundary.
 
-Without studio co-signing, AnimatorSBT-issued SBTs are
-functionally \textit{self-attestations with cryptographic integrity}---
-more reliable than verbal claims (due to timestamping, immutability,
-and evidence hashing) but less authoritative than
-mutually verified credentials.
-This introduces potential abuse vectors that must be addressed:
+\Cref{sec:problem} left a question: a signal separates types only if it is costly to
+send falsely, so does a studio countersignature qualify? As a quality signal it does
+not. Signing truthfully costs one transaction, so if the mechanism worked as intended
+every studio would sign for every accepted delivery, and the presence of a certificate
+would not distinguish a good animator from an adequate one. What is costly to send
+falsely is a countersignature for work that was never accepted, since it contradicts the
+studio's own books and sits in public beside them. The separation achieved is therefore
+cruder than merit and, we think, the one that is missing: between an animator who did the
+work and one who says so. That is closer to Akerlof's remedy than to Spence's---a
+warranty making a claim checkable rather than a cost only some can bear---which is why we
+call this a verification device and not a measure of quality.
 
-\textbf{Fabricated contributions.}
-An animator could create false work log entries in the PMC
-to mint SBTs for work they did not perform.
-We propose three mitigation layers:
+This is what the anchor is for, and it bounds the attacks. The obvious one is a
+fabricated log: an animator controlling their own entries can mint a certificate for
+work they did not do, and hashing does not help, because the hash fixes a claim rather
+than checking it. Issuing against an accepted order means fabricating a commercial
+transaction instead, which the animator cannot do alone. It does not close the
+attack---the acceptance is recorded in a system the operator runs---and a co-signature is
+what puts a second party's key behind it.
 
-\begin{enumerate}
-  \item \textbf{Studio co-signing (recommended):}
-    Extend the smart contract with a two-party confirmation mechanism
-    where the studio (or production manager) countersigns the SBT.
-    This transforms the SBT from a self-attestation into a mutually verified record.
-  \item \textbf{Peer attestation:}
-    Allow other animators who worked on the same production to attest
-    to a colleague's contribution, creating a social verification layer.
-  \item \textbf{Statistical anomaly detection:}
-    The Issuance Service can flag statistically improbable claims
-    (e.g., an animator claiming 500 cuts in a single week)
-    for manual review before minting.
-\end{enumerate}
+Two attacks come from outside the design's assumptions, and both are recent enough that
+we can only note them. The first breaks the premise that an address corresponds to a
+person: Austgen et al.\ show that trusted-execution techniques let a holder rent, share
+or pool a single address without leaving a trace on chain, and name soulbound tokens
+among the mechanisms this defeats~\cite{austgen2025liquefaction}. Non-transferability of
+the token does not imply non-transferability of control over the address holding it. The
+anchor bounds what such an arrangement can manufacture and does not restore the
+assumption that one soul is one animator.
 
-\textbf{Sybil attacks.}
-A malicious actor could create multiple wallets to fabricate a diverse portfolio.
-Account abstraction mitigates this partially by linking wallet creation
-to PMC registration, but a determined attacker could create multiple PMC accounts.
-We acknowledge a tension here that we did not initially make explicit: tying wallet
-creation to PMC registration as a Sybil gate is only as strong as PMC enrollment is
-\emph{closed}, yet R1 (completeness) and R5 (minimal friction) call for \emph{open},
-low-friction self-enrollment so that any animator can self-report. A meaningful
-identity gate and frictionless open onboarding cannot both hold fully; resolving
-this likely requires external identity protocols (e.g., Proof of Humanity,
-Worldcoin), at the cost of some onboarding friction---a deliberate trade-off rather
-than a solved problem.
+The second concerns what a holder chooses to show. Song et al.\ identify cherry-picking
+as the structural weakness of holder-controlled credentials, a portfolio omitting
+unfavourable entries being indistinguishable from a complete one, and enforce disclosure
+per issuer-domain to close it~\cite{song2026chaincred}. Nothing here prevents an animator
+from presenting only the productions that went well. That is not obviously a defect for a
+portfolio, which never claimed completeness, but it bounds what a verifier may infer, and
+one who treats a set of certificates as a career record rather than a selection will
+over-read it.
 
-\textbf{Issuer key compromise.}
-If the Issuance Service's private key is compromised,
-an attacker could mint arbitrary SBTs.
-The AccessControl pattern mitigates this:
-the admin role (held by TOONIQ) can revoke the compromised issuer role
-and assign a new key, and all fraudulently minted SBTs can be revoked on-chain.
+Sybil resistance and open enrolment pull against each other, unresolved. Tying wallet
+creation to registration in the management client gates identity only as far as that
+registration is closed, while completeness and minimal friction both argue for letting
+any animator enrol freely. An external identity protocol would settle it at the cost of
+the onboarding friction the design set out to avoid. This is a trade-off we have chosen
+a side of, not a solved problem.
 
-\textbf{Wallet loss and credential recovery.}
-Because SBTs are bound to a specific wallet address,
-loss of wallet access means loss of all accumulated credentials.
-Account abstraction mitigates this by removing direct private key management,
-but the underlying risk remains if the embedded wallet provider
-experiences a service disruption.
-A social recovery mechanism---where a set of designated guardians
-(e.g., trusted colleagues, the PMC operator) can authorize wallet migration
-to a new address---is a promising direction.
-The smart contract could support a \texttt{migrate()} function
-that re-mints all SBTs to a new address upon multi-signature approval,
-preserving the credential history.
-This is an open problem in the broader SBT literature~\cite{buterin2022decentralized},
-with recent work exploring social recovery mechanisms
-for SBT-bearing wallets~\cite{goldston2023recovery}.
+Two smaller vectors are handled by construction. A compromised issuer key can mint
+arbitrary certificates, which the role separation limits: the admin revokes the
+issuer role and the fraudulent tokens are revoked on chain, leaving the audit
+trail intact. Statistically implausible claims---an animator reporting several
+hundred cuts in a week---can be held for review before minting, which is a
+heuristic rather than a guarantee.
 
-\textbf{Surveillance and power asymmetry.}
-A system that creates persistent, granular records of every task
-an animator completes could be repurposed as a surveillance tool.
-Studios or clients could use SBT data to monitor productivity
-(e.g., ``this animator only completed 20 cuts last month''),
-compare animators against each other, or penalize those deemed underperforming.
-This risk is particularly acute given the existing power imbalance
-between studios and freelance animators~\cite{jftc2025anime},
-and mirrors broader concerns about surveillance
-in platform-mediated gig work~\cite{sannon2022privacy}.
-AnimatorSBT mitigates this through two design choices:
-(1)~the animator controls which SBTs are publicly visible
-via the selective disclosure mechanism (\cref{subsec:privacy}),
-and (2)~metadata granularity can be adjusted---the \texttt{task\_count} field
-reports aggregate totals per project, not daily output.
-Beyond policy, a technical mitigation we consider promising---and pull forward from
-future work (\cref{sec:conclusion})---is \emph{zero-knowledge aggregate proofs}:
-an animator could prove a threshold property (e.g., ``$>$100 cuts across
-$>$5 productions'') without revealing per-project or per-task detail, structurally
-limiting the granularity available for surveillance. We present this as a
-conditional, unimplemented mitigation, not a current feature.
-Nevertheless, the tension between verifiability and privacy
-is inherent to any credentialing system, and deployment must be accompanied
-by clear policies that prevent misuse of contribution data
-for punitive performance monitoring. We regard this surveillance risk as a
-first-class concern, not a residual one: the same record that empowers an animator
-in hiring can be turned against them in monitoring, and that cost must be weighed
-against the benefit rather than assumed away.
+\textbf{Wallet loss.}
+A credential bound to an address is lost with the address, and this is the unsolved
+problem that would destroy the property the design exists to create. Account abstraction
+takes private-key handling away from the animator but relocates the dependency onto the
+wallet provider rather than removing it. A contract could re-mint a holder's certificates
+to a new address on multi-signature approval; the direction is not ours, Weyl et al.\
+proposing recovery through the social relationships the tokens themselves
+encode~\cite{buterin2022decentralized} and later work taking up SBT-bearing
+wallets~\cite{goldston2023recovery}. What remains open is whether social recovery works
+for a population that does not hold the overlapping memberships it assumes.
+
+\textbf{Surveillance.}
+A durable, granular record of what an animator completed is also an instrument for
+monitoring them, across a documented asymmetry~\cite{jftc2025anime}, and the concern is
+the one raised about platform-mediated gig work generally~\cite{sannon2022privacy}. Two
+things limit it and neither disposes of it: \texttt{task\_count} aggregates per production
+rather than per day, so the record carries no work rate, and the commitment of
+\cref{subsec:privacy} keeps the name out of the published metadata, so an observer must
+link an address to a person first---which role, volume and period may accomplish unaided
+in a small industry. What the animator does \emph{not} control should be stated exactly:
+every certificate held at an address is queryable by anyone, and holder control extends
+to what is presented to a verifier, not to what exists. Zero-knowledge proofs over
+attributes would change that, letting an animator prove a threshold---more than a hundred
+cuts across more than five productions---without exposing the detail. We have not built
+it. The record that helps an animator in hiring can be turned against them in monitoring,
+and that is a cost to weigh rather than a residual.
 
 % ----- 7.3 Legal and Regulatory Considerations -----
 \subsection{Legal and Regulatory Considerations}
 \label{subsec:legal}
 
-\textbf{Personal data protection.}
-AnimatorSBT stores contribution metadata (project title, role, task count, period)
-on IPFS with a reference on-chain.
-Under Japan's Act on the Protection of Personal Information (APPI),
-work history linked to an identifiable individual constitutes personal data.
-The use of pseudonymous wallet addresses provides a degree of separation,
-but two issues undercut it. First, re-identification: the combination of project
-title, role, and time period may be sufficient to identify an individual in
-practice. Second, and more directly, the current metadata stores identifying
-fields---including \texttt{animator\_name}---in \emph{cleartext} on public IPFS
-(\cref{subsec:privacy}), so for those records the wallet's pseudonymity is moot.
-Furthermore, APPI confers rights of correction and deletion that are in fundamental
-tension with blockchain immutability: an on-chain token and timestamp cannot be
-erased, and our \texttt{revoke()} preserves rather than removes the record
-(\cref{subsec:privacy}). The candidate mitigation is to encrypt off-chain metadata
-and discard the key (``crypto-shredding''), keeping directly identifying data off
-the immutable layer. The nullable studio field and selective disclosure provide
-only partial mitigation; we therefore consider metadata-layer privacy unresolved
-and recommend a formal data protection impact assessment, and ideally consultation
-with the Personal Information Protection Commission, before production deployment.
+The unresolved legal problem is data protection, and it is not incidental to the
+design. Under Japan's Act on the Protection of Personal Information, a work history
+linked to an identifiable individual is personal data. Pseudonymous wallet
+addresses separate the record from the person only weakly, because project title, role
+and period together may identify someone in a small industry. The commitment described
+in \cref{subsec:privacy} keeps the name out of what is published and salts the digest,
+which answers the objection that a hash of personal data is itself personal
+data~\cite{finck2018blockchains}. What it does not answer is inference from the
+attributes that have to stay legible for the certificate to be worth anything, so we do
+not claim the published record is anonymous.
 
-\textbf{Token classification.}
-We offer the following as preliminary authorial analysis, not legal advice.
-AnimatorSBT tokens are non-transferable and, in the attribution-only design,
-carry no monetary value. Our reading is that, under Japan's Financial Instruments
-and Exchange Act (FIEA) and the Payment Services Act, a non-transferable token with
-no monetary value and no secondary market is unlikely to be classified as a
-crypto-asset or a security. We flag two qualifications. First, classification can
-turn on economic substance over form: were any profit-distribution right attached,
-the collective-investment-scheme (\textit{sh\=udan t\=oshi sukii\=mu}) analysis under
-the FIEA would need to be considered. Second, and importantly, the
-contribution-based revenue-sharing extension we list as future work
-(\cref{sec:conclusion}) \emph{would} attach monetary entitlements and could
-materially change this analysis---so the ``no monetary value'' premise holds only
-for the present attribution-only system, not for that extension. Regulatory clarity
-on SBTs specifically is still evolving, and formal legal review should precede any
-production deployment, especially one that adds financial features.
+The Act also confers rights of correction and deletion that an immutable ledger cannot
+honour: \texttt{revoke()} marks a record invalid rather than removing it. That is not a
+law of nature. Ateniese et al.\ show that a chameleon hash permits authorised redaction
+of a chain's contents~\cite{ateniese2017redactable}, and the architecture we use, personal
+data off chain with a hash and pointer on it, is itself a known response set out as such
+by Truong et al.~\cite{truong2020gdpr}. We adopt the second and not the first, because
+redaction requires a trapdoor holder and we would be that holder, reintroducing at the
+protocol layer the single-operator dependency the design is trying to shed. Our erasure
+story is therefore the weaker one. Encrypting the off-chain metadata and discarding the
+key would keep identifying data off the immutable layer; we have not implemented it, and
+we would expect a data protection impact assessment before any deployment with real
+personal data.
 
-\textbf{Labor law implications.}
-The Fair Trade Commission's December 2025 report~\cite{jftc2025anime}
-found that unilateral price determination without negotiation
-may violate the Subcontract Act (the \textit{Shitauke H\=o}; note that this act
-is being reorganized and renamed---commonly rendered the Act on Promotion of Fair
-Subcontracting Transactions, \textit{Torihiki Tekiseika H\=o}---with changes taking
-effect in 2026, alongside the Freelance Protection Act enacted in November 2024).
-AnimatorSBT could in principle serve as a supporting evidence tool in such disputes,
-as the \texttt{evidence\_hash} provides a timestamped record. We are careful about
-what it would prove, however: consistent with the trust model
-(\cref{subsec:trust}), it evidences the \emph{existence and timing of a
-self-reported claim}, not the underlying fact of what work was done or at what
-price---studio co-signing (\cref{subsec:cosigning}) would be needed for the latter.
-Moreover, the legal admissibility and probative weight of on-chain evidence in
-Japanese courts have not been established through precedent.
+On classification we offer a reading, not advice: a non-transferable token with no
+monetary value and no secondary market is unlikely to be a crypto-asset or a security
+under the Financial Instruments and Exchange Act or the Payment Services Act. That
+depends on the token carrying no entitlement, so it would not survive an extension that
+attached one.
 
-% ----- 7.4 Why Japan's Anime Industry? -----
-\subsection{Why a Technological Solution Is Needed}
-\label{subsec:why_japan}
-
-A natural question is why the anime industry requires a blockchain-based solution
-when other entertainment industries manage attribution through institutional means.
-In Hollywood, labor unions such as the Screen Actors Guild--American Federation
-of Television and Radio Artists (SAG-AFTRA),
-the Writers Guild of America (WGA),
-and the International Alliance of Theatrical Stage Employees (IATSE) enforce credit rights through collective bargaining
-agreements. These unions maintain records of members' work history,
-negotiate credit arbitration processes, and can call strikes
-to enforce compliance---as demonstrated by the 2023 SAG-AFTRA and WGA strikes.
-
-Japan's anime industry lacks comparable institutional infrastructure.
-Although JAniCA exists as an industry association,
-it functions primarily as a survey and advocacy body
-rather than a collective bargaining agent with enforcement power.
-The key structural differences are:
-
-\begin{itemize}
-  \item \textbf{Unionization rate:}
-    The anime industry has no equivalent of SAG-AFTRA's mandatory membership.
-    JAniCA membership is voluntary and does not confer negotiating rights.
-  \item \textbf{Freelance prevalence:}
-    At roughly half the workforce (47.3\% in 2023, and up to 69.6\% by 2019
-    estimates)~\cite{janica2023survey}, the freelance share in anime far exceeds
-    the ratio in unionized Western entertainment industries.
-  \item \textbf{Credit governance:}
-    In Hollywood, unions define credit rules (e.g., the WGA's credit arbitration process).
-    In anime, credit decisions rest with studios and production committees
-    with no external oversight.
-  \item \textbf{Multi-layer subcontracting:}
-    While Hollywood outsources VFX,
-    anime's gross-subcontracting (\textit{gurosu}) system
-    routinely delegates entire episodes through two or three tiers of subcontractors,
-    creating deeper attribution gaps.
-\end{itemize}
-
-In the absence of institutional solutions,
-a technological approach that gives individual animators
-tamper-evident, self-sovereign records becomes not merely useful
-but, we argue, structurally valuable.
-AnimatorSBT aims to provide part of what unions provide elsewhere:
-a persistent, portable record of who did what---though, as discussed,
-turning that record into a fully \emph{trusted} one requires the co-signing layer
-of \cref{subsec:cosigning}.
-
-More broadly, verifiable career records \emph{could} contribute to the social
-capital of the animator profession---but we are careful not to overstate this.
-The records this system produces attest to \emph{work performed}, not \emph{income},
-and Japanese institutions such as banks and immigration authorities rely on income
-documents (e.g., tax returns and withholding statements), not on-chain records,
-which they do not currently recognize (\cref{subsec:legal}). We therefore do
-\emph{not} claim that AnimatorSBT directly unlocks mortgages, visas, or credit.
-The realistic, longer-term possibility is that a co-signed
-(\cref{subsec:cosigning}), institutionally recognized attribution record could one
-day \emph{complement} the income documentation these processes require---contingent
-on co-signing, legal recognition, and integration with recognized institutional
-rails (\cref{sec:conclusion}). We frame this as aspiration and future work, not a
-demonstrated capability.
+The framework is sometimes suggested as evidence in transactional disputes, given the
+Fair Trade Commission's findings on unilateral pricing~\cite{jftc2025anime}. It would
+evidence less than that suggests. A timestamped evidence hash establishes that a claim
+existed at a time, not that the work was done or what was owed for it; only a
+co-signature reaches the former, and nothing here reaches the latter.
 
 % ----- 7.5 Generalizability -----
 \subsection{Generalizability to Other Creative Industries}
 \label{subsec:generalizability}
 
-While AnimatorSBT is designed for the anime industry,
-the underlying framework is applicable to any project-based creative industry
-where freelancers face similar attribution challenges:
+The problem is not particular to animation. It recurs wherever work is organised in
+projects, subcontracted through two or three tiers, credited under a cap, and produced by
+an organisation that may not outlive the work. What varies is only whether an institution
+exists to adjudicate attribution, and the evidence from settings where none does is
+consistent.
 
-\begin{itemize}
-  \item \textbf{Video game development:}
-    Game credits face similar issues with outsourced QA testers,
-    localization staff, and contract artists often going uncredited.
-  \item \textbf{Film and television (live action):}
-    Below-the-line crew members, particularly in visual effects,
-    frequently work through layers of subcontractors.
-  \item \textbf{Music production:}
-    Session musicians, ghost producers, and uncredited songwriters
-    lack standardized contribution records.
-  \item \textbf{Architecture and design:}
-    Junior architects and designers contribute substantially
-    to projects credited to senior partners.
-\end{itemize}
+Video game development has had a voluntary crediting standard since 2007. Its current
+revision reports that 299 of 582 surveyed developers, 51.3\%, never, seldom or only
+sometimes receive official credit, and that 83.1\% were unsure of or denied having any
+employer credit policy; the word ``enforce'' does not appear in it, and the remedy it
+offers an uncredited developer is to file a bug~\cite{igda2023crediting}. A stratified
+study of 100 games found the omission systematic rather than
+incidental~\cite{svelch2022credit}. Visual effects is the sharper test, sitting inside the
+same films as the crafts that do have jurisdiction: on one 2023 release, 27 of more than
+160 visual-effects workers at a single vendor were credited, and the absence of a union
+was given as the reason no remedy existed~\cite{amidi2023vfx}. Scholarly publishing has
+the most widely adopted attribution standard of any field, and states in the same document
+that it has no authority to enforce it and that arbitrating authorship is not the editor's
+role~\cite{icmje2026recommendations}.
 
-The AnimatorSBT metadata schema (\cref{tab:metadata}) can be adapted
-to these domains by modifying the \texttt{role} enum and
-adjusting the \texttt{task\_count} semantics.
-The smart contract, issuance service, and verification portal
-require no domain-specific modifications.
+A standard without an adjudicator does not produce accurate attribution, and building
+the adjudicator requires an institution with authority over the parties, which is
+available in some industries and not others. A certification layer answers the same
+problem differently: rather than creating an authority, it makes an attestation that
+already occurred, at the moment work was accepted and paid for, durable and portable
+beyond the party that made it. Nothing in that argument is specific to animation, and the
+same move has been put to a quite different institutional act---Revolidis et al.\ propose
+a ledger for the service of judicial documents across EU member states, valuing
+immutability for the procedural reliability it gives the record of an act that must be
+provable afterwards~\cite{revolidis2025justice}. Adapting the framework to another setting
+requires changing the role vocabulary and the unit \texttt{task\_count} measures; the
+contract, issuance service and verification portal do not change.
 
 \textbf{International subcontracting.}
-Anime production increasingly involves cross-border outsourcing,
-with key animation, in-betweening, and coloring tasks
-frequently delegated to studios in South Korea, China, Vietnam,
-and the Philippines~\cite{mori2011pitfall,tschang2010outsourcing}.
-This international subcontracting deepens the attribution gap:
-animators working overseas are even less likely to appear in Japanese credits
-than domestic subcontractors.
-AnimatorSBT is inherently borderless---blockchain credentials
-are not jurisdiction-specific, and a wallet address works identically
-regardless of the holder's country.
-However, cross-border deployment introduces additional challenges:
-local data protection regulations (e.g., China's Personal Information Protection Law (PIPL),
-the EU's General Data Protection Regulation (GDPR)
-for European co-productions), language barriers in metadata,
-and the need for local PMC deployment or API integration
-with existing production management tools used in each country.
-Addressing these challenges is essential for AnimatorSBT
-to cover the full scope of modern anime production.
+In-betweening is the stage most often sent abroad, to studios in South Korea, China and
+the Philippines~\cite{mori2011pitfall,tschang2010outsourcing}, and a domestic shortage
+of in-betweeners was reported in 2023 to be driving further overseas
+orders~\cite{oki2026survey}. This widens the attribution gap rather than narrowing it,
+because an overseas subcontractor sits further from the credit roll than a domestic one.
+A wallet address is indifferent to the holder's country, so the mechanism itself does not
+stop at a border. What does not travel is everything around it: the attester has to be a
+party the overseas studio actually deals with, the data-protection analysis of
+\cref{subsec:legal} has to be redone under whichever law reaches the holder, and the
+metadata vocabulary is Japanese. We claim the mechanism is portable across
+jurisdictions, and claim nothing about a deployment being so.

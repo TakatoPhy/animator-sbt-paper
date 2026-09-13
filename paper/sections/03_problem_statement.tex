@@ -1,150 +1,122 @@
 % Problem Statement
 
-The anime production industry suffers from a systemic \textbf{contribution invisibility problem}:
-a significant portion of the creative labor that produces anime goes unrecorded,
-unattributed, and unverifiable.
-This section formalizes the problem along three dimensions
-and analyzes why existing solutions are insufficient.
-
+Anime production has a \textbf{contribution invisibility problem}: much of the creative
+labour that produces it goes unrecorded, unattributed and unverifiable.
 % ----- 3.1 The Credit Gap -----
 \subsection{The Credit Gap}
 \label{subsec:credit_gap}
 
-In a typical anime production, the end credits list the names of staff
-who contributed to each episode.
-However, the credit system has three structural limitations:
+End credits are a curated subset rather than a log. Three things narrow them.
+Work outsourced through successive tiers surfaces, if at all, as the
+subcontracting company's name, so the individuals at the second or third tier
+appear nowhere. Screen time and production-committee policy cap how many names
+run at all. And an animator who leaves mid-production may be dropped despite
+having finished cuts. \Cref{fig:cut_record} shows where this leaves the record:
+the work is recorded in detail by the party that commissioned it, and the version
+that reaches the public names a company.
 
-\begin{enumerate}
-  \item \textbf{Subcontracting opacity:}
-    When work is outsourced through multiple layers of subcontracting
-    (a common practice in the industry; see \cref{subsec:anime_workflow}),
-    individual animators at secondary or tertiary subcontractors
-    are frequently omitted from credits entirely.
-    Only the subcontracting studio's name may appear,
-    or in some cases, no attribution is given at all.
-  \item \textbf{Slot limitations:}
-    Credits have practical space and time constraints.
-    Television broadcasts allocate limited screen time for credits,
-    and production committees may restrict the number of listed contributors
-    for editorial or contractual reasons.
-  \item \textbf{Staff turnover:}
-    Animators who leave a project mid-production---whether voluntarily
-    or due to scheduling conflicts---may have their names removed
-    from the final credits despite having completed substantial work.
-\end{enumerate}
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/cut_record}
+  \caption{The asymmetry this paper addresses. Work commissioned down a chain of
+  subcontractors produces two records of who did it. The order the studio accepts
+  names the person and the cuts it paid for, and stays inside the studio. The
+  credits that reach the audience name a company. A co-signed certificate is a
+  form of the first record that can cross the boundary.}
+  \label{fig:cut_record}
+\end{figure*}
 
-These limitations mean that \textbf{credits function as an incomplete,
-curated record rather than a comprehensive log of contributions.}
+That a remedy is wanted is not ours to assert, and we do not have to: it appears in the
+industry's own survey. Asked what should change, a production assistant answering
+JAniCA's 2023 survey proposed a licence issued inside production---by the in-between
+checker for in-betweening, by the character designer or chief animation director for key
+animation---so that a creator's record travels with
+them~\cite{janica2023survey}.\footnote{Free-text answer at p.~102, and individual
+testimony rather than a survey statistic. We cite it because the proposal is structurally
+the one this paper develops, and because it was made from inside production rather than
+by a vendor. In the 2026 wave a finishing inspector puts the complaint in one line: the
+work is done and it is not credited~\cite{janica2026survey}.}
 
 % ----- 3.2 Consequences for Freelance Animators -----
 \subsection{Consequences for Freelance Animators}
 \label{subsec:consequences}
 
-The credit gap has concrete consequences for the large share of animators
-who work as freelancers (47.3\% self-employed in 2023, and up to 69.6\%
-by 2019 estimates)~\cite{janica2023survey}:
+The credit gap bears on the share of animators who work outside employment
+(\cref{subsec:labor}), and what it costs them follows from what a credit is for.
+What fails here is a market for a good whose quality the buyer cannot observe
+before purchase, which is the problem Akerlof
+described~\cite{akerlof1970lemons} and to which Spence's answer was a signal
+costly enough that only those who can bear it will send
+it~\cite{spence1973signaling}. Creative labour markets run on exactly this
+substitution. Menger's review of the field finds that in many art worlds initial
+training is an imperfect filtering device, so what sorts practitioners is not a
+credential~\cite{menger1999artistic}, and in project-based production careers are
+assembled from a sequence of engagements rather than from tenure, so each
+engagement has to be legible to the next~\cite{faulkner1987projects}. A credit is
+the signal such a market produces. Withholding it does not merely deny
+recognition; it removes the instrument the market runs on.
 
-\begin{itemize}
-  \item \textbf{Portfolio asymmetry:}
-    When seeking new contracts, freelancers must demonstrate their track record.
-    Without credits, they rely on verbal claims, personal networks,
-    or physical samples that lack independent verification.
-    Studios hiring freelancers have no standardized way to verify
-    a candidate's claimed experience.
-  \item \textbf{Bargaining disadvantage:}
-    Animators cannot leverage uncredited work in fee negotiations.
-    A key animator who completed 30 cuts on a high-profile production
-    but was not credited has no verifiable evidence to justify higher rates.
-  \item \textbf{Career fragility:}
-    Freelancers' career histories exist primarily in the memories
-    of colleagues and in informal industry networks.
-    When studios close---a frequent occurrence in the anime industry---
-    or when key contacts retire, these informal records disappear.
-  \item \textbf{Industry-level data loss:}
-    At the aggregate level, the absence of comprehensive contribution records
-    makes it difficult to study workforce dynamics, identify labor shortages
-    in specific roles, or design effective industry policy.
-    The surveys by JAniCA and NAFCA provide valuable snapshots
-    but cannot capture project-level attribution data.
-  \item \textbf{Barriers to social participation:}
-    The consequences may extend beyond the industry.
-    Mortgage applications, visa procedures, and bank credit assessments
-    typically require documented proof of \emph{income} and stable employment---
-    in Japan, instruments such as tax returns and withholding statements
-    (\textit{gensen-ch\=osh\=uhy\=o}).
-    A contribution record is not itself such a document: it attests to
-    \emph{what work was done}, not to income, and institutions do not currently
-    recognize on-chain records (\cref{subsec:legal}).
-    We therefore do not claim that a contribution credential directly unlocks
-    mortgages or visas. Rather, the absence of \emph{any} verifiable professional
-    record is one contributing factor among several in animators' weak institutional
-    standing; a portable attribution record could become a useful complement
-    \emph{if} paired with co-signing (\cref{subsec:cosigning}) and integration
-    with recognized institutional rails---a direction we treat as future work
-    (\cref{sec:conclusion}), not a demonstrated capability.
-\end{itemize}
+This framing also sets the bar the rest of the paper has to clear. A signal
+separates types only if it is costly to send falsely. We return to whether a
+studio countersignature meets that condition in \cref{subsec:trust}.
+
+The consequences are ordinary and compounding. A freelancer seeking the next contract has
+to demonstrate a track record, and without credits that means verbal claims, personal
+networks or samples nobody can independently attribute, while the studio hiring them has
+no standard way to check. The same absence removes the evidence from fee negotiation: a
+key animator who delivered thirty cuts on a well-known production, uncredited, has nothing
+to point at. And because the record lives in colleagues' memories, it degrades when
+studios close, which they do, or when the people who remember move on.
+
+A stronger claim is sometimes made for records of this kind, and we are not making it.
+Mortgage applications, visa procedures and credit assessments require documented
+\emph{income}, evidenced in Japan by tax returns and withholding statements. A
+contribution record attests to work performed, not earnings, and no institution recognises
+an on-chain record for these purposes. We claim only that the absence of any verifiable
+professional record is one component of animators' weak institutional standing.
 
 % ----- 3.3 Limitations of Existing Solutions -----
 \subsection{Limitations of Existing Solutions}
 \label{subsec:existing_limitations}
 
-Several recent initiatives have addressed aspects of the freelance animator problem,
-but none fully resolves the contribution invisibility issue:
+None of the responses in place produces what is missing.
+\Cref{tab:provenance} classifies them by where their record comes from; here we
+note only what each leaves open. The Freelance Protection Act regulates written
+terms and payment, not attribution, so a contract can be fully compliant and the
+animator still uncredited. NAFCA's template agreements improve bilateral
+transparency but produce a document between two parties, not something the
+animator can carry forward. Fan-maintained databases and portfolio platforms
+record at the level the credential needs but carry no attestation, the first
+resting on volunteer effort and the second on self-report.
 
-\begin{itemize}
-  \item \textbf{Freelance Protection Act (2024):}
-    Japan's new legislation introduces protections for independent contractors,
-    including written contract requirements and payment term regulations.
-    However, it does not mandate contribution recording or attribution;
-    an animator can have a legally compliant contract while still being uncredited.
-  \item \textbf{NAFCA standard contracts:}
-    NAFCA has developed template contracts for studio--animator agreements.
-    While these improve transaction transparency,
-    they are bilateral documents between two parties
-    and do not create a publicly verifiable record
-    that the animator can carry to future engagements.
-  \item \textbf{Community databases (e.g., Sakugabooru, AniList):}
-    Fan-maintained databases attempt to track animator contributions.
-    These are valuable but rely on volunteer effort,
-    are inherently incomplete, and lack official verification.
-  \item \textbf{Centralized portfolio platforms:}
-    Platforms such as ArtStation, and in Japan creator-portfolio services like
-    foriio and Lancers, allow animators to showcase their work, but they depend on
-    self-reported claims without third-party attestation or cryptographic proof,
-    and they are controlled by a single operator that may change terms or shut down.
-  \item \textbf{Production-management tools:}
-    Animation/VFX production trackers---e.g., Autodesk Flow (ShotGrid), ftrack,
-    the open-source Kitsu, and Japanese anime-specific tools such as Save Point
-    and Anikuro---capture genuinely task-level data (per-shot/per-cut assignment
-    and completion) as a byproduct of the workflow. However, that record is
-    \emph{studio-owned}: it lives in the studio's instance, is not a third-party
-    attestation the freelancer holds, and effectively disappears for the animator
-    at offboarding or studio closure. They solve production tracking, not a
-    portable, freelancer-owned credential.
-\end{itemize}
+Production-management tools are the interesting case, because they already hold
+the right data. Trackers used in animation and visual effects---Autodesk Flow,
+ftrack, the open-source Kitsu, and Japanese anime-specific tools---capture
+per-cut assignment and completion as a byproduct of running the work. That record
+is studio-owned: it lives in the studio's instance, is not an attestation the
+freelancer holds, and stops being reachable at offboarding or closure. They solve
+production tracking, which is a different problem from a portable credential, and
+they are also the system in which an accepted order is recorded---which is why the
+design in \cref{sec:framework} starts there rather than from a new data source.
 
 % ----- 3.4 Problem Formalization -----
 \subsection{Problem Formalization}
 \label{subsec:formalization}
 
-We define the contribution invisibility problem as follows.
-Let $A$ be the set of all animators who contributed to a production $P$.
-Let $C(P) \subseteq A$ be the set of animators credited in the official records of $P$.
-The \textbf{credit gap} is:
+Let $A$ be the set of animators who contributed to a production $P$, and
+$C(P) \subseteq A$ the set credited in its official records. The \textbf{credit gap} is:
 
 \begin{equation}
   \Delta(P) = A \setminus C(P)
   \label{eq:credit_gap}
 \end{equation}
 
-For any animator $a \in \Delta(P)$, there exists no verifiable, persistent,
-and portable record of their contribution to $P$.
-We use this definition conceptually rather than as a computed quantity:
-$\Delta(P)$ is not directly observable, since the uncredited set is by construction
-unrecorded. A practical future proxy would compare, for a sample of productions, the
-number of contributors recorded in a production-management tool against the names
-appearing in those productions' broadcast credits; we propose this as a future
-measurement (\cref{sec:conclusion}) and do not estimate $|\Delta(P)|$ here.
+For any animator $a \in \Delta(P)$ there is no verifiable, persistent, portable record of
+their contribution to $P$. The definition is conceptual rather than a computed quantity,
+since the uncredited set is by construction unrecorded. A practical proxy would compare,
+for a sample of productions, the contributors a production-management tool records against
+the names in those productions' broadcast credits; we propose that as future work and do
+not estimate $|\Delta(P)|$ here.
 
 An ideal solution should satisfy the following requirements:
 
@@ -161,30 +133,8 @@ An ideal solution should satisfy the following requirements:
     into existing workflows without requiring additional effort from the animator.
 \end{enumerate}
 
-\Cref{tab:requirements} evaluates existing solutions against these requirements,
-and positions AnimatorSBT (with the qualifications discussed below).
-
-\begin{table}[ht]
-\centering
-\caption{Evaluation of existing solutions against the five requirements.}
-\label{tab:requirements}
-\footnotesize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}lccccc@{}}
-\toprule
-\textbf{Solution} & \textbf{R1} & \textbf{R2} & \textbf{R3} & \textbf{R4} & \textbf{R5} \\
-\midrule
-Official credits       & --         & \checkmark & \checkmark & --         & \checkmark \\
-Freelance Prot.\ Act   & --         & --         & --         & --         & \checkmark \\
-NAFCA contracts        & $\triangle$    & --         & --         & --         & \checkmark \\
-Community DBs          & $\triangle$    & --         & $\triangle$    & --         & --         \\
-Portfolio platforms     & \checkmark & --         & --         & $\triangle$    & --         \\
-PM tools (Kitsu, etc.)  & $\triangle$    & --         & --         & --         & \checkmark \\
-\midrule
-\textbf{AnimatorSBT}   & \checkmark & $\triangle$ & \checkmark & \checkmark & \checkmark \\
-\bottomrule
-\end{tabular}
-\end{table}
+Read against these requirements, each mechanism of
+\cref{subsec:existing_limitations} fails a different one, and none fails only R5.
 
 AnimatorSBT is designed to satisfy all five requirements, with one important
 qualification recorded here and revisited in \cref{subsec:requirements_eval}:
@@ -192,7 +142,6 @@ for \textbf{R2 (Verifiability)} it currently provides only \emph{integrity and
 existence} verification (that a claim was recorded, unaltered, at a given time),
 not \emph{authenticity} (that the claimed work was actually performed).
 Authenticity requires the studio co-signing layer we design and implement as a
-reference contract in \cref{subsec:cosigning} but do not yet deploy on-chain or
-operate with an independent studio; hence the $\triangle$ rather
-than a \checkmark. R4 and R5 are satisfied by design but rest on wallet
-abstraction that is not yet built and have not been validated with users.
+reference contract in \cref{subsec:cosigning} but do not yet deploy on chain or
+operate with an independent studio. R4 and R5 are satisfied by design but rest on
+wallet abstraction that is not built, and have not been validated with users.

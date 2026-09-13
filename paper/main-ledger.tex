@@ -1,0 +1,156 @@
+% Ledger submission build.
+% Shares sections/ and figures/ with main.tex (IEEEtran / SSRN version).
+% Build with pdflatex (Ledger's preferred processor):
+%   pdflatex main-ledger && bibtex main-ledger && pdflatex main-ledger && pdflatex main-ledger
+\documentclass{ledger}
+
+% Editor fills these at layout; leave the X's for submission.
+\newcommand{\thefirstpagenum}[0]{X}
+\newcommand{\thelastpagenum}[0]{X}
+\newcommand{\theyear}[0]{20XX}
+\newcommand{\thevol}[0]{X}
+\newcommand{\thedoi}[0]{DOI 10.5195/LEDGER.\theyear.XXX}
+\newcommand{\ledgerpages}[0]{\thefirstpagenum-\thelastpagenum}
+
+\newcommand{\edit}[1]{#1}
+\overfullrule=10pt
+\setlength{\emergencystretch}{3em}
+
+% Packages the sections rely on that ledger.cls does not already load.
+% (ledger.cls provides: cite[superscript,biblabel], subfig, numprint, mathptmx,
+%  microtype, geometry, graphicx, xcolor, fancyhdr, hyperref, breakurl, caption,
+%  amsmath, amssymb, cleveref, fnpct, enumitem[inline], endnotes, listings.)
+\usepackage{booktabs}
+\usepackage{xurl}    % allow URLs to break at any character
+\usepackage{seqsplit}
+% Long unbroken identifiers (contract addresses, IPFS CIDs) do not fit a column
+% and TeX cannot break them; \hexid inserts breakpoints between characters.
+\newcommand{\hexid}[1]{\texttt{\seqsplit{#1}}}
+\usepackage{multirow}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\crefname{lstlisting}{Listing}{Listings}
+\Crefname{lstlisting}{Listing}{Listings}
+
+\hypersetup{
+  pdfauthor={Oki, Takato},
+  pdftitle={Certifying the Work That Credits Omit: Non-Transferable Records Anchored to Accepted Orders in Japanese Animation}
+}
+
+\title{Certifying the Work That Credits Omit:\\
+Non-Transferable Records Anchored to Accepted Orders in Japanese Animation}
+
+% Ledger house style: author bio + contact as a \thanks footnote.
+% An optional first \thanks carries the corresponding author's BTC/BCH/ETH address,
+% which the journal uses as the identity its staff verifies the manuscript-hash
+% signature against. Omitted until acceptance, when a key is designated for it.
+\author{Takato Oki\thanks{T. Oki (oki@tooniq.co.jp) is the founder of TOONIQ LLC, Tokyo, Japan, and a graduate student at Tokyo University of Science, Tokyo, Japan, working on production-management and quality-control tools for the animation industry.}}
+
+\pagestyle{pagemain}
+
+\pretitle{
+  \centering \selectfont RESEARCH ARTICLE \par
+  Submission Under Consideration at Ledger \par
+  \fontsize{24pt}{28pt}\selectfont}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{pagefirst}
+
+\begin{abstract}
+\input{sections/00_abstract}
+
+\begin{keywords}
+\item Soulbound tokens.
+\item Digital credentials.
+\item Creative labour.
+\item Contribution attribution.
+\item Anime production.
+\end{keywords}
+\end{abstract}
+
+% ledger.cls redefines \@fnsymbol with only nine symbols and raises "Counter too
+% large" on the tenth, silently dropping the note's text. Those symbols exist for the
+% author block, which has taken its mark by this point, so the body uses arabic
+% numerals from here and the counter restarts at one.
+\renewcommand{\thefootnote}{\arabic{footnote}}
+\setcounter{footnote}{0}
+
+\section{Introduction}
+\label{sec:introduction}
+\input{sections/01_introduction}
+
+\section{Background and Related Work}
+\label{sec:related_work}
+\input{sections/02_related_work}
+
+\section{Problem Statement}
+\label{sec:problem}
+\input{sections/03_problem_statement}
+
+\section{Proposed Framework: AnimatorSBT}
+\label{sec:framework}
+\input{sections/04_framework}
+
+\section{System Design and Technical Specification}
+\label{sec:implementation}
+\input{sections/05_implementation}
+
+\section{Technical and Economic Feasibility Evaluation}
+\label{sec:evaluation}
+\input{sections/06_evaluation}
+
+\section{Discussion}
+\label{sec:discussion}
+\input{sections/07_discussion}
+
+\section{Conclusion and Future Work}
+\label{sec:conclusion}
+\input{sections/08_conclusion}
+
+\appendix
+\section{Testnet Deployment Details}
+\input{sections/09a_testnet}
+
+% NOTE: the rest of sections/09_appendix.tex is deliberately not included here.
+% Its contents (testnet deployment details, unit-test results, metadata JSON,
+% contract source) live in the companion repository and are cited from the body.
+
+\section*{Acknowledgements}
+The author thanks Yuto Yamaguchi, co-founder of TOONIQ LLC, for discussions on
+anime production workflows and on the operational realities of managing freelance
+animators. This work was conducted under the certified student startup programme
+of Tokyo University of Science.
+
+\subsection*{Statements}
+
+\paragraph*{Use of generative AI}
+Generative AI was used in preparing this paper and is recorded here as part of the
+method. Claude Opus 5 (Anthropic), used through Claude Code, assisted with the
+implementation of the contracts, the issuance service and the measurement scripts,
+and produced first drafts of the running text, which the author revised. The
+questions, the scope, the design decisions and the judgements of what to claim and
+what to leave open are the author's. Every measurement reported here is
+reproducible from the accompanying repository, and every citation was checked
+against its source. No generative model is credited as an author, and the author
+is responsible for the entire content.
+
+\paragraph*{Data and code availability}
+The contracts, test suite, issuance service, measurement scripts and the data
+files behind every figure and table in this paper are available at
+\url{https://github.com/TakatoPhy/animator-sbt-paper} under the MIT licence. The
+gas figures are regenerated by \texttt{scripts/measure\_gas\_local.js} and the cost
+model by \texttt{paper/figures/cost\_simulation.py}.
+
+\paragraph*{Conflict of interest}
+The author is the founder of TOONIQ LLC, which develops production-management
+software for the animation industry and would be a party to any deployment of the
+framework described here.
+
+% The paper uses \footnote, not \endnote, so \theendnotes would emit an empty
+% "Notes and References" heading immediately above the bibliography's own.
+\bibliographystyle{ledgerbib}
+\bibliography{../references/references}
+
+\end{document}

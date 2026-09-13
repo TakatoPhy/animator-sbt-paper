@@ -1,0 +1,39 @@
+{
+  "environment": {
+    "solc_version": "0.8.20",
+    "optimizer_enabled": true,
+    "optimizer_runs": 200,
+    "evm": "Hardhat local network",
+    "measured_at": "2026-09-12",
+    "note": "Gas is deterministic for a given bytecode and call, so the local EVM reproduces testnet gas provided the inputs match. Mint gas is dominated by tokenURI length, so a realistic CIDv1 URI is used throughout; a short placeholder understates it by roughly 50,000 gas. Fiat conversion is applied downstream from explicitly stated gas and token prices.",
+    "token_uri_used": "CIDv1, 66 characters"
+  },
+  "deployment_gas": {
+    "AnimatorSBT": 1824117,
+    "AnimatorSBTV2": 2058959
+  },
+  "operation_gas": {
+    "mint (first in the contract's lifetime)": 212523,
+    "mint (new holder, steady state)": 195423,
+    "mint (existing holder)": 178323,
+    "mintBatch(1)": 197142,
+    "mintBatch(5)": 867114,
+    "mintBatch(10)": 1704591,
+    "mintBatch(25)": 4216964,
+    "revoke": 50027,
+    "grantRole (studio attester)": 51459,
+    "mint (v2)": 213596,
+    "coSign (studio attestation)": 96997
+  },
+  "mint_gas_by_uri_length": {
+    "25 characters": 127579,
+    "53 characters": 172692,
+    "66 characters": 195423,
+    "80 characters": 195591
+  },
+  "per_certificate_gas": {
+    "self-attested (v1 mint, new holder)": 195423,
+    "self-attested, amortised in a batch of 10": 170459,
+    "studio-attested (v2 mint + coSign)": 292420
+  }
+}

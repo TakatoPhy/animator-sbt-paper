@@ -1,135 +1,55 @@
 % Conclusion and Future Work
 
-% ----- Conclusion -----
+This paper presented AnimatorSBT, a contribution certification framework built on
+non-transferable tokens, and used Japanese animation as the setting in which to specify
+and cost it. We formalised the contribution invisibility problem as the gap between actual
+and credited contributors, derived five requirements from it, and showed why the
+institutional route that resolved the same problem in film and television is unavailable
+where no body holds craft jurisdiction.
 
-This paper presented \textbf{AnimatorSBT}, a blockchain-based contribution
-certification framework that addresses the systemic invisibility
-of freelance animators' work in the Japanese anime industry.
-By designing Soulbound Token issuance for integration
-with an existing production management tool,
-AnimatorSBT aims to create immutable, verifiable, and portable records
-of individual contributions at the granular level of production tasks.
+The prototype establishes feasibility and cost structure, not adoption. A soulbound
+contract is deployed on a public testnet with an issuance service and a verification
+portal, and the studio co-signing layer and a deterministic evidence-hash serialisation
+are implemented as tested reference components, 70 tests passing, but are not operated
+with independent studio attesters. Two claims therefore remain open, as they have
+throughout: verifiability extends to integrity and existence but not to authenticity,
+because in a single-operator configuration the issuer also holds the attester role; and
+portability and minimal friction rest on wallet abstraction that is designed but not
+built.
 
-Our analysis identified a clear research gap:
-while SBTs have been proposed and prototyped for healthcare, education, and agriculture,
-and blockchain has been explored for creative IP management,
-to the best of our knowledge no prior work addresses individual-level contribution
-certification in anime production workflows.
-We formalized the contribution invisibility problem,
-defined five requirements for an ideal solution (completeness, verifiability,
-persistence, portability, and minimal friction),
-and assessed AnimatorSBT against all five. We find that it meets them by design,
-with two important caveats made explicit throughout: \emph{verifiability} is
-currently limited to integrity and existence---the authenticity of self-reported
-claims requires a studio co-signing layer that we design and implement as a tested
-reference contract (\cref{subsec:cosigning}) but do not yet deploy on-chain or
-operate with independent studios---and the portability and minimal-friction claims
-rest on wallet abstraction that is not yet built and remains to be validated with users.
+The cost result generalises. On-chain issuance is not the constraint: a certificate costs
+on the order of a tenth of a cent, and that figure is governed less by the contract's logic
+than by the length of the metadata pointer it stores. The binding cost is a flat off-chain
+pinning subscription, which is also what reintroduces a dependency on a single operator
+continuing to pay. Any design that anchors credentials on chain and stores their content
+off it inherits this shape, so a per-certificate on-chain cost reported without the storage
+arrangement understates the problem.
 
-A prototype---comprising the smart contract deployed on the Polygon Amoy testnet,
-an Issuance Service, and a Verification Portal---demonstrates technical feasibility
-and on-chain correctness, and we additionally provide a tested reference
-implementation of the co-signing authenticity layer and deterministic evidence
-hashing (60 passing tests), deployed locally but not yet on-chain. A cost analysis
-using on-chain gas measurements indicates
-that the \emph{blockchain layer} is not a cost barrier:
-minting a single certificate costs approximately \$0.0013 on-chain, and the
-dominant operating cost at scale is a flat IPFS pinning subscription (on the order
-of \$240/year), not on-chain fees.
-This supports the conclusion that Layer~2 scaling has removed the blockchain cost
-barrier to credentialing; the broader operating costs (relayer subsidy, integration,
-compliance) and, above all, the open adoption and authenticity questions remain
-(\cref{subsec:eval_limitations}).
+Three directions follow. The first and most important is empirical: a study with
+animators and studios, measuring whether recipients can state what the credential does and
+does not prove, and whether studios will co-sign given the transparency it imposes on
+them. The gap itself is measurable without any of this machinery, by counting the
+contributors a production-management system records against the names its episode's
+credits carry---a first estimate of how many people the credits omit, which no published
+source provides. The second is to operate the co-signing protocol with independent,
+identity-bound attesters, the only thing that converts the authenticity caveat into a
+result; the incentive question, why a studio would attest, is the harder half. The third
+is to test the framing outside animation, in the other project-based creative industries
+where multi-layer subcontracting, capped credits and the disappearance of the producing
+organisation recur.
 
-% ----- Future Work -----
+One limit is worth stating without qualification. Kellogg et al.\ survey how
+algorithmic instruments introduced into workplaces restructure evaluation and control,
+and treat the result as contested terrain in which workers organise against those
+instruments rather than being handed power by them~\cite{kellogg2020algorithms}.
+Nothing here escapes that, and nothing here substitutes for the organising. A verifiable
+record of what an animator did does not change the rate paid for the next cut, the terms on
+which it is commissioned, or who decides whether there is more work. It removes one
+disadvantage, the inability to show what you have done, and leaves the rest of the
+bargaining position where it was. That disadvantage is worth removing on its own terms; we
+do not claim removing it is a labour remedy.
 
-Several directions for future work emerge from this research:
-
-\begin{enumerate}
-  \item \textbf{User study (the most important next step):}
-    Conduct a formal usability and adoption evaluation---the empirical validation
-    this paper does not provide. We envisage a mixed-methods study with two
-    populations: freelance animators (SBT recipients) and studios/production
-    managers (potential verifiers and co-signers). Measures would include perceived
-    value and trust, comprehension of what the credential does and does not prove,
-    task-level usability of onboarding and certificate display (e.g., SUS and
-    single-ease-question instruments), and stated willingness to adopt or co-sign.
-    Method: task-based sessions with the integrated PMC prototype plus
-    semi-structured interviews, ideally followed by a small field deployment.
-    A reasonable success criterion would be that a majority of animator participants
-    can correctly state the self-attestation caveat and complete issuance unaided,
-    and that at least some studios express conditional willingness to co-sign.
-    We report no such results here; this is a pre-registered-style plan, not an
-    evaluation already performed.
-
-  \item \textbf{Independent operation of the co-signing protocol:}
-    We have implemented the two-party confirmation mechanism as a reference contract
-    (\cref{subsec:cosigning}). The remaining---and decisive---work is to deploy it
-    on-chain and operate it with \emph{independent, identity-bound} studio attesters
-    (rather than the single-operator MVP in which the issuer also holds the attester
-    role), to distinguish the peer-attested tier that the current binary
-    \texttt{attestationLevel} collapses, and to design the incentives that motivate
-    studios to participate despite the transparency they may prefer to avoid.
-
-  \item \textbf{Interoperability with W3C Verifiable Credentials:}
-    Extend AnimatorSBT to comply with the W3C Verifiable Credentials
-    Data Model~2.0, enabling interoperability with the broader
-    decentralized identity ecosystem and potential integration
-    with government-issued digital identity systems.
-    If SBT-based career records could be linked to national digital identity
-    infrastructure, freelance animators might present institutionally recognized
-    proof of professional activity. We flag this as contingent, not planned:
-    direct use of the My Number identifier is tightly restricted by the My Number
-    Act (\textit{Bang\=o H\=o}) to enumerated purposes, so the more plausible
-    interface is the public-key authentication function (JPKI) rather than the
-    My Number itself, and any such linkage would require legal review. Realized
-    carefully, this could help shift an animator's status from undocumented
-    independent worker toward one whose expertise is legible to banks, immigration
-    authorities, and public institutions---an aspiration, contingent on the legal
-    and co-signing prerequisites discussed above.
-
-  \item \textbf{Cross-industry deployment:}
-    Adapt the framework to adjacent creative industries
-    (video games, film VFX, music production)
-    to validate generalizability and identify domain-specific requirements.
-
-  \item \textbf{On-chain analytics:}
-    Develop aggregate analytics tools that leverage anonymized SBT data
-    to study industry workforce dynamics---role distribution,
-    project duration patterns, and career trajectories---providing
-    data-driven insights for industry policy.
-
-  \item \textbf{Integration with reputation systems:}
-    Explore how accumulated SBTs can inform reputation scores
-    that assist studios in identifying reliable freelancers,
-    while preserving animator privacy through zero-knowledge proofs
-    (e.g., ``this animator has completed $>$100 cuts across $>$5 productions''
-    without revealing specific projects).
-
-  \item \textbf{Contribution-based revenue sharing:}
-    Existing blockchain initiatives in the anime industry
-    (e.g., Animechain, Animecoin) have explored IP-level revenue distribution,
-    but these systems rely on manually determined allocation percentages
-    rather than verifiable contribution data.
-    AnimatorSBT's on-chain contribution records could serve as
-    the input layer for smart contract-based revenue sharing mechanisms,
-    enabling automated royalty distribution proportional to verified work
-    (e.g., secondary licensing revenue from merchandise or streaming).
-    This extension would address the longstanding problem that anime creators
-    receive no compensation from downstream IP monetization,
-    despite their labor being the foundation of that value.
-    We reiterate the regulatory caveat from \cref{subsec:legal}: attaching monetary
-    entitlements to the token would change its legal classification analysis under
-    the FIEA and Payment Services Act and would require dedicated legal review---it
-    is precisely the step that moves the system out of the ``no monetary value''
-    regime on which our preliminary classification rests.
-\end{enumerate}
-
-AnimatorSBT represents a step toward a more transparent and equitable
-anime production ecosystem---one where every creative contribution
-is recorded, tamper-evident, and owned by the person who made it,
-and, with studio co-signing, independently verifiable.
-As the anime industry continues its global expansion,
-tools that aim to give individual creators a portable, tamper-evident record of
-their work could become a valuable complement to institutional protections---contingent
-on the co-signing and recognition prerequisites discussed above.
+The record these certificates would carry already exists. Production generates a
+per-cut, per-person trail as a byproduct of getting the work done. What is missing
+is not the record but any mechanism that makes it durable, portable and
+contestable beyond the organisation that holds it.

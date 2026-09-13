@@ -1,0 +1,58 @@
+{
+  "assumptions": {
+    "gas_price_gwei": 30.0,
+    "pol_usd": 0.22,
+    "price_date": "March 2026",
+    "certificates_per_animator_year": 6,
+    "ipfs_free_tier_files": 500,
+    "ipfs_paid_usd_month": 20.0,
+    "gas_source": "simulation/gas_measurements.json"
+  },
+  "scenarios": [
+    {
+      "scenario": "Pilot (50)",
+      "animators": 50,
+      "certificates_per_year": 300,
+      "onchain_usd_year": 0.3385,
+      "ipfs_usd_year": 0.0,
+      "total_usd_year": 0.34,
+      "usd_per_animator_year": 0.0068
+    },
+    {
+      "scenario": "Early (500)",
+      "animators": 500,
+      "certificates_per_year": 3000,
+      "onchain_usd_year": 3.385,
+      "ipfs_usd_year": 240.0,
+      "total_usd_year": 243.38,
+      "usd_per_animator_year": 0.4868
+    },
+    {
+      "scenario": "Moderate (1,017)",
+      "animators": 1017,
+      "certificates_per_year": 6102,
+      "onchain_usd_year": 6.8851,
+      "ipfs_usd_year": 240.0,
+      "total_usd_year": 246.89,
+      "usd_per_animator_year": 0.2428
+    },
+    {
+      "scenario": "Full, low (2,035)",
+      "animators": 2035,
+      "certificates_per_year": 12210,
+      "onchain_usd_year": 13.7769,
+      "ipfs_usd_year": 240.0,
+      "total_usd_year": 253.78,
+      "usd_per_animator_year": 0.1247
+    },
+    {
+      "scenario": "Full, high (2,601)",
+      "animators": 2601,
+      "certificates_per_year": 15606,
+      "onchain_usd_year": 17.6087,
+      "ipfs_usd_year": 240.0,
+      "total_usd_year": 257.61,
+      "usd_per_animator_year": 0.099
+    }
+  ]
+}

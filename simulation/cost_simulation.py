@@ -1,32 +1,37 @@
 """
-AnimatorSBT Cost & Scale Simulation
+AnimatorSBT cost and scale simulation.
 
-Simulates annual operating costs for AnimatorSBT deployment
-across the Japanese anime industry using public statistics
-from JAniCA (2023) and NAFCA (2024).
+Models the annual operating cost of issuing contribution certificates across five
+adoption scenarios. Gas comes from gas_measurements.json, which is produced by
+executing the contracts; the workforce parameters come from the Association of
+Japanese Animations and from JAniCA's 2023 and 2026 surveys, and each is sourced in
+the comment beside it.
 """
 
 import json
+import pathlib
 
-# ===== Industry Parameters (from public surveys) =====
+# ===== Industry Parameters =====
 
-# JAniCA 2023: ~5,500 animation creators surveyed
-# Freelance ratio: 47.3% (JAniCA 2023) to 69.6% (JAniCA 2019)
-# We use a range for sensitivity analysis
-TOTAL_ANIMATORS_ESTIMATE = 5_500  # JAniCA survey base
-FREELANCE_RATIO_LOW = 0.473      # JAniCA 2023
-FREELANCE_RATIO_HIGH = 0.696     # JAniCA 2019
-
-# TDB 2025: ~300 anime production studios in Japan
-NUM_STUDIOS = 300
-
-# Average TV anime episodes per year: ~300 series * 12 eps = ~3,600
-# Plus films, OVAs, etc. → estimate ~4,000 distinct productions/year
-PRODUCTIONS_PER_YEAR = 4_000
-
-# Average animators per production (key + in-between + coloring)
-# Conservative estimate based on typical TV anime episode
-AVG_ANIMATORS_PER_PRODUCTION = 15
+# Workforce base. No authoritative headcount of Japanese animators is published:
+# JAniCA's and NAFCA's surveys state no population estimate, and the JSIC
+# animation-production code is not tabulated separately in the public census
+# aggregates. 5,500 is the Association of Japanese Animations' own top-down estimate
+# of the drawing roles (animation director 500, layout 500, key animation 1,000,
+# in-between check 500, in-betweening 3,000) within its estimate of just under 20,000
+# domestic animation creators, derived from end-credit counts and from the headcount
+# needed to produce the year's released minutes per stage. It is an assumption here,
+# not a measurement. See references.bib: aja2025creators.
+#
+# Share working outside employment, used as a range for sensitivity analysis. Each
+# figure is the sum of JAniCA's two relevant response categories, freelance and
+# self-employed: 26.0 + 11.0 = 37.0% in the 2026 wave (n=970, PDF p.33) and
+# 30.8 + 16.5 = 47.3% in the 2023 wave (n=425, p.23). JAniCA's 2026 report states the
+# two waves were conducted under different conditions, so this is a range across two
+# measurements rather than a trend.
+TOTAL_ANIMATORS_ESTIMATE = 5_500  # AJA top-down estimate, drawing roles
+FREELANCE_RATIO_LOW = 0.370      # JAniCA 2026
+FREELANCE_RATIO_HIGH = 0.473     # JAniCA 2023
 
 # Average SBTs per animator per year
 # (multiple projects, each generating 1 SBT)
@@ -37,13 +42,18 @@ AVG_PROJECTS_PER_ANIMATOR_YEAR = 6
 GAS_PRICE_GWEI = 30
 MATIC_PRICE_USD = 0.22  # POL price March 2026
 
-# Gas costs measured ON-CHAIN on the Polygon Amoy testnet (authoritative; see paper Appendix A).
-# Hardhat-simulated values differ for mint/mintBatch (135,505 and 1,039,581) and are
-# reported alongside these in the paper's gas table; we use the on-chain values here.
-GAS_DEPLOY = 1_824_117        # Amoy on-chain (matches Hardhat)
-GAS_MINT_SINGLE = 189_792     # Amoy on-chain (Hardhat avg was 135,505)
-GAS_MINT_BATCH_10 = 1_025_449 # Amoy on-chain (Hardhat was 1,039,581)
-GAS_REVOKE = 50_027           # Amoy on-chain (matches Hardhat)
+# Gas is read from the measurement file that scripts/measure_gas_local.js writes by
+# executing the contracts, so this script and paper/figures/cost_simulation.py cannot
+# disagree. Nothing below is hard-coded; earlier versions of this file carried their own
+# constants and drifted, because mint gas is dominated by the length of the tokenURI and
+# the earlier figures were taken against a short placeholder rather than a real CID.
+_GAS = json.loads(
+    (pathlib.Path(__file__).resolve().parent / "gas_measurements.json").read_text()
+)
+GAS_DEPLOY = _GAS["deployment_gas"]["AnimatorSBT"]
+GAS_MINT_SINGLE = _GAS["operation_gas"]["mint (new holder, steady state)"]
+GAS_MINT_BATCH_10 = _GAS["operation_gas"]["mintBatch(10)"]
+GAS_REVOKE = _GAS["operation_gas"]["revoke"]
 
 # IPFS pinning (Pinata free tier: 500 files, paid: $20/mo for 50GB)
 IPFS_COST_PER_FILE_USD = 0.0  # Free tier covers small JSON files
@@ -174,13 +184,18 @@ def main():
     print("\n" + "=" * 80)
     print("Context: Industry Revenue Comparison")
     print("=" * 80)
-    industry_revenue_jpy = 362_100_000_000  # TDB 2025: ¥362.1B
-    industry_revenue_usd = industry_revenue_jpy / 150  # ~$2.4B
-    full_adoption_cost = scenarios[-1]["total_annual_usd"]
-    ratio = full_adoption_cost / industry_revenue_usd * 100
-    print(f"  Industry revenue (2024): ¥{industry_revenue_jpy/1e9:.1f}B (~${industry_revenue_usd/1e9:.2f}B)")
-    print(f"  Full adoption cost:      ${full_adoption_cost:.2f}")
-    print(f"  Ratio:                   {ratio:.6f}% of industry revenue")
+    # Teikoku Databank reports the 2024 production market at 362.1 billion yen. The
+    # USD figure is our own conversion, not TDB's, so the rate is named rather than
+    # implied: 150 JPY/USD, a round figure for the 2024-2026 range. The ratio is
+    # reported in yen as well so it does not depend on the conversion.
+    JPY_PER_USD = 150.0
+    industry_revenue_jpy = 362_100_000_000
+    full_adoption_cost_usd = scenarios[-1]["total_annual_usd"]
+    ratio = full_adoption_cost_usd * JPY_PER_USD / industry_revenue_jpy * 100
+    print(f"  Industry production market (2024, TDB): \u00a5{industry_revenue_jpy/1e9:.1f}B")
+    print(f"  Full adoption cost:      ${full_adoption_cost_usd:.2f}"
+          f"  (\u00a5{full_adoption_cost_usd * JPY_PER_USD:,.0f} at {JPY_PER_USD:.0f} JPY/USD, our conversion)")
+    print(f"  Ratio:                   {ratio:.6f}% of the production market")
 
 
 if __name__ == "__main__":

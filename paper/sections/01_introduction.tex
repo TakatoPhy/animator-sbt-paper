@@ -1,35 +1,25 @@
 % Introduction
 
-Japan's anime industry is experiencing unprecedented commercial success.
-The domestic anime production market reached a record \textyen 362.1 billion
-in 2024~\cite{tdb2025anime}, and the global anime market is projected to
-grow at a 10.6\% compound annual growth rate, reaching USD~49.6 billion
-by 2031~\cite{mordor2026anime}.
-Yet behind this growth lies a persistent structural problem:
+Japanese animation is commercially successful and its production market is at a
+record (\cref{subsec:labor}). Behind that growth is a structural problem:
 the creative workforce that produces anime remains largely invisible.
 
-An exceptionally large share of anime production labor is performed by freelancers.
-According to the Japan Animation Creators Association (JAniCA),
-47.3\% of animation creators were self-employed in 2023~\cite{janica2023survey}---
-approximately six times the national average.
-These freelancers operate within a multi-layered subcontracting system
-where studios routinely outsource entire episodes or specific production tasks
-to secondary and tertiary subcontractors.
-In this system, individual animators are frequently uncredited:
-only the subcontracting studio's name may appear in the final credits,
-or no attribution is given at all.
+An exceptionally large share of anime production labour is performed outside
+employment. In the Japan Animation Creators Association's most recent survey, 37.0\% of
+respondents described themselves as freelance or self-employed~\cite{janica2026survey},
+about five times the share of the Japanese workforce as a whole
+(\cref{subsec:labor}). They work within a multi-layered subcontracting system in which
+studios let out whole episodes or individual tasks to second- and third-tier
+subcontractors, and the credits that reach the audience follow the contract rather than
+the work: an outsourced episode is credited to the company that produced it, and the
+individuals inside it are named only sometimes.
 
-This \textit{contribution invisibility problem} has concrete consequences.
-Freelance animators cannot verifiably demonstrate their work history
-to prospective clients, weakening their bargaining position
-in an industry where 37.7\% of workers earn below \textyen 200{,}000
-per month~\cite{nafca2024labor}.
-When studios close---a frequent occurrence---the informal records
-of who worked on which production disappear entirely.
-Recent policy responses, including Japan's Freelance Protection Act (2024)
-and the Fair Trade Commission's investigation into anime production
-labor practices~\cite{jftc2025anime}, address contractual protections
-but do not solve the attribution problem.
+This \textit{contribution invisibility problem} has concrete consequences. A freelance
+animator cannot demonstrate a work history verifiably to a prospective client, which
+weakens their position in a market where more than a third of respondents earn under
+\textyen 200{,}000 a month from anime work~\cite{nafca2024survey}; and when a studio
+closes, the informal record of who worked on what goes with it. Recent policy responses
+reach the contract and not the credit (\cref{subsec:labor}).
 
 In parallel, blockchain technology has introduced new primitives
 for decentralized credentialing.
@@ -42,69 +32,60 @@ academic certificate verification, and agricultural supply chains,
 but \textbf{to the best of our knowledge, no prior work has applied SBTs
 to creative production workflows or to the credentialing of freelance animators.}
 
-Notably, existing blockchain applications in the anime industry have focused
-almost exclusively on \textit{fan-facing} monetization:
-IP tokenization, NFT collectibles, and fan engagement platforms
-designed to extract value from audiences~\cite{fourpillars2025anime,animechain2024whitepaper}.
-In contrast, this paper uses blockchain as a \textit{worker protection} tool---not
-to generate revenue from fans, but to safeguard individual creators'
-professional identity and career records.
+Existing blockchain applications in the anime industry address the audience side of the
+business: IP tokenization, collectibles and fan engagement, where the revenue comes
+from fans~\cite{fourpillars2025anime,animechain2024whitepaper}. This paper points the
+same primitives at the labour side, where what is at stake is not revenue but a record
+of who did the work.
 
-This paper presents \textbf{AnimatorSBT}, a blockchain-based contribution
-certification framework designed to integrate SBT issuance into an existing
-production management tool for freelance animators.
-The system is designed to create immutable, tamper-evident, and portable records
-of individual contributions at the granular level of production tasks
-(e.g., key animation cuts, in-between frames, coloring assignments), with
-verifiability currently limited to integrity and existence
-(authenticity requires the studio co-signing layer of \cref{subsec:cosigning},
-which we implement as a tested reference contract but do not yet deploy
-on-chain or operate with independent studio attesters).
-Critically, the framework is designed to be \textit{transparent to the end user}:
-animators continue their normal workflow of recording tasks in the management tool,
-and contribution certificates are issued automatically
-upon project milestones without requiring blockchain knowledge,
-wallet management, or gas fee payment.
+This paper presents \textbf{AnimatorSBT}, a contribution certification framework that
+issues SBTs from an existing production management tool. It produces tamper-evident,
+portable records of individual contributions at the level of production tasks---key
+animation cuts, in-between frames, colouring assignments---with verifiability limited to
+integrity and existence; authenticity requires the studio co-signing layer of
+\cref{subsec:cosigning}, which we implement as a tested reference contract but do not
+deploy on chain or operate with independent attesters. The framework is meant to be
+transparent to the animator, who continues recording tasks as they already do while
+certificates are issued at project milestones without blockchain knowledge, wallet
+management or gas payment.
 
-Our contributions are as follows:
+The paper contributes an analysis of where an attestation can come from when no body
+holds jurisdiction to make one, and a measurement of what it costs to carry that
+attestation on a public chain. Both generalise beyond this application.
 
-\begin{enumerate}
-  \item We formalize the \textbf{contribution invisibility problem}
-    in the anime industry, defining it as the gap between the set
-    of actual contributors and the set of credited contributors,
-    and establish five requirements for an ideal solution
-    (\cref{sec:problem}).
-  \item We propose the \textbf{AnimatorSBT framework},
-    consisting of an SBT smart contract, an issuance service,
-    and a verification portal integrated with a production management tool
-    (\cref{sec:framework}).
-  \item We present a \textbf{prototype on the Polygon Amoy testnet}---a smart contract,
-    an issuance service, and a static verification portal---that demonstrates
-    technical feasibility and on-chain correctness (not yet an integrated product,
-    and not yet evaluated with users). A cost analysis using on-chain gas measurements
-    shows that the marginal operating cost is low and is dominated by a flat
-    IPFS pinning fee (on the order of \$240/year) rather than blockchain costs
-    (\cref{sec:evaluation}).
-  \item We provide a \textbf{reference implementation of the authenticity layer}:
-    a separate co-signing contract (\texttt{AnimatorSBTV2}) adding a studio-attester
-    role, an idempotent multi-studio \texttt{coSign} operation, an
-    \texttt{attestationLevel} view, and ERC-5192 soulbound signaling; together with a
-    deterministic (canonical) evidence-hash serialization module that closes a
-    hash-determinism gap. The combined system is exercised by a 60-test suite. These
-    components are validated locally but, in keeping with our honest scoping, are not
-    yet deployed on-chain or operated with independent studios (\cref{subsec:cosigning,subsec:prototype}).
-  \item We identify \textbf{adoption barriers and abuse vectors},
-    including studio cooperation challenges, self-reporting risks,
-    and regulatory considerations specific to Japan,
-    and propose mitigation strategies (\cref{sec:discussion}).
-\end{enumerate}
+The analysis is that the attestation already exists. A studio that accepts a delivery and
+pays for it has made a determination about who did the work, for its own commercial
+reasons, recorded in a system it already keeps. A certificate anchored to that
+determination records it rather than manufacturing one, which is a different design from
+anchoring on a self-reported log and has different security properties
+(\cref{subsec:integration,subsec:trust}). We reach it through a formalisation of the
+problem as the gap between actual and credited contributors, and of why the institutional
+route that closed the same gap in film and television is unavailable here
+(\cref{subsec:formalization,subsec:gap}).
 
-The remainder of this paper is organized as follows.
-\Cref{sec:related_work} surveys related work across anime production,
-labor conditions, SBTs, and blockchain in the creative economy.
-\Cref{sec:problem} formalizes the problem and evaluates existing solutions.
-\Cref{sec:framework} describes the AnimatorSBT framework.
-\Cref{sec:implementation} presents the technical specification and prototype implementation.
-\Cref{sec:evaluation} presents the cost simulation and requirements evaluation.
-\Cref{sec:discussion} discusses practical challenges and generalizability.
-\Cref{sec:conclusion} concludes with directions for future work.
+The measurements say where the cost falls, and it is not where the design puts its
+attention: not on the chain and not in the contract's logic, but in the arrangement that
+keeps the metadata reachable (\cref{sec:evaluation}).
+
+Supporting these, we deploy a soulbound contract on a public testnet and provide tested
+reference implementations of a studio co-signing layer and of a deterministic
+evidence-hash serialisation, the latter closing a determinism gap that made the earlier
+hash meaningless under key reordering (\cref{subsec:cosigning,subsec:canonical}). We claim
+no novelty for the token mechanism, which composes existing standards, and we identify the
+adoption and authenticity problems the design does not solve (\cref{sec:discussion}).
+
+A note on vocabulary, since this paper's argument should be followed by readers
+who do not work with public ledgers. A \emph{non-transferable}, or
+\emph{soulbound}, token is a record that its holder cannot sell or pass to anyone
+else; to \emph{mint} one is to create it. \emph{On chain} means stored in the
+public ledger itself, which every participant replicates and none can silently
+alter; \emph{off chain} means stored elsewhere, with the ledger holding only a
+pointer. \emph{Gas} is the unit in which a network charges for executing a
+transaction, and the fee is that quantity priced in the network's token, so a cost
+in gas is stable while a cost in dollars is not. A \emph{testnet} is a public
+network running the same software with tokens that have no monetary value, used
+for measurement rather than operation. \emph{IPFS} addresses files by a hash of
+their contents rather than by location, so a file is retrievable from anyone
+holding it and unretrievable when nobody does---which is what a \emph{pinning}
+subscription buys. A \emph{wallet} is the key pair controlling an address, and an
+address is what a certificate is issued to.

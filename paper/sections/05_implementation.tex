@@ -1,41 +1,24 @@
 % System Design and Technical Specification
 
-This section presents the technical specification of the AnimatorSBT framework,
-including the technology stack (\cref{subsec:stack}),
-the smart contract design (\cref{subsec:contract}),
-the prototype implementation deployed on a public testnet (\cref{subsec:prototype}),
-and the integration design with an existing production management client (\cref{subsec:integration}).
-
 % ----- 5.1 Technology Stack -----
 \subsection{Technology Stack}
 \label{subsec:stack}
 
-The proposed system uses the following components:
+The contract is Solidity 0.8.20 against OpenZeppelin Contracts v4, deployed to
+Polygon PoS for its transaction costs and EVM compatibility; the trade-offs among the
+scaling approaches an EVM deployment can choose between are surveyed by Gangwal
+et al.~\cite{gangwal2023layer2}. Metadata is
+content-addressed on IPFS through a pinning service; the issuance service is a
+Node.js backend using ethers.js and the pinning provider's SDK. The client an
+animator sees is a progressive web application for tracking cuts and deadlines.
 
-\begin{itemize}
-  \item \textbf{Blockchain:} Polygon PoS~\cite{gangwal2023layer2} (targeted for production deployment). Polygon was selected for its low
-    transaction costs (on the order of $10^{-3}$~USD per mint at typical gas prices;
-    see \cref{tab:gas}), Ethereum Virtual Machine (EVM) compatibility, and established ecosystem.
-  \item \textbf{Smart contract:} Solidity 0.8.20 with OpenZeppelin Contracts v4.x
-    (ERC-721, AccessControl, Counters). We note that OpenZeppelin Contracts v5 has
-    since superseded the \texttt{\_beforeTokenTransfer} hook used here with a unified
-    \texttt{\_update} hook and removed the \texttt{Counters} utility; porting to v5
-    (using \texttt{\_update} for soulbinding enforcement and a plain counter) is a
-    straightforward, recommended step for a production deployment, which we note as
-    future work.
-  \item \textbf{Metadata storage:} IPFS via Pinata pinning service.
-    Metadata JSON files are content-addressed and immutable once pinned.
-  \item \textbf{Issuance service:} Node.js backend using ethers.js v6
-    for blockchain interaction and Pinata SDK for IPFS uploads.
-  \item \textbf{Production management client:} Progressive Web Application (PWA)
-    built with a standard web framework, providing cut management,
-    deadline tracking, and income calculation features for freelance animators.
-  \item \textbf{Wallet management (production target):} Embedded wallets via account abstraction
-    (ERC-4337), eliminating the need for animators to install
-    wallet software or manage private keys.
-    The current prototype uses standard externally owned accounts (EOAs);
-    ERC-4337 integration is planned for the production deployment.
-\end{itemize}
+Two notes on the stack rather than the design. OpenZeppelin v5 has since replaced
+the \texttt{\_beforeTokenTransfer} hook this contract overrides with a unified
+\texttt{\_update} hook and removed the \texttt{Counters} utility, so a production
+deployment should port to it; the soulbinding logic moves across unchanged. And
+the walletless experience the design assumes rests on account abstraction~\cite{buterin2021erc4337} that the prototype does not implement---it uses ordinary externally
+owned accounts, which is why the friction claim of \cref{sec:evaluation} is a
+property of the design rather than of what we built.
 
 % ----- 5.2 Smart Contract -----
 \subsection{Smart Contract Design}
@@ -46,275 +29,235 @@ with two key modifications: \textbf{soulbinding} and \textbf{role-based access c
 
 \subsubsection{Soulbinding Mechanism}
 
-Transfer restriction is enforced by overriding the \texttt{\_beforeTokenTransfer}
-hook, which is called on every token movement including minting, transferring, and burning:
+ERC-721 routes every token movement---mint, transfer and burn---through a single
+internal hook. The contract overrides it and reverts whenever both the source and the
+destination are non-zero addresses, which admits minting and burning and refuses
+everything between them. \texttt{approve()} and \texttt{setApprovalForAll()} revert
+unconditionally, so no approval-based path around the hook remains, and the token is
+non-transferable through any ERC-721--compliant interface.
 
-\begin{lstlisting}[basicstyle=\footnotesize\ttfamily, frame=single,
-  caption={Soulbinding enforcement via transfer hook.},
-  label={lst:soulbind},
-  morekeywords={function,address,uint256,internal,virtual,override,if,revert,super}]
-function _beforeTokenTransfer(
-  address from, address to,
-  uint256 tokenId, uint256 batchSize
-) internal virtual override {
-  // Allow mint (from==0), block transfers
-  if (from != address(0)
-      && to != address(0)) {
-    revert SoulboundTransferDisabled();
-  }
-  super._beforeTokenTransfer(
-    from, to, tokenId, batchSize
-  );
-}
-\end{lstlisting}
+ERC-5192~\cite{daubenschuetz2022erc5192} solves an adjacent problem: it is a
+signalling interface, letting tooling discover that a token is non-transferable,
+where the hook above is enforcement. The two are complementary and the v2 contract
+provides both---\texttt{locked()} returning true for every token, the
+\texttt{Locked} event at mint, and the interface id advertised through
+\texttt{supportsInterface}---while the v1 contract on Amoy has only the
+enforcement.
 
-Additionally, the \texttt{approve()} and \texttt{setApprovalForAll()} functions
-are overridden to revert unconditionally, preventing any approval-based transfer mechanisms.
-This ensures that SBTs cannot be transferred through any ERC-721--compliant interface.
+\subsubsection{Roles and External Interface}
 
-\subsubsection{Why Not ERC-5192?}
+Access control uses two roles. \texttt{DEFAULT\_ADMIN\_ROLE} grants and revokes the
+issuer role and is held by the system administrator; \texttt{ISSUER\_ROLE} mints and
+revokes certificates and is held by the issuance service's operational wallet. The
+separation means a compromised issuance key can issue and invalidate certificates but
+cannot change who holds either role, which is what leaves the remedy of
+\cref{subsec:trust} available.
 
-The ERC-5192 standard~\cite{daubenschuetz2022erc5192} defines a minimal interface
-for soulbound NFTs via a \texttt{locked()} query function and a lock event.
-ERC-5192 and our approach address complementary concerns rather than competing
-ones: ERC-5192 is primarily a \emph{signaling/interoperability} standard (it lets
-SBT-aware tooling discover that a token is non-transferable), whereas our contract
-focuses on \emph{enforcement}, blocking transfers in \texttt{\_beforeTokenTransfer}
-and additionally overriding the approval-based vectors (\texttt{approve},
-\texttt{setApprovalForAll}) so that non-transferability holds through any
-ERC-721--compliant path. The v1 contract deployed on Amoy does not expose the
-ERC-5192 \texttt{locked()} view; the v2 reference contract (\cref{subsec:prototype})
-adds it---returning \texttt{true} for every minted token, emitting the ERC-5192
-\texttt{Locked} event at mint, and advertising interface id \texttt{0xb45a3c0e} via
-\texttt{supportsInterface}---so that wallets and explorers can recognize the token
-as soulbound through the standard signaling interface while our \texttt{\_beforeTokenTransfer}
-hook continues to provide enforcement. We do not claim ERC-5192 is deficient---only
-that, on its own, signaling without enforcement was insufficient for our goal; we
-now provide both.
-
-\subsubsection{Role-Based Access Control}
-
-The contract defines two roles using OpenZeppelin's \texttt{AccessControl}:
-
-\begin{itemize}
-  \item \texttt{DEFAULT\_ADMIN\_ROLE}: Can grant and revoke issuer roles.
-    Held by the system administrator (TOONIQ).
-  \item \texttt{ISSUER\_ROLE}: Can mint new SBTs and revoke existing ones.
-    Assigned to the Issuance Service's operational wallet.
-\end{itemize}
-
-This separation ensures that even if the Issuance Service's key is compromised,
-the attacker cannot modify the access control structure itself.
-
-\subsubsection{Core Functions}
-
-The contract provides the following external functions:
-
-\begin{itemize}
-  \item \texttt{mint(address to, string uri)}: Mints a single SBT with
-    the given IPFS metadata URI. Emits \texttt{SBTMinted} event.
-  \item \texttt{mintBatch(address[] recipients, string[] uris)}: Batch minting
-    for efficiency when issuing certificates to multiple animators
-    upon project completion.
-  \item \texttt{revoke(uint256 tokenId)}: Marks an SBT as invalidated
-    without burning it, preserving the on-chain audit trail.
-    Emits \texttt{SBTRevoked} event.
-  \item \texttt{tokensOfOwner(address owner)}: Returns all token IDs
-    held by a given address (view function for off-chain queries).
-  \item \texttt{isRevoked(uint256 tokenId)}: Returns the revocation status.
-  \item \texttt{issuedAt(uint256 tokenId)}: Returns the issuance timestamp.
-\end{itemize}
+The external interface is small. \texttt{mint} issues one certificate against a
+recipient address and a metadata URI and \texttt{mintBatch} does the same for a list
+of each, which is how certificates are issued at the end of a production.
+\texttt{revoke} marks a certificate invalid without burning it, so that invalidating a
+record does not erase the fact that it existed. \texttt{tokensOfOwner},
+\texttt{isRevoked} and \texttt{issuedAt} are views, letting a verifier resolve an
+address to the certificates it holds and check each one's status and issuance time.
 
 \subsubsection{Gas Cost Analysis}
 
 \Cref{tab:gas} reports the gas consumption of key operations measured in two
-environments: the local Hardhat EVM (optimizer enabled, 200 runs) and the live
-Polygon Amoy testnet. We report both because they differ: a single \texttt{mint()}
-consumes more gas on-chain (189{,}792) than in Hardhat (135{,}505), whereas
-\texttt{mintBatch(10)} is slightly \emph{lower} on-chain; \texttt{deploy} and
-\texttt{revoke} match. We do not have a verified mechanistic explanation for these
-per-operation differences and therefore do not speculate about their cause. For all
-cost figures we use the \emph{on-chain Amoy} values, which we treat as authoritative
-because they reflect actual network execution (transaction hashes in \cref{app:testnet}).
+environments: the local Hardhat EVM (solc 0.8.20, optimizer enabled, 200 runs) and
+the live Polygon Amoy testnet. \texttt{deploy} and \texttt{revoke} agree exactly.
+The \texttt{mint()} figures do not, and the reason is not the environment but the
+argument: \textbf{mint gas is dominated by the length of the \texttt{tokenURI}
+string}, which the contract writes to storage in 32-byte words. Holding everything
+else fixed and varying only the URI, a 25-character placeholder costs
+127{,}579~gas, a CIDv0 pin (53 characters) 172{,}692, and a CIDv1 pin
+(66 characters) 195{,}423; beyond that the curve flattens until the next word
+boundary. The on-chain \texttt{mint()} carried a real CID and the earlier local
+measurement a short placeholder, which accounts for the entire gap. Re-measured
+locally with the CIDv1 URI the issuance service actually produces, a mint to a new
+holder costs 195{,}423~gas, within 3\% of the 189{,}792 observed on-chain.
 
-\begin{table}[ht]
+This matters beyond reconciling two columns. The one cost lever an implementer
+controls is metadata addressing: a deployment that stores a CIDv1 pointer per
+certificate pays \textbf{53\% more gas than one that stores a short
+identifier} and resolves the pointer off-chain. It also means any reported
+per-certificate cost is uninterpretable unless the URI scheme is stated, and we
+state ours.
+
+The same effect makes the on-chain \texttt{mintBatch(10)} figure an understatement:
+that transaction was sent with 19-character placeholder URIs. Repeated with real
+CIDv1 pins the batch costs 1{,}704{,}591~gas, or 170{,}459 per certificate. Batching
+is therefore worth about 13\%, not the near-halving the placeholder measurement
+suggests. Every figure in this subsection is regenerated by
+\texttt{scripts/measure\_gas\_local.js}, which records the compiler settings and
+the URI used alongside the measurements.
+
+\begin{table*}[ht]
 \centering
-\caption{Gas consumption in two environments and estimated cost on Polygon
-(30~gwei, POL = \$0.22, March 2026). ``Hardhat'' is the local-EVM simulated value;
-``Amoy'' is the value observed on-chain on the Polygon Amoy testnet. The POL/USD
-cost columns are computed from the on-chain Amoy gas. These USD figures are
-\emph{projections}: they apply a fixed gas price and POL/USD rate to measured gas
-used, and exclude any mainnet priority/L1 fees (see \cref{subsec:eval_limitations}).}
+\caption{Gas consumption and estimated cost on Polygon (30~gwei, POL = \$0.22,
+March 2026). ``Local'' is the Hardhat EVM measured with the CIDv1 metadata URI the
+issuance service produces (solc 0.8.20, optimizer 200 runs); ``Amoy'' is the value
+observed on-chain (transaction hashes in \cref{app:testnet}). The USD column is
+computed from the local figures, which are reproducible from the repository. These
+are \emph{projections}: they apply a fixed gas price and POL/USD rate to measured
+gas used, and exclude any mainnet priority or L1 fees
+(see \cref{subsec:eval_limitations}).}
 \label{tab:gas}
 \footnotesize
 \setlength{\tabcolsep}{3pt}
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
-\textbf{Operation} & \textbf{Gas (Hardhat)} & \textbf{Gas (Amoy)} & \textbf{POL} & \textbf{USD} \\
+\textbf{Operation} & \textbf{Gas (local)} & \textbf{Gas (Amoy)} & \textbf{POL} & \textbf{USD} \\
 \midrule
-Deploy            & 1{,}824{,}117  & 1{,}824{,}117 & 0.0547  & \$0.0120  \\
-\texttt{mint()}   & 135{,}505      & 189{,}792     & 0.0057  & \$0.0013  \\
-\texttt{mintBatch(10)} & 1{,}039{,}581 & 1{,}025{,}449 & 0.0308 & \$0.0068 \\
-\texttt{revoke()} & 50{,}027       & 50{,}027      & 0.0015  & \$0.0003  \\
+Deploy                 & 1{,}824{,}117 & 1{,}824{,}117 & 0.0547 & \$0.0120 \\
+\texttt{mint()}        &   195{,}423 & 189{,}792$^{\dagger}$ & 0.0059 & \$0.0013 \\
+\texttt{mintBatch(10)} & 1{,}704{,}591 & 1{,}025{,}449$^{\ddagger}$ & 0.0511 & \$0.0113 \\
+\texttt{coSign()}      &    96{,}997 & --- & 0.0029 & \$0.0006 \\
+\texttt{revoke()}      &    50{,}027 &  50{,}027 & 0.0015 & \$0.0003 \\
 \bottomrule
 \end{tabular}
-\end{table}
 
-At these costs, minting a single contribution certificate costs approximately
-\textbf{\$0.0013} on-chain---negligible even for individual freelancers.
-Batch minting reduces the per-token cost to approximately \$0.0007
-(\$0.0068 amortized over 10 tokens),
-and the entire contract deployment costs approximately \$0.012.
-A sensitivity analysis over a range of gas prices and POL prices appears in
-\cref{tab:sensitivity}.
+\vspace{2pt}
+\raggedright\scriptsize
+$^{\dagger}$~Sent with a real CID; agrees with the local figure to within 3\%.
+$^{\ddagger}$~Sent with 19-character placeholder URIs and therefore an
+understatement; see the text.
+\end{table*}
+
+At these costs a self-attested contribution certificate costs approximately
+\textbf{\$0.0013} on-chain, and a studio-attested one---a mint followed by a
+co-signature---approximately \$0.0019. Batching ten certificates brings the
+per-certificate figure down to \$0.0011. Deployment is a one-time \$0.012.
+On-chain cost is thus negligible at any plausible scale, which is what makes the
+off-chain storage dependency, rather than the chain, the binding constraint
+(\cref{subsec:cost_sim}). \Cref{subsec:cost_sim} varies the gas price and the
+token price and finds the conclusion unchanged.
 
 % ----- 5.3 Prototype Implementation -----
 \subsection{Prototype Implementation}
 \label{subsec:prototype}
 
-To demonstrate technical feasibility and on-chain correctness, we implemented a
-prototype consisting of three components:
-the smart contract deployed on a public testnet, an Issuance Service, and a Verification Portal.
-
-\subsubsection{Testnet Deployment}
-
-The \texttt{AnimatorSBT} contract was deployed on the Polygon Amoy testnet
-(Chain ID: 80002) at address
-\texttt{0x2cC3\allowbreak{}1B9E\allowbreak{}FBD5\allowbreak{}dDfB\allowbreak{}5456\allowbreak{}EE4c\allowbreak{}76A0\allowbreak{}fcBC\allowbreak{}A5EE\allowbreak{}E117}
-(block 35{,}058{,}633).\footnote{The deployment transaction and all subsequent
-interactions are publicly verifiable at
+The \texttt{AnimatorSBT} contract is deployed on the Polygon Amoy testnet (chain
+ID~80002) at \hexid{0x2cC31B9EFBD5dDfB5456EE4c76A0fcBCA5EEE117}, block
+35{,}058{,}633.\footnote{The deployment transaction and every subsequent interaction are
+publicly verifiable at
 \url{https://amoy.polygonscan.com/address/0x2cC31B9EFBD5dDfB5456EE4c76A0fcBCA5EEE117}.}
-A test suite of 35 unit tests was developed using Hardhat for the deployed v1
-contract, covering deployment, minting, batch minting, soulbinding enforcement,
-revocation, view functions, and access control; all pass. Beyond the v1 contract,
-the repository adds a further 25 tests---17 for the v2 co-signing reference contract
-(\cref{subsec:cosigning}), 7 for the canonical evidence-hash serialization, and a
-local end-to-end issuance test---for 60 passing in total.
-We note the scope of this suite plainly. The v1 and v2 contract tests exercise the
-\emph{smart-contract} mechanics, which are the most standard and least error-prone
-part of the system. Importantly, the serialization-determinism gap flagged in an
-earlier version of this work is now closed: the \texttt{evidence\_hash} is computed
-over a \emph{canonical} (recursively key-sorted) serialization, and 7 unit tests
-confirm that it is independent of key insertion order, stable, and sensitive to any
-value change---removing a classic source of silent hash-mismatch bugs. What the
-suite still does \emph{not} cover is the live IPFS upload/pinning path and the
-in-browser portal's hash-recompute logic against real pinned metadata, and---most
-consequentially---the v2 co-signing contract is exercised only in the local EVM and
-is \emph{not deployed on-chain}. These off-chain and on-chain-deployment gaps,
-which carry the authenticity argument (\cref{subsec:verification}), remain needed
-work.
-An end-to-end demonstration of the Tanaka scenario
-(\cref{subsec:flow}) was executed on the testnet,
-successfully minting an SBT with IPFS-hosted metadata
-and verifying all on-chain state (balance, token URI, revocation status).
+Seventy unit tests pass: 35 against the deployed v1 contract, 17 against the v2
+co-signing reference contract, 7 against the canonical serialisation, 10 against the
+disclosure commitment of \cref{subsec:privacy}, and one local end-to-end run. The suite
+exercises contract mechanics, the most standard part of the system, and one thing that is
+not: seven tests confirm that the evidence hash over a recursively key-sorted
+serialisation is independent of key insertion order, stable across runs, and sensitive to
+any value change. That closes a determinism gap in the earlier design, under which the
+same claim serialised differently produced different hashes.
+\Cref{subsec:eval_limitations} states what the suite does not reach.
 
-\subsubsection{Issuance Service}
-
-A Node.js-based Issuance Service was implemented using ethers.js~v6
-and the Pinata SDK.
-The service performs the complete issuance workflow:
-(1)~constructing metadata JSON conforming to the schema in \cref{tab:metadata},
-(2)~computing the \texttt{evidence\_hash} (Keccak-256 of the serialized attributes),
-(3)~uploading the metadata to IPFS via Pinata,
-and (4)~calling \texttt{AnimatorSBT.mint()} with the resulting IPFS~URI.
-
-An end-to-end demonstration script recreates the Tanaka scenario
-described in \cref{subsec:flow}:
-a key animator completes 25~cuts on Episode~7, and the system
-issues an SBT recording the contribution with a verifiable evidence hash.
-
-\subsubsection{Verification Portal}
-
-A lightweight Verification Portal was implemented as a static HTML page
-using ethers.js (loaded from CDN), requiring no server-side infrastructure.
-The portal accepts a wallet address, queries the contract's \texttt{tokensOfOwner()}
-function, retrieves each SBT's metadata from IPFS,
-and displays the contribution details including project, role, task count, and dates.
-The portal also supports evidence hash verification by recomputing
-the Keccak-256 hash from the IPFS metadata and comparing it
-to the stored \texttt{evidence\_hash} field.
+Two components sit around the contract. The issuance service is a Node.js backend on
+ethers.js~v6 and the Pinata SDK: it builds metadata to the schema of
+\cref{tab:metadata}, computes the evidence hash, pins the metadata to IPFS, and calls
+\texttt{mint()} with the resulting URI. The verification portal is a static HTML page
+using ethers.js from a CDN and no server at all: given an address it queries
+\texttt{tokensOfOwner()}, fetches each certificate's metadata from IPFS, displays
+project, role, task count and dates, and recomputes the hash to compare against the
+stored field. The Tanaka scenario of \cref{subsec:flow}---a key animator completing 25
+cuts on an episode---runs end to end on the testnet, minting a certificate with
+IPFS-hosted metadata and verifying balance, token URI and revocation status on chain.
 
 \subsubsection{Co-signing Reference Contract and Canonical Hashing}
+\label{subsec:canonical}
 \label{subsubsec:v2}
 
-To make the authenticity layer of \cref{subsec:cosigning} concrete rather than
-merely sketched, the repository includes a reference implementation that is
-validated locally but, consistent with our scoping, is \emph{not} deployed on-chain
-and does \emph{not} replace the v1 contract on Amoy:
+The authenticity layer of \cref{subsec:cosigning} exists as a reference
+implementation rather than a sketch. It is validated in the local EVM, where
+co-signing, canonical hashing, minting and soulbinding compose correctly; it is not
+deployed on chain and does not replace the v1 contract on Amoy. \texttt{AnimatorSBTV2} adds a studio
+attester role and an idempotent \texttt{coSign} taking the attester from
+\texttt{msg.sender}, together with the views that report who has co-signed and at
+what attestation level, and ERC-5192 \texttt{locked()} signalling. A co-signature
+costs 96{,}997~gas and the contract deploys for 2{,}058{,}959.
 
-\begin{itemize}
-  \item \textbf{\texttt{AnimatorSBTV2}}: the v1 contract extended with a
-    \texttt{STUDIO\_ATTESTER\_ROLE}, an idempotent multi-studio
-    \texttt{coSign(uint256)} (the attester is \texttt{msg.sender}), the
-    \texttt{attesters}/\texttt{attestationCount}/\texttt{hasCoSigned}/\texttt{attestationLevel}
-    views, and ERC-5192 \texttt{locked()} signaling. A \texttt{coSign} costs
-    \textasciitilde95{,}000 gas in the local EVM; deployment costs
-    \textasciitilde2.06M gas. We report these as local-EVM figures, since the
-    contract is not deployed on-chain.
-  \item \textbf{Canonical serialization module}: a dependency-light, recursively
-    key-sorted JSON serializer (a JCS/RFC~8785 subset) over which
-    \texttt{evidence\_hash} is computed, so that two parties building the same
-    attributes in different key order obtain the same hash. This closes the
-    hash-determinism gap previously flagged as untested.
-  \item \textbf{Issuance Service v2}: the v1 issuance flow extended with the
-    canonical hash and an optional co-signing step using a separate attester wallet,
-    plus a swappable wallet-provisioning seam (a non-custodial embedded-wallet
-    interface) that is currently an unconfigured skeleton.
-\end{itemize}
+The canonical serialisation is what makes the evidence hash mean anything, and
+\Cref{fig:canonical} shows what it buys with the hashes the implementation produces. It is
+a dependency-light, recursively key-sorted JSON serialiser, a subset of JCS (RFC~8785),
+over which \texttt{evidence\_hash} is computed, so that two parties assembling the same
+attributes in different key order arrive at the same hash and a verifier can tell a
+reordering from a change. Without it the hash fixes one serialisation of a claim rather
+than the claim, which was a gap in the earlier design. The issuance service extends the v1
+flow with this hash and an optional co-signing step using a separate attester wallet,
+behind a wallet-provisioning seam that is an unconfigured skeleton.
 
-We emphasize what this does and does not establish: it demonstrates that the
-co-signing mechanism, canonical hashing, mint, and soulbinding \emph{compose}
-correctly off-chain and in the local EVM. It does not establish on-chain behavior,
-independent-studio operation, or end-to-end issuance from real application data---all
-of which remain future work (\cref{subsec:eval_limitations}).
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.92\textwidth]{figures/canonical_hash}
+  \caption{The evidence hash fixes the claim rather than one spelling of it. The
+  same attributes serialised with keys in different orders reduce to the same
+  digest; changing a single value does not. Hashes are the values produced by the
+  implementation in the accompanying repository.}
+  \label{fig:canonical}
+\end{figure*}
 
 % ----- 5.4 Integration with Production Management Client -----
-\subsection{Integration with Production Management Client}
+\subsection{Integration and the Attestation Anchor}
 \label{subsec:integration}
 
-AnimatorSBT is designed for integration with
-\textit{Pocket Seishin},\footnote{Available
-at \url{https://pocket-seishin.vercel.app}.}
-a Progressive Web Application developed by the authors
-for freelance animators to manage cuts and finances.
-The application is publicly deployed, and cut-level work logs are stored locally
-on the animator's device, preserving privacy by default.
-We state the integration status plainly: the SBT issuance pipeline described below
-is \emph{not yet integrated} into Pocket Seishin, and \emph{no SBTs have been
-minted from real user data}. The end-to-end demonstration of \cref{subsec:prototype}
-used a scripted work log, not live application data.
-SBT issuance would occur only with the animator's explicit consent.
-The remainder of this subsection therefore describes a \emph{planned} integration.
+Where a certificate is anchored decides what a co-signature is worth. Anchoring on a
+self-reported work log means the studio, asked to countersign, must review the work and
+reach a judgment it had not otherwise recorded. Anchoring on an accepted order means it
+has already reached that judgment: taking delivery of a set of cuts and paying for them is
+a determination about who did the work, made for commercial reasons and recorded in a
+system the studio keeps for itself. A certificate issued per accepted order, keyed on the
+order identifier, is idempotent by construction, and the co-signature of
+\cref{subsec:cosigning} then records a determination rather than soliciting one. The
+anchor, not the token, is the part of the design that carries the trust, and we argue it
+here rather than demonstrating it.
 
-The planned integration follows the issuance flow
-described in \cref{subsec:flow}.
-The key integration points are:
+The pattern is not new, only newly applied. Triple-entry accounting adds a third,
+cryptographically verifiable entry witnessing a transaction two parties have already
+recorded in their own books, and Sarwar et al.\ survey its blockchain implementations for
+business-to-business settlement~\cite{sarwar2023tea}. A certificate anchored to an
+accepted order is that third entry, the transaction being the commissioning of work
+rather than the sale of goods, and the party it protects being the one whose name the
+books record but the credits do not. Reading it this way also names what it inherits: a
+third entry is only as good as the two it witnesses, so a studio that mis-records who did
+the work produces a faithful certificate of a false premise.
 
-\begin{enumerate}
-  \item \textbf{Wallet provisioning:}
-    When a new animator registers on Pocket Seishin,
-    an embedded wallet will be created using account abstraction.
-    The wallet address will be stored in the user profile
-    and used as the \texttt{to} parameter for SBT minting.
-    The animator will not be required to interact with the wallet directly.
-  \item \textbf{Work log aggregation:}
-    Pocket Seishin already records cut-level task data
-    (assignment, status transitions, completion timestamps)
-    as part of its core functionality.
-    Upon user consent, this locally stored data will be used
-    to construct the SBT metadata.
-  \item \textbf{Evidence hash computation:}
-    The Issuance Service will compute a Keccak-256 hash of the serialized work log
-    entries for the certification period.
-    This hash will be included in the SBT metadata (\texttt{evidence\_hash} field)
-    and can later be verified against the user's local data.
-  \item \textbf{Certificate display:}
-    Pocket Seishin's profile page will include an ``SBT Certificates'' section
-    that renders the animator's issued tokens with project title,
-    role, task count, and a link to the Verification Portal.
-\end{enumerate}
+The record the anchor needs is one the commissioning party is already obliged to keep.
+Article~7 of the statute governing payment to small and medium-sized contractors requires
+that party to create and retain for two years a per-transaction document recording, among
+sixteen enumerated items, the content of the work ordered, the dates delivery was due and
+received, the completion date and result of any inspection with the treatment of anything
+that failed it, and the fee with its due date and the date and means of
+payment~\cite{meti2026animeguideline}.\footnote{Act No.~120 of 1956, renamed with
+effect from January 2026; the enumeration is Figure~33 of METI's guideline for this
+industry, at p.~48. The duty attaches to whoever places the order: the guideline states
+that a commission may fall under the Act whatever the commissioning party's own
+position in the subcontracting chain.} That is the accepted order in the state the
+anchor requires, held by the party whose determination a co-signature would record. The
+design does not ask the industry to begin keeping a record. It asks that a record the
+law already compels be made durable in the worker's hands.
 
-From the animator's perspective, the entire SBT workflow will be transparent:
-they will continue using the PMC as before, and contribution certificates
-will appear automatically upon project milestones.
-No blockchain knowledge, wallet management, or additional data entry will be required.
+The same enumeration shows why the gap exists. Nothing in the list requires the
+individual creator's name---the counterparty may be recorded by number or code---and
+neither that provision nor the Cabinet Office and Fair Trade Commission's 2026 guidelines
+on transactions at anime production sites contains any provision on crediting or on moral
+rights~\cite{meti2026animeguideline,jftc2026shishin}. Regulation here has become detailed
+about the terms on which work is commissioned while saying nothing about who is recorded
+as having done it. The data exists and is retained by legal compulsion; what no rule
+produces is an attribution the worker can carry.
+
+Two consequences follow that a self-reported log does not raise. An accepted order
+can be adjusted afterwards---in Japanese practice through a correcting credit
+note---including after a certificate referring to it has been issued, so an
+implementation cannot rest on the token's immutability and must detect that the
+underlying record changed. And the anchor presupposes a system the studio itself
+operates, which a tool holding an animator's data on their own device cannot be;
+the choice of anchor therefore constrains where such a system can live.
+
+What is evaluable here should be stated exactly. The issuance service in the
+accompanying repository builds metadata from supplied attributes and is not keyed on an
+order, so the anchor above is a design argument the open artifact does not implement; what
+the repository demonstrates is the contract, the co-signing mechanism, the canonical hash
+and the costs. An order-keyed issuance path exists behind a feature flag in a commercial
+production-management system, which establishes that the integration is constructible and
+nothing more. That system is not open source, no certificates have been issued from
+production data, and we exclude it from the evidence this paper rests on.
