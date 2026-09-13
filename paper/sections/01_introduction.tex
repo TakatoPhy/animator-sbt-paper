@@ -4,28 +4,22 @@ Japanese animation is commercially successful and its production market is at a
 record (\cref{subsec:labor}). Behind that growth is a structural problem:
 the creative workforce that produces anime remains largely invisible.
 
-An exceptionally large share of anime production labor is performed by freelancers.
-According to the Japan Animation Creators Association (JAniCA),
-47.3\% of animation creators were self-employed in 2023~\cite{janica2023survey}---
-approximately six times the national average.
-These freelancers operate within a multi-layered subcontracting system
-where studios routinely outsource entire episodes or specific production tasks
-to secondary and tertiary subcontractors.
-In this system, individual animators are frequently uncredited:
-only the subcontracting studio's name may appear in the final credits,
-or no attribution is given at all.
+An exceptionally large share of anime production labour is performed outside
+employment. In the Japan Animation Creators Association's most recent survey, 37.0\% of
+respondents described themselves as freelance or self-employed~\cite{janica2026survey},
+about five times the share of the Japanese workforce as a whole
+(\cref{subsec:labor}). They work within a multi-layered subcontracting system in which
+studios let out whole episodes or individual tasks to second- and third-tier
+subcontractors, and the credits that reach the audience follow the contract rather than
+the work: an outsourced episode is credited to the company that produced it, and the
+individuals inside it are named only sometimes.
 
-This \textit{contribution invisibility problem} has concrete consequences.
-Freelance animators cannot verifiably demonstrate their work history
-to prospective clients, weakening their bargaining position
-in an industry where 37.7\% of workers earn below \textyen 200{,}000
-per month~\cite{nafca2024survey}.
-When studios close---a frequent occurrence---the informal records
-of who worked on which production disappear entirely.
-Recent policy responses, including Japan's Freelance Protection Act (2024)
-and the Fair Trade Commission's investigation into anime production
-labor practices~\cite{jftc2025anime}, address contractual protections
-but do not solve the attribution problem.
+This \textit{contribution invisibility problem} has concrete consequences. A freelance
+animator cannot demonstrate a work history verifiably to a prospective client, which
+weakens their position in a market where more than a third of respondents earn under
+\textyen 200{,}000 a month from anime work~\cite{nafca2024survey}; and when a studio
+closes, the informal record of who worked on what goes with it. Recent policy responses
+reach the contract and not the credit (\cref{subsec:labor}).
 
 In parallel, blockchain technology has introduced new primitives
 for decentralized credentialing.
@@ -38,13 +32,11 @@ academic certificate verification, and agricultural supply chains,
 but \textbf{to the best of our knowledge, no prior work has applied SBTs
 to creative production workflows or to the credentialing of freelance animators.}
 
-Existing blockchain applications in the anime industry have focused
-almost exclusively on \textit{fan-facing} monetization:
-IP tokenization, NFT collectibles, and fan engagement platforms
-designed to extract value from audiences~\cite{fourpillars2025anime,animechain2024whitepaper}.
-In contrast, this paper uses blockchain as a \textit{worker protection} tool---not
-to generate revenue from fans, but to safeguard individual creators'
-professional identity and career records.
+Existing blockchain applications in the anime industry address the audience side of the
+business: IP tokenization, collectibles and fan engagement, where the revenue comes
+from fans~\cite{fourpillars2025anime,animechain2024whitepaper}. This paper points the
+same primitives at the labour side, where what is at stake is not revenue but a record
+of who did the work.
 
 This paper presents \textbf{AnimatorSBT}, a blockchain-based contribution
 certification framework designed to integrate SBT issuance into an existing
@@ -89,9 +81,6 @@ that made the earlier hash meaningless under key reordering
 mechanism itself, which composes existing standards, and we identify the adoption
 and authenticity problems the design does not solve (\cref{sec:discussion}).
 
-The remainder of this paper is organized as follows.
-\Cref{sec:related_work} surveys related work across anime production,
-labor conditions, SBTs, and blockchain in the creative economy.
 A note on vocabulary, since this paper's argument should be followed by readers
 who do not work with public ledgers. A \emph{non-transferable}, or
 \emph{soulbound}, token is a record that its holder cannot sell or pass to anyone

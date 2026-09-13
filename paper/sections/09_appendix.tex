@@ -6,27 +6,21 @@
 \subsection{Unit Test Results}
 \label{app:tests}
 
-A total of 35 unit tests were developed using Hardhat (Solidity 0.8.20,
-optimizer enabled with 200 runs) for the deployed v1 contract. All pass.
-\Cref{tab:test_results} lists this v1 suite. A further 35 tests accompany the
-reference implementation of \cref{subsubsec:v2}: 17 for the v2 co-signing contract
-(co-signing by a studio attester, elevation to \texttt{attestationLevel}~1,
-idempotent and multi-studio co-signing, refusal to co-sign a revoked token,
-attester-role management, ERC-5192 \texttt{locked()} signaling, and preservation of
-soulbinding), 7 for the canonical evidence-hash serialization (order-independence,
-stability, value-sensitivity, null/undefined handling, and nested-object
-canonicalization), 10 for the disclosure commitment of \cref{subsec:privacy}
-(no identifier published, a presented disclosure verifies, a substituted name or
-salt fails, altered public attributes fail, and distinct salts leave two
-certificates for one person unlinkable), and 1 local end-to-end issuance test
-(build metadata and canonical hash $\rightarrow$ mint $\rightarrow$ studio co-sign
-$\rightarrow$ verify), for \textbf{70 passing tests} in total.
+\Cref{tab:test_results} lists the v1 suite, developed with Hardhat against the
+deployed contract (solc 0.8.20, optimizer 200 runs). The further 35 tests summarised
+in \cref{subsubsec:v2} cover co-signing by a studio attester and its idempotence
+across multiple studios, refusal to co-sign a revoked token, attester-role
+management, ERC-5192 signalling, order-independence and value-sensitivity of the
+canonical serialisation, the disclosure commitment of \cref{subsec:privacy}, and one
+end-to-end run from metadata construction through mint and co-signature to
+verification.
 
 \begin{table}[ht]
 \centering
 \caption{Unit test suite for the deployed v1 \texttt{AnimatorSBT} contract
-(35 tests, all passing). A further 35 tests cover the v2 co-signing reference
-contract, canonical serialization, and a local end-to-end flow (60 total).}
+(35 tests, all passing). A further 35 cover the v2 co-signing reference contract,
+canonical serialisation, disclosure commitments and a local end-to-end flow,
+for 70 in total.}
 \label{tab:test_results}
 \footnotesize
 \setlength{\tabcolsep}{2pt}
@@ -130,182 +124,30 @@ retrievable at \url{https://gateway.pinata.cloud/ipfs/Qmbv6Xm1GmNpxkJ8rq3QCihTPm
 }
 \end{lstlisting}
 
-The \texttt{evidence\_hash} field is the Keccak-256 hash of the
-\texttt{attributes} object (JSON-serialized).
-Any party with access to the IPFS metadata can independently recompute
-this hash and verify its integrity.
-As discussed in \cref{subsec:verification}, this establishes only that the file is
-unaltered since minting---the hash is computed over issuer-authored attributes
-stored in the same object---not that the recorded work was actually performed.
-Note also that the \texttt{animator\_name} appears here in cleartext
-(\cref{subsec:privacy}).
+The \texttt{evidence\_hash} here is the Keccak-256 hash of the \texttt{attributes}
+object as serialised, and any party holding the metadata can recompute it; what that
+does and does not establish is set out in \cref{subsec:verification}.
+
+This file is also the record of the defect \cref{subsec:privacy} corrects:
+\texttt{animator\_name} sits in cleartext on public storage, and the digest is taken
+over an object containing it with no salt. We print the deployed artifact rather than
+a regenerated one because it is what the recorded transactions point at.
 
 % ----- D. Smart Contract Source Code -----
 \subsection{Smart Contract Source Code}
 \label{app:source}
 
-The complete source code of the \texttt{AnimatorSBT} contract is provided below.
-The full project---both the v1 contract and the v2 co-signing reference
-implementation, the issuance service, the verification portal, the test suite, and
-the cost-simulation scripts---is available from the authors on reasonable request
-and will be deposited in a public archive (e.g., Zenodo, with a citable DOI) upon
-acceptance.
-The listing below is the contract as deployed on Polygon Amoy, written against
-OpenZeppelin Contracts v4.x (note the \texttt{Counters} utility and the
-\texttt{\_beforeTokenTransfer} hook). As noted in \cref{subsec:stack}, OpenZeppelin
-v5 removes both; a production port would enforce soulbinding in the unified
-\texttt{\_update} hook and use a plain counter.
-
-\begin{lstlisting}[
-  basicstyle=\scriptsize\ttfamily,
-  frame=single,
-  caption={AnimatorSBT.sol --- complete contract source.},
-  label={lst:full_source},
-  breaklines=true,
-  columns=flexible,
-  morekeywords={pragma,solidity,import,contract,is,using,for,
-    function,external,internal,public,view,pure,override,virtual,
-    returns,return,if,revert,mapping,event,error,emit,
-    address,uint256,string,bytes32,bool,memory,calldata,
-    constructor,require,constant}
-]
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
-
-contract AnimatorSBT is ERC721, AccessControl {
-  using Counters for Counters.Counter;
-
-  bytes32 public constant ISSUER_ROLE =
-    keccak256("ISSUER_ROLE");
-
-  Counters.Counter private _tokenIdCounter;
-  mapping(uint256 => string) private _tokenURIs;
-  mapping(uint256 => bool) private _revoked;
-  mapping(uint256 => uint256) private _issuedAt;
-
-  event SBTMinted(uint256 indexed tokenId,
-    address indexed to, string uri,
-    uint256 timestamp);
-  event SBTRevoked(uint256 indexed tokenId,
-    uint256 timestamp);
-
-  error SoulboundTransferDisabled();
-  error TokenAlreadyRevoked(uint256 tokenId);
-
-  constructor() ERC721("AnimatorSBT", "ASBT") {
-    _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-    _grantRole(ISSUER_ROLE, msg.sender);
-  }
-
-  function _beforeTokenTransfer(
-    address from, address to,
-    uint256 tokenId, uint256 batchSize
-  ) internal virtual override {
-    if (from != address(0) && to != address(0))
-      revert SoulboundTransferDisabled();
-    super._beforeTokenTransfer(
-      from, to, tokenId, batchSize);
-  }
-
-  function approve(address, uint256)
-    public pure override {
-    revert SoulboundTransferDisabled();
-  }
-
-  function setApprovalForAll(address, bool)
-    public pure override {
-    revert SoulboundTransferDisabled();
-  }
-
-  function mint(address to, string calldata uri)
-    external onlyRole(ISSUER_ROLE)
-    returns (uint256) {
-    _tokenIdCounter.increment();
-    uint256 tokenId = _tokenIdCounter.current();
-    _safeMint(to, tokenId);
-    _tokenURIs[tokenId] = uri;
-    _issuedAt[tokenId] = block.timestamp;
-    emit SBTMinted(tokenId, to, uri,
-      block.timestamp);
-    return tokenId;
-  }
-
-  function mintBatch(
-    address[] calldata recipients,
-    string[] calldata uris
-  ) external onlyRole(ISSUER_ROLE) {
-    require(recipients.length == uris.length,
-      "Length mismatch");
-    for (uint256 i = 0;
-         i < recipients.length; i++) {
-      _tokenIdCounter.increment();
-      uint256 tokenId =
-        _tokenIdCounter.current();
-      _safeMint(recipients[i], tokenId);
-      _tokenURIs[tokenId] = uris[i];
-      _issuedAt[tokenId] = block.timestamp;
-      emit SBTMinted(tokenId, recipients[i],
-        uris[i], block.timestamp);
-    }
-  }
-
-  function revoke(uint256 tokenId)
-    external onlyRole(ISSUER_ROLE) {
-    if (_revoked[tokenId])
-      revert TokenAlreadyRevoked(tokenId);
-    _requireMinted(tokenId);
-    _revoked[tokenId] = true;
-    emit SBTRevoked(tokenId, block.timestamp);
-  }
-
-  function tokenURI(uint256 tokenId)
-    public view override returns (string memory) {
-    _requireMinted(tokenId);
-    return _tokenURIs[tokenId];
-  }
-
-  function isRevoked(uint256 tokenId)
-    external view returns (bool) {
-    return _revoked[tokenId];
-  }
-
-  function issuedAt(uint256 tokenId)
-    external view returns (uint256) {
-    return _issuedAt[tokenId];
-  }
-
-  function totalMinted()
-    external view returns (uint256) {
-    return _tokenIdCounter.current();
-  }
-
-  function tokensOfOwner(address owner)
-    external view returns (uint256[] memory) {
-    uint256 total = _tokenIdCounter.current();
-    uint256 count = balanceOf(owner);
-    uint256[] memory result =
-      new uint256[](count);
-    uint256 idx = 0;
-    for (uint256 i = 1;
-         i <= total && idx < count; i++) {
-      if (_exists(i) && ownerOf(i) == owner)
-        result[idx++] = i;
-    }
-    return result;
-  }
-
-  function supportsInterface(bytes4 interfaceId)
-    public view
-    override(ERC721, AccessControl)
-    returns (bool) {
-    return super.supportsInterface(interfaceId);
-  }
-}
-\end{lstlisting}
+The \texttt{AnimatorSBT} contract is 160 lines of Solidity and is not reproduced
+here; it is in the repository named under \emph{Data and code availability}, together
+with the v2 co-signing reference implementation, the issuance service, the
+verification portal, the test suite and the measurement and cost scripts. Two
+properties of the deployed version matter for reading the rest of this appendix. It
+is written against OpenZeppelin Contracts v4, so soulbinding is enforced by
+overriding \texttt{\_beforeTokenTransfer} and token identifiers come from the
+\texttt{Counters} utility; v5 removes both, and a production port would enforce the
+same rule in the unified \texttt{\_update} hook, as noted in \cref{subsec:stack}.
+And \texttt{revoke()} sets a flag, leaving the token and its URI in place, which is
+the behaviour \cref{subsec:privacy} examines.
 
 % ----- E. Co-signing Additions (v2) -----
 \subsection{Co-signing Additions (AnimatorSBTV2)}
@@ -314,7 +156,7 @@ contract AnimatorSBT is ERC721, AccessControl {
 \Cref{lst:v2_cosign} reproduces the core additions of the v2 reference contract
 (\cref{subsubsec:v2}): the studio-attester role, the idempotent multi-studio
 \texttt{coSign}, the trust-level view, and ERC-5192 soulbound signaling. The
-remainder of the contract is identical to the v1 listing above. As stated in
+remainder of the contract is identical to v1. As stated in
 \cref{subsec:cosigning}, this contract is validated by the test suite of
 \cref{app:tests} but is \emph{not} deployed on-chain, and in the single-operator
 MVP the issuer also holds \texttt{STUDIO\_ATTESTER\_ROLE}, so a co-signature adds no

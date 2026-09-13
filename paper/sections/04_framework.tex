@@ -53,9 +53,9 @@ instead of on-chain SBTs.
 VCs offer mature standards, selective disclosure, and off-chain storage,
 making them well suited for scenarios where a trusted issuer exists
 and credentials are presented bilaterally (e.g., university diplomas).
-We do not claim that VCs are unworkable here---a VC could itself be anchored
-on-chain (e.g., by recording a credential hash or status) to mitigate
-issuer-availability concerns~\cite{kakebayashi2023sbt}. Rather, our reasons for
+We do not claim that VCs are unworkable here: a VC could itself be anchored on chain,
+by recording a credential hash or a status entry, so that verification does not depend
+on the issuer still answering. Rather, our reasons for
 choosing on-chain SBTs are ergonomic and pertain to requirements R4 (portability)
 and R5 (minimal friction): SBTs provide a \emph{naturally aggregatable} portfolio---all
 credentials accumulate at a single address and are queryable in one call---whereas
@@ -70,10 +70,11 @@ use~\cite{kang2021ssi}. The contrast is instructive. Theirs is a general
 mechanism for governing what may be done with data a subject controls; ours is a
 narrow attestation that a discrete piece of work was accepted, which the animator
 wants read as widely as possible. Usage control is the wrong tool for a credential
-whose value is its publicity. We stress that SBTs and VCs are
-\emph{not} mutually exclusive: a VC-compliant wrapper over the same metadata
-would add the selective disclosure and interoperability that on-chain SBTs lack,
-and nothing in the design forecloses it.
+whose value is its publicity. SBTs and VCs are not mutually exclusive. A VC-compliant wrapper over the same metadata
+would add interoperability, and a per-attribute disclosure scheme of the kind the VC
+ecosystem supports would be finer than the commitment of \cref{subsec:privacy}, which
+reveals the holder's name in full or not at all. Nothing in the design forecloses
+either.
 
 \textbf{Why a bespoke contract rather than a general attestation service or a
 signed log?}
@@ -179,10 +180,10 @@ signs a transaction; the prototype pays gas directly from an operational wallet.
 
 The resulting record is narrower than it looks. Suppose a key animator is assigned
 25 cuts for an episode through a secondary subcontractor, works ten weeks, and is
-never named in the broadcast credits. The certificate establishes that she
+never named in the broadcast credits. The certificate establishes that they
 declared 25 key-animation cuts on a production in that period, and that the
 declaration existed at that time and has not changed since. It does not establish
-that she did the work. That distinction is the whole subject of
+that they did the work. That distinction is the whole subject of
 \cref{subsec:cosigning}: with the subcontractor's co-signature the same record
 becomes an attestation by the party that accepted the work, and without it the
 certificate is a timestamped self-report---better than an unverifiable line on a
@@ -220,8 +221,14 @@ published for a certificate to be useful.
 The prototype stored an \texttt{animator\_name} field in cleartext on public IPFS,
 which was indefensible and is no longer the default. Writing a name to permanent,
 content-addressed storage that an on-chain record points at is not something a
-revocation flag undoes, and a hash of personal data can itself remain personal data
-where the input space is small enough to search~\cite{finck2018blockchains}.
+revocation flag undoes, and replacing the name with a bare hash of it does not by
+itself help. The Article~29 Working Party treats hashing as pseudonymisation rather
+than anonymisation, and notes that where the range of inputs is known they can be
+replayed through the function to find which one produced a given
+digest~\cite{art29wp2014anonymisation}; Finck applies that reasoning to ledgers
+specifically, concluding that hashed data on a chain remains personal
+data~\cite{finck2018blockchains,finck2019stoa}. The set of names in one industry is
+small enough for the replay to be practical.
 
 The certificate now commits to a record that names the holder and publishes the
 record without the name. The evidence hash is taken over the full private
@@ -230,7 +237,10 @@ keeps---while what is pinned carries only role, volume, period and the address.
 A verifier shown the name and the salt recomputes the hash and learns that this
 certificate was issued for that person. Anyone else sees a certified role and
 volume bound to an address and cannot search for the name, because they do not
-have the salt.
+have the salt. The salt is what closes the replay described above: the candidates an
+attacker must test are no longer the names in an industry but the values of a
+256-bit salt, which is the distinction the Working Party draws when it separates a
+plain hash from a keyed one whose key is unavailable~\cite{art29wp2014anonymisation}.
 
 Linkability then comes from one place instead of two. The certificates a person
 holds are linkable because they sit at one address, which is what makes a
@@ -281,10 +291,12 @@ stays queryable and its URI still resolves. Erasing the content means unpinning
 the metadata, which makes it unreachable through public gateways but not gone:
 anyone who kept a copy can re-pin it, and the token, its timestamp and the
 revocation record persist regardless. Encrypting the metadata and discarding the
-key would give a genuine erasure path, and we did not implement it. Revolidis et al.\ meet the same wall from the legal side, putting an immutable
-record against the erasure and correction obligations of EU law and finding no
-clean reconciliation~\cite{revolidis2025justice}; we do not claim to have found
-one either. We therefore
+key would give a genuine erasure path, and we did not implement it. The wall is the
+same one the legal literature reaches: Finck's study for the European Parliament puts
+the append-only ledger against Articles~16 and~17 of the GDPR and finds the tension
+fundamental rather than incidental, since the property that makes modification
+onerous is the property the design is chosen
+for~\cite{finck2019stoa}. We therefore
 claim a partial, best-effort capability rather than a right to be forgotten, and
 treat the tension with the Act on the Protection of Personal Information as
 unresolved (\cref{subsec:legal}).
@@ -295,11 +307,7 @@ unresolved (\cref{subsec:legal}).
 
 Everything above produces a record that is tamper-evident, timestamped and
 portable, and none of it makes the record true. This subsection designs the layer
-that would, and implements it far enough to measure. The co-signing mechanism is
-not in the contract deployed on Amoy, which exposes only minting, revocation and
-views; it lives in a separate reference contract with a passing test suite. What
-is undone is the part that delivers authenticity rather than describes it:
-deployment, and operation by an attester the issuer does not control.
+that would, and implements it far enough to measure.
 
 \paragraph{What a credential is worth depends on who signed it.}
 A self-attested certificate, minted from the animator's own log, establishes
@@ -321,20 +329,9 @@ We bind the attester to \texttt{msg.sender} rather than passing it as an argumen
 (as an earlier sketch did) so that the on-chain signature itself proves who
 attested, with no spoofable parameter. The mechanism is idempotent (the same
 attester cannot co-sign twice), supports multiple distinct studios co-signing one
-token, and refuses to co-sign a revoked token. Companion views expose the result:
-\texttt{attesters(tokenId)}, \texttt{attestationCount(tokenId)},
-\texttt{hasCoSigned(\allowbreak{}tokenId, attester)}, and \texttt{attestationLevel(tokenId)}.
-Studios are granted the attester role through the same admin pathway used for
-issuers. A single \texttt{coSign} consumes 96{,}997~gas in the local
-EVM (\textasciitilde\$0.0006 at the baseline rate of \cref{tab:gas}); we report this
-as a local-EVM figure only, since \texttt{AnimatorSBTV2} is not deployed on-chain
-and, as \cref{subsec:contract} shows, local and on-chain gas can differ materially.
-Two scope limits of the implementation are worth stating: \texttt{attestationLevel}
-currently collapses the three-tier taxonomy above into a binary (\texttt{0} = no
-studio co-signature, \texttt{1} = at least one), so the \emph{peer-attested} tier is
-not separately distinguished on-chain; and the incentive design needed to motivate
-studios to participate---which faces the transparency-resistance barrier of
-\cref{subsec:adoption_barriers}---remains unaddressed.
+token, and refuses to co-sign a revoked token. Studios are granted the attester role
+through the same admin pathway used for issuers, and \cref{subsec:canonical} reports
+what the contract costs to deploy and to co-sign.
 
 \paragraph{The attester-independence caveat.}
 The authenticity gain from co-signing is exactly as strong as the attester's
@@ -356,9 +353,8 @@ adopt it here because our attester set is small enough to name and because doing
 so would add machinery to a mechanism we have not yet operated at all. Closing
 both gaps---an independent attester operated by a real studio, with an auditable
 identity binding---is what would convert a co-signed record from
-\emph{operator-attested} to
-\emph{independently authenticated}, and is the primary item of future work
-(\cref{sec:conclusion}). Honest framing of the present contribution is therefore
-``a self-sovereign, tamper-evident, portable contribution \emph{ledger}, plus a
-\emph{tested reference implementation} of the authenticity layer whose
-\emph{independent operation} would make it a verified credential.''
+\emph{operator-attested} to \emph{independently authenticated}
+(\cref{sec:conclusion}). Until then the honest description of what this paper
+contributes is a tamper-evident, portable contribution ledger the holder controls,
+together with a tested reference implementation of the authenticity layer whose
+independent operation would make it a credential.
