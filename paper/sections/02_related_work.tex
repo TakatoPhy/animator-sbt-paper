@@ -104,37 +104,30 @@ while requiring nothing about who is recorded as having done the work.
 \subsection{Soulbound Tokens and Decentralized Identity}
 \label{subsec:sbt}
 
-Weyl et al.~\cite{buterin2022decentralized} introduced the concept of \textbf{Soulbound Tokens (SBTs)}---non-transferable
-tokens bound to a specific blockchain address (a ``Soul'')---as a primitive for encoding
-commitments, credentials, and affiliations in a decentralized society.
-Unlike conventional NFTs, SBTs cannot be sold or transferred,
-making them suitable for representing earned credentials rather than speculative assets.
-The original motivation drew from World of Warcraft's ``soulbound'' items,
-which become permanently bound to a player upon acquisition~\cite{buterin2022soulbound}.
+Weyl et al.~\cite{buterin2022decentralized} introduced \textbf{Soulbound Tokens
+(SBTs)}, non-transferable tokens bound to one address (a ``Soul''), as a primitive for
+encoding commitments, credentials and affiliations; because they cannot be sold or
+transferred they suit earned credentials rather than speculative assets. The name comes
+from World of Warcraft items that bind permanently to a player on
+acquisition~\cite{buterin2022soulbound}. ERC-5192~\cite{daubenschuetz2022erc5192}
+formalised a minimal interface for them on Ethereum.
 
-Since their introduction, SBTs have been explored in three adjacent domains.
-Kakebayashi and Beverley~\cite{kakebayashi2023sbt} provided a comprehensive study of SBT implementations and
-their potential as a social identity layer.
-In healthcare, Pinna et al.\ report a case study issuing citizen-owned vaccination
-certificates as SBTs, so that the holder rather than the issuing facility keeps the
-credential~\cite{sbt_health2024}.
-The authors of~\cite{sbt_credential_framework2023} developed a framework for privacy-preserving
-credential issuance and verification using SBTs.
-In agriculture, Verma et al.~\cite{verma2025sbt_agriculture} proposed a dual-blockchain
-model using soulbound NFTs for farmer identity management.
-The ERC-5192 standard~\cite{daubenschuetz2022erc5192} formalized a minimal interface
-for soulbound NFTs on Ethereum, providing the technical foundation
-for many of these implementations.
+SBTs have since been explored in adjacent domains. Kakebayashi and
+Beverley~\cite{kakebayashi2023sbt} survey implementations and their potential as a social
+identity layer. In healthcare, Pinna et al.\ report a case study issuing citizen-owned
+vaccination certificates as SBTs, so the holder rather than the issuing facility keeps the
+credential~\cite{sbt_health2024}; a further framework addresses privacy-preserving
+issuance and verification~\cite{sbt_credential_framework2023}; and in agriculture Verma
+et al.\ propose a dual-blockchain model using soulbound NFTs for farmer
+identity~\cite{verma2025sbt_agriculture}.
 
-A parallel development is the W3C standard for \textbf{Verifiable Credentials (VCs)}~\cite{sporny2022vc}
-and \textbf{Decentralized Identifiers (DIDs)}~\cite{sporny2022did}.
-VCs are cryptographically signed digital credentials that can be verified without
-contacting the original issuer,
-following a three-party model of issuers, holders, and verifiers.
-The authors of~\cite{did_survey2024} provide a comprehensive survey of DID and VC architectures.
-Franklin et al.~\cite{franklin2025decentralized} implemented a decentralized certificate issuance and
-verification system on Ethereum, while Berrios Moya et al.~\cite{berriosmoya2025zkp} proposed a zero-knowledge
-proof-enabled system for academic records.
+The W3C standards for \textbf{Verifiable Credentials}~\cite{sporny2022vc} and
+\textbf{Decentralized Identifiers}~\cite{sporny2022did} develop in parallel. VCs are
+cryptographically signed credentials verifiable without contacting the issuer, on a
+three-party model of issuers, holders and verifiers; Mazzocca et al.\ survey the
+architectures~\cite{did_survey2024}. Franklin et al.\ implement decentralised certificate
+issuance and verification on Ethereum~\cite{franklin2025decentralized}, and Berrios Moya
+et al.\ a zero-knowledge system for academic records~\cite{berriosmoya2025zkp}.
 
 Beyond research prototypes, issuer-attested, holder-owned credentials have begun
 shipping as products. Enterprise verifiable-credential platforms (e.g., Indicio,
@@ -142,40 +135,35 @@ Dock/Truvera, Credivera) and the Ethereum Attestation Service\footnote{\url{http
 provide third-party-signed, recipient-owned attestations, and in Japan a
 Dentsu\,/\,Sivira\,/\,Sony pilot issued non-transferable (soulbound) verifiable
 credentials as portable achievement records.\footnote{\url{https://www.group.dentsu.com/jp/news/release/000680.html}}
-We highlight this to be precise about our contribution: the credential
-\emph{mechanism}---a third-party-attested, non-transferable, holder-owned record---is
-a mature 2026 primitive, and we do not claim novelty in it. Our contribution is its
-\emph{application} to anime production labor, described next.
+We say so to be precise about the contribution. The credential \emph{mechanism}, a
+third-party-attested, non-transferable, holder-owned record, is a mature 2026 primitive
+and we claim no novelty in it; the contribution is its \emph{application} to anime
+production labour.
 
-\textbf{To the best of our knowledge---based on a search of
-peer-reviewed venues, preprint servers, and industry whitepapers---no existing
-work applies SBTs or VCs specifically to anime production workflows or to the
-credentialing of freelance animators.}
-The closest work is the Animechain.ai whitepaper~\cite{animechain2024whitepaper},
-which proposes blockchain-based anime production management with AI integration,
-but does not address individual-level contribution certification using SBTs
-and has not been published as a peer-reviewed or preprint academic paper.
+\textbf{To the best of our knowledge, from a search of peer-reviewed venues, preprint
+servers and industry whitepapers, no existing work applies SBTs or VCs to anime production
+workflows or to the credentialing of freelance animators.} The closest is the
+Animechain.ai whitepaper~\cite{animechain2024whitepaper}, which proposes blockchain-based
+production management with AI integration but does not address individual-level
+contribution certification, and which has not been published as a peer-reviewed or
+preprint paper.
 
 % ----- 2.4 Blockchain in Creative and Gig Economies -----
 \subsection{Blockchain in Creative and Gig Economies}
 \label{subsec:blockchain_creative}
 
-The application of blockchain technology to the creative industries has been examined
-from multiple perspectives.
 Malik et al.\ survey blockchain in the creative industries, with direct
 creator-to-consumer distribution among the opportunities they
-identify~\cite{blockchain_creative2023}.
-The World Economic Forum highlighted blockchain's potential for transparent
-royalty distribution and intellectual property protection~\cite{wef2017creative}.
+identify~\cite{blockchain_creative2023}, and the World Economic Forum has pointed to
+transparent royalty distribution and intellectual property
+protection~\cite{wef2017creative}.
 
-In the broader gig economy, blockchain has been discussed as a potential tool for
-automated payment via smart contracts, reputation management,
-and decentralized dispute resolution.
-In principle, smart contracts can encode compensation terms that release funds
-upon verified task completion, which has been proposed as a way to reduce the
-payment delays that disproportionately affect freelancers; we note, however,
-that such mechanisms presuppose a trustworthy oracle for ``verified completion''---
-precisely the authenticity problem this paper foregrounds.
+In the wider gig economy the discussion has covered automated payment, reputation
+management and decentralised dispute resolution. A smart contract can encode compensation
+terms that release funds on verified task completion, proposed as a way to reduce the
+payment delays that fall disproportionately on freelancers; such mechanisms presuppose a
+trustworthy oracle for ``verified completion'', which is the authenticity problem this
+paper foregrounds.
 
 Credentialing a creative freelancer is where these primitives meet the present
 setting. A portfolio shows finished work but not the holder's role in it, and nobody
@@ -199,46 +187,42 @@ worker-credential space remain disjoint.
 \subsection{Research Gap}
 \label{subsec:gap}
 
-Credit attribution is not an unsolved problem everywhere. Film and television
-solved it institutionally: under the Writers Guild of America's Basic Agreement,
-credit for screen authorship may be given \emph{only} through the Guild's
-procedure, is the one term a writer may not bargain individually, and the
-employer is contractually bound to accept the arbitration committee's
-determination~\cite{wga2023mba}. Fisk~\cite{fisk2010jurisdiction} argues that the
-operative variable is jurisdiction---the Guild's exclusive authority to define
-individual authorship of a collective work---and traces how that authority became
-the Guild's central function~\cite{fisk2012screencredit}. The same form reaches
+Credit attribution is not unsolved everywhere. Film and television solved it
+institutionally: under the Writers Guild of America's Basic Agreement, credit for screen
+authorship may be given \emph{only} through the Guild's procedure, is the one term a writer
+may not bargain individually, and the employer is contractually bound to accept the
+arbitration committee's determination~\cite{wga2023mba}. Fisk argues that the operative
+variable is jurisdiction, the Guild's exclusive authority to define individual authorship
+of a collective work~\cite{fisk2010jurisdiction}, and traces how that authority became the
+Guild's central function~\cite{fisk2012screencredit}. The same form reaches
 animation in the United States, where The Animation Guild's agreement requires
 screen credit for the animation, story, background and layout classifications and
 names a final adjudicator for disputes~\cite{tag2024cba}.
 
 That route is unavailable in Japanese animation. It requires three things at once:
 exclusive craft jurisdiction, a collective agreement binding employers to the
-determination, and a standing arbitration apparatus. What removed the first of them
-was the move to freelance contracting: a craft cannot hold exclusive jurisdiction over
-work commissioned individually from people who are not its employees. Matsunaga's studio
-ethnography shows what replaced it, which is not collective bargaining but individual
-and studio-mediated coping---veteran animators securing short-term work against the
-risk of an income gap, younger ones relying on the studio to find them work, and
-freelancers thereby subject to a form of organisational control without the protections
-of employment~\cite{matsunaga2023portfolio}.\footnote{Nagata and Matsunaga give the
-book-length treatment of the same transition~\cite{nagata2022sociology}.} The bodies representing Japanese
-animators today are accordingly general incorporated associations rather than unions
-with bargaining jurisdiction, which is why the industry's own survey can document the
-grievance (\cref{subsec:credit_gap}) without any body being in a position to
-adjudicate it. Japanese copyright law offers no substitute~\cite{jp_copyright_act}: Article~16 confines
-authorship of a cinematographic work to those who contribute to its
-\emph{overall} shaping, which excludes artists working cut by cut, and
-Article~19(3) permits the author's name to be omitted where consistent with fair
-practice. The government's own model contract for freelance animators has the
-animator agree not to exercise moral rights, and makes crediting the
-commissioner's election~\cite{bunka2024model}.
+determination, and a standing arbitration apparatus. The move to freelance contracting removed the first: a craft cannot hold exclusive
+jurisdiction over work commissioned individually from people who are not its employees.
+Matsunaga's studio ethnography shows what replaced it, and it is not collective bargaining
+but individual and studio-mediated coping---veteran animators securing short-term work
+against the risk of an income gap, younger ones relying on the studio to find them work,
+and freelancers thereby under a form of organisational control without the protections of
+employment~\cite{matsunaga2023portfolio}.\footnote{Nagata and Matsunaga give the book-length
+treatment of the same transition~\cite{nagata2022sociology}.} The bodies representing
+Japanese animators today are accordingly general incorporated associations rather than
+unions with bargaining jurisdiction, which is why the industry's own survey can document
+the grievance (\cref{subsec:credit_gap}) with no body in a position to adjudicate it.
+Japanese copyright law offers no substitute~\cite{jp_copyright_act}: Article~16 confines
+authorship of a cinematographic work to those contributing to its \emph{overall} shaping,
+excluding artists working cut by cut, and Article~19(3) permits the author's name to be
+omitted where consistent with fair practice. The government's own model contract for
+freelance animators has the animator agree not to exercise moral rights, and makes
+crediting the commissioner's election~\cite{bunka2024model}.
 
-\Cref{tab:provenance} places the present work among the mechanisms that do
-operate in this setting, classified by where the record comes
-from~\cite{oki2026survey}. The distinctions that matter are who vouches for an
-entry, whether the record outlives the organisation that made it, and whether it
-reaches work that never shipped.
+\Cref{tab:provenance} places this work among the mechanisms that do operate here,
+classified by where the record comes from~\cite{oki2026survey}. What matters is who
+vouches for an entry, whether the record outlives the organisation that made it, and
+whether it reaches work that never shipped.
 
 \begin{table*}[ht]
 \centering
@@ -264,49 +248,43 @@ Production data (this work) & AnimatorSBT & Studio co-signature & \checkmark & \
 \end{tabular}
 \end{table*}
 
-Putting work records on a chain is not a new proposal, and we should say whose it
-was. Sharples and Domingue set out a distributed store of educational and
-professional achievement with a reputation layer above it a decade
-ago~\cite{sharples2016kudos}, and EduCTX built a prototype carrying the idea into
-academic credit, with an invitation to other institutions to
-join~\cite{turkanovic2018eductx}. EduCTX assumes what this setting lacks. An
-accredited university issuing its own credential is an institution with standing to
-attest, and the design problem there is interoperability between such institutions
-rather than the absence of any. What
-changes here is not the ledger but where the attestation can originate when no
-accredited issuer exists, which is why the anchor rather than the token is what
-this paper argues about.
+Putting work records on a chain is not a new proposal, and we should say whose it was.
+Sharples and Domingue set out a distributed store of educational and professional
+achievement with a reputation layer above it a decade ago~\cite{sharples2016kudos}, and
+EduCTX built a prototype carrying the idea into academic credit, inviting other
+institutions to join~\cite{turkanovic2018eductx}. EduCTX assumes what this setting lacks.
+An accredited university issuing its own credential has standing to attest, and the design
+problem there is interoperability between such institutions rather than the absence of
+any. What changes here is not the ledger but where an attestation can originate when no
+accredited issuer exists, which is why this paper argues about the anchor rather than the
+token.
 
-Nor does the alternative require a ledger at all. Open Badges issues portable,
-verifiable, third-party-signed credentials at scale, aligned to the same
-verifiable-credentials data model, with no chain
-underneath~\cite{openbadges3}. Where an issuer is durable and identifiable, that
-is the lighter answer, and the honest form of our claim is that it is the right
-answer wherever the issuer outlives the credential.
+The alternative need not involve a ledger at all. Open Badges issues portable, verifiable,
+third-party-signed credentials at scale on the same data model with no chain
+underneath~\cite{openbadges3}; where an issuer is durable and identifiable that is the
+lighter answer, and ours is the right answer only where the credential outlives the
+issuer.
 
-Two responses outside this table deserve naming, because a reader may reasonably
-prefer either. Scholarly publishing solved granular per-contributor attribution
-without a ledger: a controlled taxonomy of roles, carried as metadata by a central
-registry, now widely adopted~\cite{hosseini2026credit}. It works because
-publishers already sit between authors and the record and can require the metadata
-as a condition of publication---an intermediary position no party occupies in
-animation, where the studio that holds the record is also the party the record
-would expose. And the European Union has legislated a non-blockchain answer to the
-same problem: professional qualifications are among the attributes a European
-Digital Identity Wallet must carry, with provision due at the end of
-2026~\cite{eu2024eudi}, and platform workers acquire a statutory right to the
-portability of data generated through their work, ratings and reviews
-included~\cite{eu2024platformwork}. That framework locates trust in the issuer's
-legal status rather than in a ledger, and it presumes an issuer with standing to
-attest---which returns the question this paper starts from.
+Two responses outside the table deserve naming, because a reader may reasonably prefer
+either. Scholarly publishing solved granular per-contributor attribution without a ledger,
+through a controlled taxonomy of roles carried as metadata by a central
+registry~\cite{hosseini2026credit}. It works because publishers already sit between
+authors and the record and can require the metadata as a condition of publication, an
+intermediary position no party occupies in animation, where the studio holding the record
+is also the party it would expose. The European Union has legislated a non-blockchain
+answer as well: professional qualifications are among the attributes a European Digital
+Identity Wallet must carry, due at the end of 2026~\cite{eu2024eudi}, and platform workers
+acquire a statutory right to portability of the data generated through their work, ratings
+and reviews included~\cite{eu2024platformwork}. That framework locates trust in the
+issuer's legal status rather than in a ledger, and presumes an issuer with standing to
+attest, which returns the question this paper starts from.
 
-No mechanism above the rule in the table covers all three columns, and the reason is
-structural rather than technical. Institutional determination is authoritative
-precisely because it is scarce: the Guild caps credited writers at two, three
-only through arbitration, which is a policy of concentrating attribution rather
-than recording it. Records derived from credits inherit whatever the credits
-omit, and an unreleased production has no staff roll at all. Self-reported
-records reach every task but carry no attestation. The gap is therefore not an absence of data. Production generates a per-cut,
-per-person trail as a byproduct of getting the work done, and every prior mechanism
-in the table either fails to reach that trail or reaches it without anyone standing
-behind what it says.
+No mechanism above the rule in the table covers all three columns, for structural rather
+than technical reasons. Institutional determination is authoritative precisely because it
+is scarce: the Guild caps credited writers at two, three only through arbitration, which
+concentrates attribution rather than recording it. Records derived from credits inherit
+whatever the credits omit, and an unreleased production has no staff roll at all.
+Self-reported records reach every task and carry no attestation. The gap is therefore not
+an absence of data. Production generates a per-cut, per-person trail as a byproduct of
+getting the work done, and every prior mechanism in the table either fails to reach that
+trail or reaches it without anyone standing behind what it says.

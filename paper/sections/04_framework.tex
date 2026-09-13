@@ -1,7 +1,7 @@
 % Proposed Framework: AnimatorSBT
 
-We propose \textbf{AnimatorSBT}, a framework designed to integrate Soulbound Token issuance
-into the anime production workflow through an existing production management tool.
+\textbf{AnimatorSBT} integrates Soulbound Token issuance into the anime production
+workflow through a production management tool the animator already uses.
 % ----- 4.1 System Architecture -----
 \subsection{System Architecture}
 \label{subsec:architecture}
@@ -17,103 +17,86 @@ holds. Only the first of these is visible to the animator; the rest run behind i
 which is a usability decision with a disclosure obligation attached
 (\cref{subsec:adoption_barriers}).
 
-The design decisions worth defending are not the components but three choices a
-reader may reasonably question.
+The components are not what needs defending. Three choices are.
 
 \textbf{Why blockchain rather than a centralized database?}
-The conventional answer is a database run by one party---a studio, or us. It
-fails the requirements of \cref{subsec:formalization} in three places, and it is
-worth being exact about how far the chain actually rescues each.
+The conventional answer is a database run by one party, a studio or us. It fails the
+requirements of \cref{subsec:formalization} in three places, and the chain rescues
+each only partly.
 
-Studios close and restructure, and a database goes with its operator. What
-survives on chain is ownership, the issuance timestamp and the metadata pointer;
-those persist whether or not we do. What does not survive is the human-readable
-credential, because the metadata sits off chain and depends on someone continuing
-to pin it, and because the portal and issuance service are ours to operate. Proof
-that a certificate exists and whose it is outlives the issuer. The content does
-not, unless another party keeps it.
+A database goes with its operator, and studios close. What survives on chain is
+ownership, the issuance timestamp and the metadata pointer, whether or not we do. What
+does not is the human-readable credential, because the metadata sits off chain and
+depends on someone continuing to pin it, and because the portal and issuance service
+are ours to run. That a certificate exists and whose it is outlives the issuer; its
+content does not, unless another party keeps it.
 
-An animator works across dozens of studios, and in the centralised model each
-holds a fragment in its own system with no way to combine them. Certificates
-accumulate instead at one address, so a career is presentable as a single link
-rather than assembled from testimony---subject to the authenticity caveat
-throughout this paper.
+An animator works across dozens of studios, each holding a fragment in its own system
+with no way to combine them. Certificates accumulate instead at one address, so a
+career is presentable as a link rather than assembled from testimony, subject to the
+authenticity caveat throughout this paper.
 
-An administrator can rewrite or delete records; an on-chain record cannot be
-altered after the fact without leaving a trace. The guarantee is narrower than
-"trustless", since issuance is permissioned and only role-holders can mint. What
-the animator gets is not a system nobody controls, but one in which what was
-issued, when, and to whom cannot be quietly changed afterwards.
+An administrator can rewrite or delete records; an on-chain record cannot be altered
+afterwards without leaving a trace. This is narrower than trustless, since issuance is
+permissioned and only role-holders can mint. The animator gets not a system nobody
+controls, but one in which what was issued, when and to whom cannot be changed
+quietly.
 
 \textbf{Why SBTs rather than Verifiable Credentials?}
-An alternative design would use W3C Verifiable Credentials (VCs)~\cite{sporny2022vc},
-the credential layer of the self-sovereign identity architecture surveyed by
-M{\"u}hle et al.~\cite{muhle2018ssi},
-instead of on-chain SBTs.
-VCs offer mature standards, selective disclosure, and off-chain storage,
-making them well suited for scenarios where a trusted issuer exists
-and credentials are presented bilaterally (e.g., university diplomas).
-We do not claim that VCs are unworkable here: a VC could itself be anchored on chain,
-by recording a credential hash or a status entry, so that verification does not depend
-on the issuer still answering. Rather, our reasons for
-choosing on-chain SBTs are ergonomic and pertain to requirements R4 (portability)
-and R5 (minimal friction): SBTs provide a \emph{naturally aggregatable} portfolio---all
-credentials accumulate at a single address and are queryable in one call---whereas
-the standard VC model requires the holder to store, manage, and selectively present
-individual credentials from a personal wallet, and verification typically routes
-through the issuer's published key or a status registry that the issuer maintains.
-For a low-friction, holder-passive experience aimed at non-technical animators,
-the address-as-portfolio model is a better fit. Kang and Lemieux build the fuller version of that stack: decentralised
-identifiers and verifiable credentials with encryption and usage control, so that
-a data subject licenses access and the licence itself constrains secondary
-use~\cite{kang2021ssi}. The contrast is instructive. Theirs is a general
-mechanism for governing what may be done with data a subject controls; ours is a
-narrow attestation that a discrete piece of work was accepted, which the animator
-wants read as widely as possible. Usage control is the wrong tool for a credential
-whose value is its publicity. SBTs and VCs are not mutually exclusive. A VC-compliant wrapper over the same metadata
-would add interoperability, and a per-attribute disclosure scheme of the kind the VC
+W3C Verifiable Credentials~\cite{sporny2022vc}, the credential layer of the
+self-sovereign identity stack M{\"u}hle et al.\ survey~\cite{muhle2018ssi}, are the
+obvious alternative: mature, capable of selective disclosure, stored off chain, and
+suited to a durable issuer presenting credentials bilaterally. They are not
+unworkable here, and a VC anchored on chain by a hash or a status entry would not
+depend on the issuer still answering. Our reason for choosing SBTs is ergonomic and
+concerns R4 and R5. Certificates accumulate at one address and are queryable in one
+call, where the VC model asks the holder to store, manage and present each credential
+and routes verification through the issuer's key or a status registry the issuer
+maintains. For a holder-passive experience aimed at non-technical animators, the
+address is the portfolio.
+
+Kang and Lemieux build the fuller version of that stack, adding encryption and usage
+control so that a data subject licenses access and the licence itself constrains
+secondary use~\cite{kang2021ssi}. The contrast is instructive: theirs governs what may
+be done with data a subject controls, ours is a narrow attestation the animator wants
+read as widely as possible, and usage control is the wrong tool for a credential whose
+value is its publicity. The two families are not exclusive. A VC wrapper over the same
+metadata would add interoperability, and per-attribute disclosure of the kind the VC
 ecosystem supports would be finer than the commitment of \cref{subsec:privacy}, which
-reveals the holder's name in full or not at all. Nothing in the design forecloses
-either.
+reveals the name in full or not at all.
 
 \textbf{Why a bespoke contract rather than a general attestation service or a
 signed log?}
-Two lighter alternatives deserve an answer. A generic on-chain attestation
-registry such as the Ethereum Attestation Service~\cite{eas} could carry these attestations
-without a custom contract, and we regard it as a viable substrate---the co-signing
-design of \cref{subsec:cosigning} could be expressed as EAS attestations. We chose
-a dedicated ERC-721 contract because it bundles soulbound semantics, role-gated
-issuance and role-gated co-signing into one auditable unit that depends on no
-external registry's schema or continued operation, and because a non-transferable
-token gives the portfolio-as-balance ergonomic natively where a raw attestation
-does not. Those are arguments from self-containment, not from technical
-superiority.
+A generic on-chain attestation registry such as the Ethereum Attestation
+Service~\cite{eas} could carry these attestations without a custom contract, and is a
+viable substrate: the co-signing design of \cref{subsec:cosigning} could be expressed
+as EAS attestations. We chose a dedicated ERC-721 contract because it bundles
+soulbound semantics, role-gated issuance and role-gated co-signing into one auditable
+unit depending on no external registry's schema or continued operation, and because a
+non-transferable token gives the portfolio-as-balance ergonomic natively. Those are
+arguments from self-containment, not from technical superiority.
 
-A third alternative questions the binary itself. Wang et al.\ propose bounded
-rather than prohibited transfer, standardised as a limited transfer count, arguing
-that the choice between freely tradable and permanently bound is
-artificial~\cite{wang2026counted}. For a credential of this kind we think the
-binary is the right one: a work record that can change hands even a fixed number
-of times is a record of whose account holds it, not of who did the work, and the
-property the animator needs is precisely that it cannot be sold when they are
-short of money.
+Wang et al.\ question the binary itself, proposing bounded rather than prohibited
+transfer as a limited transfer count~\cite{wang2026counted}. For a credential of this
+kind the binary is right: a work record that can change hands even a fixed number of
+times records whose account holds it, not who did the work, and what the animator
+needs is precisely that it cannot be sold when they are short of money.
 
-One could also forgo the chain entirely and publish a signed append-only log, in
-the manner of certificate transparency. That achieves tamper-evidence more
-cheaply, and it fails on the requirement that matters here: verification depends
-on the operator continuing to serve the log and its key, whereas a public-chain
-record is checkable through any node whether or not the issuer still exists. For
-integrity alone the signed log is the lighter and better answer; for persistence
-beyond the issuer, it is not an answer.
+One could also forgo the chain and publish a signed append-only log, as certificate
+transparency does. That achieves tamper-evidence more cheaply and fails on the
+requirement that matters here: verification depends on the operator continuing to
+serve the log and its key, where a public-chain record is checkable through any node
+whether or not the issuer exists. For integrity alone the signed log is the better
+answer; for persistence beyond the issuer it is not an answer at all.
 
 % ----- 4.2 SBT Metadata Schema -----
 \subsection{SBT Metadata Schema}
 \label{subsec:metadata}
 
-Each AnimatorSBT encodes a structured record of a single project contribution.
-The metadata follows a JSON schema stored on IPFS~\cite{benet2014ipfs}, which
-addresses content by a hash of itself rather than by location, with that hash
-referenced from the on-chain token URI. \Cref{tab:metadata} defines the schema.
+Each certificate records one project contribution. The metadata is a JSON document
+on IPFS~\cite{benet2014ipfs}, which addresses content by a hash of itself rather than
+by location, and the on-chain token URI carries that hash. \Cref{tab:metadata} defines
+the schema.
 
 \begin{table}[ht]
 \centering
@@ -147,36 +130,33 @@ contribution data is stored under an \texttt{attributes} object.}
 \end{tabular}
 \end{table}
 
-Storing the record itself on chain was never an option at this size, and the
-alternatives for binding off-chain data to a ledger have been compared before:
-Sward et al.\ survey the methods and their costs and permanence
-trade-offs~\cite{sward2018insertion}. We take the cheapest of them---anchor a hash,
-keep the content elsewhere---and \cref{sec:evaluation} shows where the cost then
-lands instead.
+Storing the record on chain was never an option at this size. Sward et al.\ survey
+the alternatives for binding off-chain data to a ledger, with their cost and permanence
+trade-offs~\cite{sward2018insertion}; we take the cheapest, anchoring a hash and
+keeping the content elsewhere, and \cref{sec:evaluation} shows where the cost lands
+instead.
 
-Two fields carry the design rather than the data. \texttt{evidence\_hash} links
-the certificate to the work log it was built from, so a verifier can check
-correspondence without being shown the log; \cref{subsec:verification} sets out
-how little that establishes. \texttt{studio\_name} is nullable, which matters more
-than it appears: a certificate with no named counterparty has nobody who could
-co-sign it, so the privacy affordance is available exactly on the confidential,
-high-value productions where third-party verification would be worth most. The
-trade-off is real and we do not design it away.
+Two fields carry the design rather than the data. \texttt{evidence\_hash} links the
+certificate to the work log it was built from, so a verifier can check correspondence
+without being shown the log; \cref{subsec:verification} sets out how little that
+establishes. \texttt{studio\_name} is nullable, and the consequence is sharper than it
+looks: a certificate with no named counterparty has nobody who could co-sign it, so the
+privacy affordance is available exactly on the confidential, high-value productions
+where third-party verification would be worth most.
 
 % ----- 4.3 Issuance Flow -----
 \subsection{Issuance Flow}
 \label{subsec:flow}
 
-Issuance is automatic after the animator's ordinary work. They record cut
-assignments, status changes and completion times in the management client as they
-already do. At a milestone---delivery of an episode, or a request from the
-animator---the client asks the issuance service to certify the period. The service
-aggregates the relevant log entries, computes the evidence hash over their
-canonical serialisation (\cref{subsec:canonical}), pins the metadata, and calls
-\texttt{mint()} with the animator's address and the resulting URI. The animator
-sees a certificate appear. In the production design the issuance service sponsors
-gas through a meta-transaction relayer, so the animator neither holds tokens nor
-signs a transaction; the prototype pays gas directly from an operational wallet.
+Issuance follows the animator's ordinary work. They record cut assignments, status
+changes and completion times in the management client as they already do. At a
+milestone---delivery of an episode, or a request from the animator---the client asks
+the issuance service to certify the period. The service aggregates the relevant log
+entries, computes the evidence hash over their canonical serialisation
+(\cref{subsec:canonical}), pins the metadata, and calls \texttt{mint()} with the
+animator's address and the resulting URI. A certificate appears. In the production
+design a meta-transaction relayer sponsors gas, so the animator neither holds tokens
+nor signs a transaction; the prototype pays gas from an operational wallet.
 
 The resulting record is narrower than it looks. Suppose a key animator is assigned
 25 cuts for an episode through a secondary subcontractor, works ten weeks, and is
@@ -199,34 +179,32 @@ evidence that the holder is who it was issued to. A portal renders the resulting
 portfolio and can recompute the evidence hash, with the animator's consent,
 against the work log the certificate was built from.
 
-What that recomputation establishes is narrow enough to be worth stating exactly.
-Recomputed from the pinned metadata alone, the hash detects whether the file
-changed after minting---and nothing more, because the issuer authored both the
-attributes and the hash over them. Compared against the animator's own local log
-it is stronger, tying the certificate to a contemporaneous record, but it
-establishes integrity rather than authenticity: the log is self-reported, so a
-match shows the certificate agrees with what was claimed, not with what was done.
-That comparison is also fragile, requiring consent and the survival of local data
-on a device. Authenticity is the co-signature's job (\cref{subsec:cosigning}), and
-anchoring on an accepted order (\cref{subsec:integration}) is what gives the
-co-signature something already determined to sign.
+What that recomputation establishes is narrow. From the pinned metadata alone the
+hash detects whether the file changed after minting and nothing more, because the
+issuer authored both the attributes and the hash over them. Against the animator's own
+local log it is stronger, tying the certificate to a contemporaneous record, but still
+integrity rather than authenticity: the log is self-reported, so a match shows the
+certificate agrees with what was claimed, not with what was done. It is also fragile,
+requiring consent and the survival of local data on a device. Authenticity is the
+co-signature's job (\cref{subsec:cosigning}), and anchoring on an accepted order
+(\cref{subsec:integration}) is what gives the co-signature something already
+determined to sign.
 
 % ----- 4.5 Privacy Considerations -----
 \subsection{Privacy Considerations}
 \label{subsec:privacy}
 
-Privacy in this design turns on a question the schema got wrong: what has to be
-published for a certificate to be useful.
+Privacy here turns on a question the schema got wrong: what has to be published for
+a certificate to be useful.
 
-The prototype stored an \texttt{animator\_name} field in cleartext on public IPFS,
-which was indefensible and is no longer the default. Writing a name to permanent,
-content-addressed storage that an on-chain record points at is not something a
-revocation flag undoes, and replacing the name with a bare hash of it does not by
-itself help. The Article~29 Working Party treats hashing as pseudonymisation rather
-than anonymisation, and notes that where the range of inputs is known they can be
-replayed through the function to find which one produced a given
-digest~\cite{art29wp2014anonymisation}; Finck applies that reasoning to ledgers
-specifically, concluding that hashed data on a chain remains personal
+The prototype stored \texttt{animator\_name} in cleartext on public IPFS, which was
+indefensible and is no longer the default. A revocation flag does not undo writing a
+name to permanent, content-addressed storage that an on-chain record points at, and
+replacing the name with a bare hash does not help either. The Article~29 Working Party
+treats hashing as pseudonymisation rather than anonymisation, and notes that a known
+range of inputs can be replayed through the function to find which one produced a given
+digest~\cite{art29wp2014anonymisation}; Finck applies that reasoning to ledgers,
+concluding that hashed data on a chain remains personal
 data~\cite{finck2018blockchains,finck2019stoa}. The set of names in one industry is
 small enough for the replay to be practical.
 
@@ -248,57 +226,50 @@ portfolio a portfolio; distinct salts mean the digests add nothing to that. The
 holder can therefore decide what an address is worth revealing about them, rather
 than having each certificate publish the answer independently.
 
-This is not zero knowledge, and we do not claim it is: the holder reveals the name
-in full to whoever they choose to show it to. What changes is who performs the
-disclosure and how often. It becomes an act the holder repeats per verifier
-instead of a publication the issuer performs once, permanently, for everyone. Ten
-tests cover the construction, including that a substituted name fails against the
-same certificate and that altered public attributes fail against a valid
-disclosure.
+This is not zero knowledge: the holder reveals the name in full to whoever they
+choose to show it to. What changes is who discloses, and how often. Disclosure becomes
+an act the holder repeats per verifier instead of a publication the issuer performs
+once, permanently, for everyone. Ten tests cover the construction, including that a
+substituted name and that altered public attributes both fail against a valid
+certificate.
 
-What this does not fix is inference. Role, volume, period and a co-signing studio
-may identify someone in a small industry whether or not the name is published, so
-we do not claim the published record is anonymous. The industry's own convention
-already points the same way: the state's model contract
-provides for crediting under a stage or pen name rather than a legal
-one~\cite{bunka2024model}, so a certificate that carries a professional identity
-and not a legal one is behaving like a credit rather than departing from one.
+What this does not fix is inference. Role, volume, period and a co-signing studio may
+identify someone in a small industry whether or not the name is published, so we do not
+claim the published record is anonymous. The industry's own convention points the same
+way: the state's model contract provides for crediting under a stage or pen name rather
+than a legal one~\cite{bunka2024model}, so a certificate carrying a professional
+identity behaves like a credit rather than departing from one.
 
-This is also where we part company with the direction the recent literature has
-taken. Lyu et al.\ bind a soulbound token to an identity engine that spawns
-per-service child identities, precisely so that verifiers cannot link a holder's
-credentials to one another~\cite{lyu2026ssi}. That is the right goal for
-credentials presented bilaterally and the wrong one here. A portfolio is valuable
-because its entries gather at one identity; severing that link would remove the
-property the animator needs, which is why our construction hides the name and
-keeps the address rather than the reverse. Zero-knowledge
-techniques have a place in this design, but at the level of attributes rather
-than holders---proving that an animator has completed some volume of work across
-some number of productions without naming them (\cref{subsec:trust})---not in
-severing the link that makes a career record a record.
+Here we part company with the recent literature. Lyu et al.\ bind a soulbound token to
+an identity engine spawning per-service child identities, precisely so that verifiers
+cannot link a holder's credentials to one another~\cite{lyu2026ssi}. That is the right
+goal for credentials presented bilaterally and the wrong one here. A portfolio is
+valuable because its entries gather at one identity, and severing that link would remove
+the property the animator needs, which is why we hide the name and keep the address
+rather than the reverse. Zero-knowledge techniques belong in this design at the level of
+attributes rather than holders---proving a volume of work across a number of productions
+without naming them (\cref{subsec:trust})---not in severing the link that makes a career
+record a record.
 
-Beyond the naming question, three smaller measures apply. Only the token
-identifier, owner address and metadata URI go on chain. Fields covered by a
-non-disclosure agreement, such as the studio and the production title, can be
-omitted while still certifying role and volume, at the cost discussed in
-\cref{subsec:adoption_barriers}. And account abstraction keeps animators from
-handling private keys directly.
+Three smaller measures apply beyond the naming question. Only the token identifier,
+owner address and metadata URI go on chain. Fields covered by a non-disclosure
+agreement, such as the studio and the production title, can be omitted while still
+certifying role and volume, at the cost discussed in \cref{subsec:adoption_barriers}.
+And account abstraction keeps animators from handling private keys.
 
-Erasure is the one we cannot engineer around. \texttt{revoke()} sets a flag; it
-does not burn the token or clear its URI, because preserving the audit trail is
-the point of putting the record on a chain in the first place. A revoked token
-stays queryable and its URI still resolves. Erasing the content means unpinning
-the metadata, which makes it unreachable through public gateways but not gone:
-anyone who kept a copy can re-pin it, and the token, its timestamp and the
-revocation record persist regardless. Encrypting the metadata and discarding the
-key would give a genuine erasure path, and we did not implement it. The wall is the
-same one the legal literature reaches: Finck's study for the European Parliament puts
-the append-only ledger against Articles~16 and~17 of the GDPR and finds the tension
-fundamental rather than incidental, since the property that makes modification
-onerous is the property the design is chosen
-for~\cite{finck2019stoa}. We therefore
-claim a partial, best-effort capability rather than a right to be forgotten, and
-treat the tension with the Act on the Protection of Personal Information as
+Erasure we cannot engineer around. \texttt{revoke()} sets a flag rather than burning
+the token or clearing its URI, because preserving the audit trail is the point of
+putting the record on a chain at all, so a revoked token stays queryable and its URI
+still resolves. Erasing the content means unpinning the metadata, which makes it
+unreachable through public gateways but not gone: anyone who kept a copy can re-pin it,
+and the token, its timestamp and the revocation record persist regardless. Encrypting
+the metadata and discarding the key would give a genuine erasure path, and we did not
+implement it. The legal literature reaches the same wall. Finck's study for the European
+Parliament puts the append-only ledger against Articles~16 and~17 of the GDPR and finds
+the tension fundamental rather than incidental, since the property that makes
+modification onerous is the property the design is chosen for~\cite{finck2019stoa}. We
+therefore claim a partial, best-effort capability rather than a right to be forgotten,
+and treat the tension with the Act on the Protection of Personal Information as
 unresolved (\cref{subsec:legal}).
 
 % ----- 4.6 Co-signing / Attestation Design -----
@@ -310,18 +281,16 @@ portable, and none of it makes the record true. This subsection designs the laye
 that would, and implements it far enough to measure.
 
 \paragraph{What a credential is worth depends on who signed it.}
-A self-attested certificate, minted from the animator's own log, establishes
-existence, integrity and a timestamp: more than an unverifiable claim, less than
-an authenticated one. A studio-attested certificate, countersigned by the party
-that accepted the work, is the level a hiring verifier can actually weigh. A
-middle level is conceivable---co-workers on the same production endorsing a
-claim, a social signal short of an institutional one---but we have not built it,
-and the contract's \texttt{attestationLevel} is accordingly binary rather than
-graded. A verifier should read the level, not just the token.
+A self-attested certificate, minted from the animator's own log, establishes existence,
+integrity and a timestamp: more than an unverifiable claim, less than an authenticated
+one. A studio-attested certificate, countersigned by the party that accepted the work,
+is the level a hiring verifier can weigh. A middle level is conceivable---co-workers on
+the same production endorsing a claim, a social signal short of an institutional
+one---but we have not built it, so the contract's \texttt{attestationLevel} is binary
+rather than graded. A verifier should read the level, not just the token.
 
 \paragraph{Reference implementation.}
-The realization reuses the contract's existing role-based access control
-(\cref{subsec:contract}). \texttt{AnimatorSBTV2} adds a
+This reuses the contract's role-based access control (\cref{subsec:contract}). \texttt{AnimatorSBTV2} adds a
 \texttt{STUDIO\_ATTESTER\_ROLE} and the function
 \texttt{coSign(uint256 tokenId)}, which records an attestation by
 \texttt{msg.sender} against an existing token and emits \texttt{SBTCoSigned}.
@@ -344,17 +313,16 @@ authenticity and exists only to exercise the mechanism end to end. Second, even 
 a distinct attester wallet, nothing \emph{on-chain} binds \texttt{STUDIO\_ATTESTER\_ROLE}
 to a verified legal studio: the admin (TOONIQ) decides who is treated as a studio, so
 co-signing shifts the root of trust from the animator's self-report to TOONIQ's
-off-chain vetting of attesters rather than removing trust. The second gap has been attacked directly elsewhere. Lauinger et al.\ let a holder
-verify that a credential issuer was itself legitimately authorised, using an
-accumulator and a zero-knowledge proof rather than a named
-administrator~\cite{lauinger2021apoa}. That is the cryptographic form of what we
-do administratively, and it is the direction a deployment ought to take; we do not
-adopt it here because our attester set is small enough to name and because doing
-so would add machinery to a mechanism we have not yet operated at all. Closing
-both gaps---an independent attester operated by a real studio, with an auditable
-identity binding---is what would convert a co-signed record from
-\emph{operator-attested} to \emph{independently authenticated}
-(\cref{sec:conclusion}). Until then the honest description of what this paper
-contributes is a tamper-evident, portable contribution ledger the holder controls,
-together with a tested reference implementation of the authenticity layer whose
-independent operation would make it a credential.
+off-chain vetting rather than removing trust. The second gap has been attacked
+directly: Lauinger et al.\ let a holder verify that a credential issuer was itself
+legitimately authorised, using an accumulator and a zero-knowledge proof rather than a
+named administrator~\cite{lauinger2021apoa}. That is the cryptographic form of what we
+do administratively and the direction a deployment ought to take; we do not adopt it
+because our attester set is small enough to name, and because it would add machinery to
+a mechanism we have not operated at all. Closing both gaps---an independent attester
+operated by a real studio, with an auditable identity binding---is what would convert a
+co-signed record from \emph{operator-attested} to \emph{independently authenticated}
+(\cref{sec:conclusion}). Until then what this paper contributes is a tamper-evident,
+portable contribution ledger the holder controls, together with a tested reference
+implementation of the authenticity layer whose independent operation would make it a
+credential.
