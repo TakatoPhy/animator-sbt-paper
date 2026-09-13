@@ -1,7 +1,7 @@
 # Cover Letter
 
 Takato Oki
-TOONIQ LLC, Tokyo
+TOONIQ LLC, Tokyo, and Tokyo University of Science
 oki@tooniq.co.jp
 2026-09-13
 
@@ -31,9 +31,9 @@ exists — the WGA's exclusive authority over screen credit, backed by an
 agreement binding employers to its arbitration — attribution is reliable,
 but that combination is rare, and the WGA itself later added a second,
 non-adjudicated credit because arbitration concentrates recognition on a
-few names. Japanese animation has none of the three: 47.3% of animation
-creators were self-employed or freelance in 2023, no body holds craft
-jurisdiction over crediting, and the government's own model contract for
+few names. Japanese animation has none of the three: 37.0% of animation
+creators described themselves as freelance or self-employed in JAniCA's 2026
+survey, no body holds craft jurisdiction over crediting, and the government's own model contract for
 freelance animators has the animator waive the moral right to be named and
 leaves crediting to the studio's discretion. This paper specifies and
 measures a certification framework there; animation is where the
@@ -58,8 +58,8 @@ already-occurring commercial event rather than self-report or standing
 arbitration, is not particular to any one of them.
 
 **Status.** The v1 contract is deployed on the Polygon Amoy testnet only.
-The co-signing authenticity layer (v2) is implemented and tested (60
-tests) but has not been operated with an independent studio attester, so
+The co-signing authenticity layer (v2) is implemented and tested (70 tests
+pass in total) but has not been operated with an independent studio attester, so
 the issuer currently also holds the attester role. No certificates have
 been issued from production data; these are open problems, not solved
 ones.
