@@ -85,8 +85,8 @@ Ledger投稿の準備として、`references.bib` の全37件と本文の数値�
 |---|---|---|---|
 | `revolidis2025justice` | §4.5 | 「不変な記録とEU法の消去・訂正義務の衝突」の出典として引用していたが、**この論文はEU送達規則下の裁判書類の送達についてのもの**。GDPR・消去・訂正の語は一度も現れず、immutable の唯一の用例は証拠的信頼性という肯定的な文脈 | §4.5の出典を `finck2019stoa` に差し替え。この論文自体は§7.4の一般化の議論に、実際の内容（司法上の行為を台帳に載せ、不変性を手続的信頼性として評価する先例）で引用し直した |
 | `finck2018blockchains` | §4.5, §7.3 | 「入力空間が小さければ探索できるのでハッシュも個人データであり続ける」という**機構**をこの論文に帰していたが、論文pp.22--23の論証は第29条作業部会の「ハッシュは仮名化であって匿名化ではない」という筋で、総当たりの議論は含まれない | 機構の出典を `art29wp2014anonymisation`（WP216, 既知の入力範囲はリプレイ可能と明記）と `finck2019stoa`（§3.4.2で総当たりを自身の例で説明）に移した。2018年論文は実際の主張（仮名化）に対してのみ引用 |
-| `ristola2017blood` | §2.2 | 「動画1枚約¥200」「1枚に1時間以上」の両方をこの文献に帰していたが、**全文検索でどちらの数値も存在しない** | 第3次調査の結果待ち（JAniCA調査の自由記述に¥220の記述があるとの指摘あり）。裏づけが取れなければ両数値を削除 |
-| `nafca2024survey` | §2.2 | 「全国平均162.3時間」「最低賃金全国平均¥1,004」をNAFCA調査に帰していたが、**どちらもNAFCA報告書に存在しない**。前者は厚労省毎月勤労統計、後者は地域別最低賃金の全国加重平均 | 第3次調査の結果待ち。厚労省を別出典として立てる |
+| `ristola2017blood` | §2.2 | 「動画1枚約¥200」「1枚に1時間以上」の両方をこの文献に帰していたが、**全文検索でどちらの数値も存在しない** | **解決済み。** JAniCA調査の自由記述（2023波p.100の¥220、2026波PDF p.156の¥200）に出典を移し「個人の証言であって調査統計ではない」と明示。時間の主張は裏づけがないため削除 |
+| `nafca2024survey` | §2.2 | 「全国平均162.3時間」「最低賃金全国平均¥1,004」をNAFCA調査に帰していたが、**どちらもNAFCA報告書に存在しない**。前者は厚労省毎月勤労統計、後者は地域別最低賃金の全国加重平均 | **解決済み。** 厚労省の配布xlsxを直接開いて確認し `mhlw2024monthly`（令和5年度 163.0時間）と `mhlw2025minwage`（¥1,004＝令和5年度）を新設。162.3は令和4年の値だったため163.0に訂正 |
 | `condry2013soul` | §2.1 | 「多数の専門職が複数スタジオに分散するパイプライン」の出典としていたが、同書は産業横断的な協働的創造性とファン／作者関係のエスノグラフィで、制作内部の多層下請構造を扱っていない | 当該文からは削除。他に正確な使用箇所がなかったため引用自体を落とし、パイプライン構造は `matsunaga2025labor` とサーベイ論文に差し替え |
 | 本文の「~5,500人」 | §6.1 | 費用シミュレーションの全シナリオを駆動する母数を「JAniCA 2023調査ベース」としていたが、**同調査の有効回答は429件で、母集団推計は不可能と明記されている**。`cost_simulation.py` のコメントも同じ誤り | 第3次調査の結果待ち。権威ある人数推計が存在しなければシナリオ仮定として明示し、表が証書数に線形であることを述べる |
 
@@ -147,6 +147,50 @@ Ledger投稿の準備として、`references.bib` の全37件と本文の数値�
 **復活させる条件**: 木村の単行本を現物で確認して頁を付けられる場合、または Pruvost-Delaspre の2023年 *Mechademia: Second Arc* 16(2) 論文（東映動画における「演出」クレジットの発明を扱うもの。Project MUSEで有料）を読める場合。後者はタイトルからしてクレジット管轄の論点に直接触れている可能性がある。
 
 同じ段落にあった「同じ作品の実演家は協同組合として労働協約を持つ」（日俳連を指す記述）も出典がないため削除した。
+
+---
+
+### G-7. 引用を外した3件の書誌レコード（復活用に保存）
+
+本文から引用されなくなったため `references.bib` から削除した。書誌情報自体は確認済みなので、復活させる場合はこれをそのまま戻せばよい。`kimura2020toei` は G-6 の条件（現物確認）を満たせば戻す候補。
+
+```bibtex
+@book{kimura2020toei,
+  title={T{\=o}ei d{\=o}ga shiron: keiei to s{\=o}z{\=o} no teiry{\=u}
+         [A History of Toei Animation: Undercurrents of Management and Creation]},
+  author={Kimura, Tomoya},
+  publisher={Nippon Hyoron Sha},
+  year={2020},
+  isbn={978-4-535-55963-9},
+  note={In Japanese}
+}
+
+@book{condry2013soul,
+  title={The Soul of Anime: Collaborative Creativity and {Japan's} Media Success Story},
+  author={Condry, Ian},
+  year={2013},
+  publisher={Duke University Press},
+  series={Experimental Futures: Technological Lives, Scientific Arts, Anthropological Voices},
+  isbn={978-0-8223-5394-2},
+  doi={10.1215/9780822397557},
+  url={https://doi.org/10.1215/9780822397557}
+}
+
+@inproceedings{ristola2017blood,
+  title={Blood, Sweat, Ink, and Tears: Exploitation of Labour in the {Japanese} Animation Industry},
+  author={Ristola, Jacqueline},
+  booktitle={Symposium Proceedings: {GLRC} Graduate Student Symposium 2016},
+  editor={Thomas, Mark P. and House, Jordan and March, Loren},
+  pages={85--93},
+  year={2017},
+  month={sep},
+  publisher={Global Labour Research Centre, York University},
+  doi={10.17613/M6481H},
+  url={https://doi.org/10.17613/M6481H}
+}
+```
+
+`condry2013soul`（パイプライン構造を支持しない）と `ristola2017blood`（引用していた2つの数値が本文に存在しない）は復活の予定なし。
 
 ---
 
