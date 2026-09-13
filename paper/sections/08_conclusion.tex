@@ -1,58 +1,53 @@
 % Conclusion and Future Work
 
 This paper presented AnimatorSBT, a contribution certification framework built on
-non-transferable tokens, and used the Japanese anime industry as the setting in
-which to specify and cost it. We formalised the contribution invisibility problem
-as the gap between the set of actual contributors and the set of credited ones,
-derived five requirements from it, and showed why the institutional route that
-resolved the same problem in film and television is unavailable where no body
-holds craft jurisdiction.
+non-transferable tokens, and used Japanese animation as the setting in which to specify
+and cost it. We formalised the contribution invisibility problem as the gap between actual
+and credited contributors, derived five requirements from it, and showed why the
+institutional route that resolved the same problem in film and television is unavailable
+where no body holds craft jurisdiction.
 
-What the prototype establishes is feasibility and cost structure, not adoption. A
-soulbound contract is deployed on a public testnet with an issuance service and a
-verification portal; the studio co-signing layer and a deterministic evidence-hash
-serialisation are implemented as tested reference components (70 passing tests)
-but are not operated with independent studio attesters. Two claims therefore
-remain open, and we have kept them open throughout rather than at the end:
-verifiability extends to integrity and existence but not to authenticity, because
-in a single-operator configuration the issuer also holds the attester role; and
-the portability and minimal-friction claims rest on wallet abstraction that is
-designed but not built.
+The prototype establishes feasibility and cost structure, not adoption. A soulbound
+contract is deployed on a public testnet with an issuance service and a verification
+portal, and the studio co-signing layer and a deterministic evidence-hash serialisation
+are implemented as tested reference components, 70 tests passing, but are not operated
+with independent studio attesters. Two claims therefore remain open, as they have
+throughout: verifiability extends to integrity and existence but not to authenticity,
+because in a single-operator configuration the issuer also holds the attester role; and
+portability and minimal friction rest on wallet abstraction that is designed but not
+built.
 
-The cost result is the one that generalises. On-chain issuance is not the
-constraint---a certificate costs on the order of a tenth of a cent, and the
-per-certificate figure is governed less by the contract's logic than by the length
-of the metadata pointer it stores. The binding cost is a flat off-chain pinning
-subscription, which is also the component that reintroduces a dependency on a
-single operator continuing to pay. Any design that anchors credentials on chain
-and stores their content off it inherits this shape, so reporting a
-per-certificate on-chain cost without stating the storage arrangement understates
-the problem.
+The cost result generalises. On-chain issuance is not the constraint: a certificate costs
+on the order of a tenth of a cent, and that figure is governed less by the contract's logic
+than by the length of the metadata pointer it stores. The binding cost is a flat off-chain
+pinning subscription, which is also what reintroduces a dependency on a single operator
+continuing to pay. Any design that anchors credentials on chain and stores their content
+off it inherits this shape, so a per-certificate on-chain cost reported without the storage
+arrangement understates the problem.
 
 Three directions follow. The first and most important is empirical: a study with
-animators and with studios, measuring whether recipients can state what the
-credential does and does not prove, and whether studios will co-sign given the
-transparency it imposes on them. The gap itself is also measurable without any of
-this machinery---counting the contributors a production-management system records
-against the names its episode's credits carry would give a first estimate of how
-many people the credits omit, which no published source currently provides. The second is to operate the co-signing protocol
-with independent, identity-bound attesters, which is the only thing that converts
-the authenticity caveat above into a result; we regard the incentive question---why
-a studio would attest---as the harder half. The third is to test the framing
-outside animation, in the other project-based creative industries where
-multi-layer subcontracting, capped credits and the disappearance of the producing
+animators and studios, measuring whether recipients can state what the credential does and
+does not prove, and whether studios will co-sign given the transparency it imposes on
+them. The gap itself is measurable without any of this machinery, by counting the
+contributors a production-management system records against the names its episode's
+credits carry---a first estimate of how many people the credits omit, which no published
+source provides. The second is to operate the co-signing protocol with independent,
+identity-bound attesters, the only thing that converts the authenticity caveat into a
+result; the incentive question, why a studio would attest, is the harder half. The third
+is to test the framing outside animation, in the other project-based creative industries
+where multi-layer subcontracting, capped credits and the disappearance of the producing
 organisation recur.
 
 One limit is worth stating without qualification. Kellogg et al.\ survey how
 algorithmic instruments introduced into workplaces restructure evaluation and control,
 and treat the result as contested terrain in which workers organise against those
 instruments rather than being handed power by them~\cite{kellogg2020algorithms}.
-Nothing here escapes that, and nothing here is a substitute for the organising. A verifiable record of what an animator did does not
-change the rate paid for the next cut, the terms on which it is commissioned, or
-who decides whether there is more work. It removes one specific disadvantage---the
-inability to show what you have done---and leaves the rest of the bargaining
-position where it was. We think that disadvantage is worth removing on its own
-terms; we do not think removing it is a labour remedy.
+Nothing here escapes that, and nothing here substitutes for the organising. A verifiable
+record of what an animator did does not change the rate paid for the next cut, the terms on
+which it is commissioned, or who decides whether there is more work. It removes one
+disadvantage, the inability to show what you have done, and leaves the rest of the
+bargaining position where it was. That disadvantage is worth removing on its own terms; we
+do not claim removing it is a labour remedy.
 
 The record these certificates would carry already exists. Production generates a
 per-cut, per-person trail as a byproduct of getting the work done. What is missing

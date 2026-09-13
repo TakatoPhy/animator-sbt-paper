@@ -137,59 +137,31 @@ token price and finds the conclusion unchanged.
 \subsection{Prototype Implementation}
 \label{subsec:prototype}
 
-To demonstrate technical feasibility and on-chain correctness, we implemented a
-prototype consisting of three components:
-the smart contract deployed on a public testnet, an Issuance Service, and a Verification Portal.
-
-\subsubsection{Testnet Deployment}
-
-The \texttt{AnimatorSBT} contract was deployed on the Polygon Amoy testnet
-(Chain ID: 80002) at address
-\hexid{0x2cC31B9EFBD5dDfB5456EE4c76A0fcBCA5EEE117}
-(block 35{,}058{,}633).\footnote{The deployment transaction and all subsequent
-interactions are publicly verifiable at
+The \texttt{AnimatorSBT} contract is deployed on the Polygon Amoy testnet (chain
+ID~80002) at \hexid{0x2cC31B9EFBD5dDfB5456EE4c76A0fcBCA5EEE117}, block
+35{,}058{,}633.\footnote{The deployment transaction and every subsequent interaction are
+publicly verifiable at
 \url{https://amoy.polygonscan.com/address/0x2cC31B9EFBD5dDfB5456EE4c76A0fcBCA5EEE117}.}
 Seventy unit tests pass: 35 against the deployed v1 contract, 17 against the v2
 co-signing reference contract, 7 against the canonical serialisation, 10 against the
-disclosure commitment of \cref{subsec:privacy}, and one local end-to-end issuance run.
-The suite exercises contract mechanics, which are the most standard part of the
-system, and one thing that is not: the evidence hash is computed over a
-recursively key-sorted serialisation, and seven of the tests confirm that it is
-independent of key insertion order, stable across runs, and sensitive to any value
-change. That closes a determinism gap in the earlier design, under which the same
-claim serialised differently produced different hashes. \Cref{subsec:eval_limitations}
-states what the suite does not reach.
+disclosure commitment of \cref{subsec:privacy}, and one local end-to-end run. The suite
+exercises contract mechanics, the most standard part of the system, and one thing that is
+not: seven tests confirm that the evidence hash over a recursively key-sorted
+serialisation is independent of key insertion order, stable across runs, and sensitive to
+any value change. That closes a determinism gap in the earlier design, under which the
+same claim serialised differently produced different hashes.
+\Cref{subsec:eval_limitations} states what the suite does not reach.
 
-An end-to-end demonstration of the Tanaka scenario
-(\cref{subsec:flow}) was executed on the testnet,
-successfully minting an SBT with IPFS-hosted metadata
-and verifying all on-chain state (balance, token URI, revocation status).
-
-\subsubsection{Issuance Service}
-
-A Node.js-based Issuance Service was implemented using ethers.js~v6
-and the Pinata SDK.
-The service performs the complete issuance workflow:
-(1)~constructing metadata JSON conforming to the schema in \cref{tab:metadata},
-(2)~computing the \texttt{evidence\_hash} (Keccak-256 of the serialized attributes),
-(3)~uploading the metadata to IPFS via Pinata,
-and (4)~calling \texttt{AnimatorSBT.mint()} with the resulting IPFS~URI.
-
-An end-to-end demonstration script recreates the Tanaka scenario
-described in \cref{subsec:flow}:
-a key animator completes 25~cuts on Episode~7, and the system
-issues an SBT recording the contribution with a verifiable evidence hash.
-
-\subsubsection{Verification Portal}
-
-A lightweight Verification Portal was implemented as a static HTML page
-using ethers.js (loaded from CDN), requiring no server-side infrastructure.
-The portal accepts a wallet address, queries the contract's \texttt{tokensOfOwner()}
-function, retrieves each SBT's metadata from IPFS,
-and displays the contribution details including project, role, task count, and dates.
-The portal also supports evidence hash verification by recomputing
-the Keccak-256 hash from the IPFS metadata and comparing it
-to the stored \texttt{evidence\_hash} field.
+Two components sit around the contract. The issuance service is a Node.js backend on
+ethers.js~v6 and the Pinata SDK: it builds metadata to the schema of
+\cref{tab:metadata}, computes the evidence hash, pins the metadata to IPFS, and calls
+\texttt{mint()} with the resulting URI. The verification portal is a static HTML page
+using ethers.js from a CDN and no server at all: given an address it queries
+\texttt{tokensOfOwner()}, fetches each certificate's metadata from IPFS, displays
+project, role, task count and dates, and recomputes the hash to compare against the
+stored field. The Tanaka scenario of \cref{subsec:flow}---a key animator completing 25
+cuts on an episode---runs end to end on the testnet, minting a certificate with
+IPFS-hosted metadata and verifying balance, token URI and revocation status on chain.
 
 \subsubsection{Co-signing Reference Contract and Canonical Hashing}
 \label{subsec:canonical}
@@ -204,16 +176,15 @@ attester role and an idempotent \texttt{coSign} taking the attester from
 what attestation level, and ERC-5192 \texttt{locked()} signalling. A co-signature
 costs 96{,}997~gas and the contract deploys for 2{,}058{,}959.
 
-The canonical serialisation module is the component that makes the evidence hash
-mean anything. \Cref{fig:canonical} shows what it buys, with the hashes the
-implementation produces. It is a dependency-light, recursively key-sorted JSON serialiser---a
-subset of JCS (RFC~8785)---over which \texttt{evidence\_hash} is computed, so that
-two parties assembling the same attributes in different key order arrive at the
-same hash and a verifier can tell a reordering from a change. Without it the hash
-fixes one serialisation of a claim rather than the claim, which was a gap in the
-earlier design. The issuance service extends the v1 flow with this hash and an
-optional co-signing step using a separate attester wallet, behind a
-wallet-provisioning seam that is currently an unconfigured skeleton.
+The canonical serialisation is what makes the evidence hash mean anything, and
+\Cref{fig:canonical} shows what it buys with the hashes the implementation produces. It is
+a dependency-light, recursively key-sorted JSON serialiser, a subset of JCS (RFC~8785),
+over which \texttt{evidence\_hash} is computed, so that two parties assembling the same
+attributes in different key order arrive at the same hash and a verifier can tell a
+reordering from a change. Without it the hash fixes one serialisation of a claim rather
+than the claim, which was a gap in the earlier design. The issuance service extends the v1
+flow with this hash and an optional co-signing step using a separate attester wallet,
+behind a wallet-provisioning seam that is an unconfigured skeleton.
 
 \begin{figure*}[t]
   \centering
@@ -229,37 +200,33 @@ wallet-provisioning seam that is currently an unconfigured skeleton.
 \subsection{Integration and the Attestation Anchor}
 \label{subsec:integration}
 
-Where a certificate is anchored is a design choice, and it is the one that decides
-what a co-signature is worth. Anchoring on a self-reported work log means the
-studio, asked to countersign, must review work and reach a judgment it had not
-otherwise recorded. Anchoring on an accepted order means it has already reached
-that judgment: taking delivery of a set of cuts and paying for them is a
-determination about who did the work, made for commercial reasons and recorded in
-a system the studio keeps for its own purposes. A certificate issued per accepted
-order, keyed on the order identifier, is idempotent by construction, and the
-co-signature of \cref{subsec:cosigning} then records a determination rather than
-soliciting one. We take the anchor, and not the token, to be the part of the design that carries
-the trust, and we argue it here on those grounds rather than demonstrating it.
+Where a certificate is anchored decides what a co-signature is worth. Anchoring on a
+self-reported work log means the studio, asked to countersign, must review the work and
+reach a judgment it had not otherwise recorded. Anchoring on an accepted order means it
+has already reached that judgment: taking delivery of a set of cuts and paying for them is
+a determination about who did the work, made for commercial reasons and recorded in a
+system the studio keeps for itself. A certificate issued per accepted order, keyed on the
+order identifier, is idempotent by construction, and the co-signature of
+\cref{subsec:cosigning} then records a determination rather than soliciting one. The
+anchor, not the token, is the part of the design that carries the trust, and we argue it
+here rather than demonstrating it.
 
 The pattern is not new, only newly applied. Triple-entry accounting adds a third,
-cryptographically verifiable entry witnessing a transaction that two parties have
-already recorded in their own books, and Sarwar et al.\ survey its blockchain
-implementations for business-to-business
-settlement~\cite{sarwar2023tea}. A certificate anchored to an accepted order is
-that third entry, with the transaction being the commissioning of work rather than
-the sale of goods, and the party the entry protects being the one whose name the
-books record but the credits do not. Reading the design this way also names what
-it inherits: a third entry is only as good as the two it witnesses, so a studio
-that mis-records who did the work produces a faithful certificate of a false
-premise.
+cryptographically verifiable entry witnessing a transaction two parties have already
+recorded in their own books, and Sarwar et al.\ survey its blockchain implementations for
+business-to-business settlement~\cite{sarwar2023tea}. A certificate anchored to an
+accepted order is that third entry, the transaction being the commissioning of work
+rather than the sale of goods, and the party it protects being the one whose name the
+books record but the credits do not. Reading it this way also names what it inherits: a
+third entry is only as good as the two it witnesses, so a studio that mis-records who did
+the work produces a faithful certificate of a false premise.
 
 The record the anchor needs is one the commissioning party is already obliged to keep.
-Article~7 of the statute governing payment to small and medium-sized contractors
-requires a commissioning party to create and retain for two years a per-transaction
-document recording, among sixteen enumerated items, the content of the work ordered,
-the date delivery was due and the date it was received, the completion date and result
-of any inspection together with the treatment of anything that failed it, and the fee
-with its due date and the date and means of
+Article~7 of the statute governing payment to small and medium-sized contractors requires
+that party to create and retain for two years a per-transaction document recording, among
+sixteen enumerated items, the content of the work ordered, the dates delivery was due and
+received, the completion date and result of any inspection with the treatment of anything
+that failed it, and the fee with its due date and the date and means of
 payment~\cite{meti2026animeguideline}.\footnote{Act No.~120 of 1956, renamed with
 effect from January 2026; the enumeration is Figure~33 of METI's guideline for this
 industry, at p.~48. The duty attaches to whoever places the order: the guideline states
@@ -269,14 +236,14 @@ anchor requires, held by the party whose determination a co-signature would reco
 design does not ask the industry to begin keeping a record. It asks that a record the
 law already compels be made durable in the worker's hands.
 
-The same enumeration shows why the gap it addresses exists. Nothing in the list requires
-the individual creator's name---the counterparty may be recorded by number or code---and
-neither that provision nor the Cabinet Office and Fair Trade Commission's 2026
-guidelines on transactions at anime production sites contain any provision on crediting
-or on moral rights~\cite{meti2026animeguideline,jftc2026shishin}. Regulation of this
-industry has become detailed about the terms on which work is commissioned while saying
-nothing about who is recorded as having done it. The data exists and is retained by
-legal compulsion; what no rule produces is an attribution the worker can carry.
+The same enumeration shows why the gap exists. Nothing in the list requires the
+individual creator's name---the counterparty may be recorded by number or code---and
+neither that provision nor the Cabinet Office and Fair Trade Commission's 2026 guidelines
+on transactions at anime production sites contains any provision on crediting or on moral
+rights~\cite{meti2026animeguideline,jftc2026shishin}. Regulation here has become detailed
+about the terms on which work is commissioned while saying nothing about who is recorded
+as having done it. The data exists and is retained by legal compulsion; what no rule
+produces is an attribution the worker can carry.
 
 Two consequences follow that a self-reported log does not raise. An accepted order
 can be adjusted afterwards---in Japanese practice through a correcting credit
@@ -286,13 +253,11 @@ underlying record changed. And the anchor presupposes a system the studio itself
 operates, which a tool holding an animator's data on their own device cannot be;
 the choice of anchor therefore constrains where such a system can live.
 
-We are precise about what is and is not evaluable here. The issuance service in
-the accompanying repository builds metadata from supplied attributes and is not
-keyed on an order, so the anchor described above is a design argument that the
-open artifact does not implement; what the repository demonstrates is the
-contract, the co-signing mechanism, the canonical hash and the costs. An
-order-keyed issuance path does exist behind a feature flag in a commercial
-production-management system, which establishes that the integration is
-constructible and nothing more. That system is not open source, no certificates
-have been issued from production data, and we exclude it from the evidence this
-paper rests on.
+What is evaluable here should be stated exactly. The issuance service in the
+accompanying repository builds metadata from supplied attributes and is not keyed on an
+order, so the anchor above is a design argument the open artifact does not implement; what
+the repository demonstrates is the contract, the co-signing mechanism, the canonical hash
+and the costs. An order-keyed issuance path exists behind a feature flag in a commercial
+production-management system, which establishes that the integration is constructible and
+nothing more. That system is not open source, no certificates have been issued from
+production data, and we exclude it from the evidence this paper rests on.

@@ -1,8 +1,7 @@
 % Problem Statement
 
-The anime production industry suffers from a systemic \textbf{contribution invisibility problem}:
-a significant portion of the creative labor that produces anime goes unrecorded,
-unattributed, and unverifiable.
+Anime production has a \textbf{contribution invisibility problem}: much of the creative
+labour that produces it goes unrecorded, unattributed and unverifiable.
 % ----- 3.1 The Credit Gap -----
 \subsection{The Credit Gap}
 \label{subsec:credit_gap}
@@ -61,20 +60,19 @@ This framing also sets the bar the rest of the paper has to clear. A signal
 separates types only if it is costly to send falsely. We return to whether a
 studio countersignature meets that condition in \cref{subsec:trust}.
 
-The consequences are ordinary and compounding. A freelancer seeking the next
-contract has to demonstrate a track record, and without credits that means verbal
-claims, personal networks, or samples nobody can independently attribute; a studio
-hiring them has no standard way to check. The same absence removes the evidence
-from fee negotiation: a key animator who delivered thirty cuts on a well-known
-production, uncredited, has nothing to point at. And because the record lives in
-colleagues' memories, it degrades when studios close---which they do---or when the
-people who remember move on.
+The consequences are ordinary and compounding. A freelancer seeking the next contract has
+to demonstrate a track record, and without credits that means verbal claims, personal
+networks or samples nobody can independently attribute, while the studio hiring them has
+no standard way to check. The same absence removes the evidence from fee negotiation: a
+key animator who delivered thirty cuts on a well-known production, uncredited, has nothing
+to point at. And because the record lives in colleagues' memories, it degrades when
+studios close, which they do, or when the people who remember move on.
 
-A weaker claim is sometimes made for records of this kind, and we want to be
-precise about not making it. Mortgage applications, visa procedures and credit
-assessments require documented \emph{income}, evidenced in Japan by tax returns
-and withholding statements. A contribution record attests to work performed, not
-to earnings, and no institution recognises an on-chain record for these purposes. We claim only that the absence of any verifiable
+A stronger claim is sometimes made for records of this kind, and we are not making it.
+Mortgage applications, visa procedures and credit assessments require documented
+\emph{income}, evidenced in Japan by tax returns and withholding statements. A
+contribution record attests to work performed, not earnings, and no institution recognises
+an on-chain record for these purposes. We claim only that the absence of any verifiable
 professional record is one component of animators' weak institutional standing.
 
 % ----- 3.3 Limitations of Existing Solutions -----
@@ -105,24 +103,20 @@ design in \cref{sec:framework} starts there rather than from a new data source.
 \subsection{Problem Formalization}
 \label{subsec:formalization}
 
-We define the contribution invisibility problem as follows.
-Let $A$ be the set of all animators who contributed to a production $P$.
-Let $C(P) \subseteq A$ be the set of animators credited in the official records of $P$.
-The \textbf{credit gap} is:
+Let $A$ be the set of animators who contributed to a production $P$, and
+$C(P) \subseteq A$ the set credited in its official records. The \textbf{credit gap} is:
 
 \begin{equation}
   \Delta(P) = A \setminus C(P)
   \label{eq:credit_gap}
 \end{equation}
 
-For any animator $a \in \Delta(P)$, there exists no verifiable, persistent,
-and portable record of their contribution to $P$.
-We use this definition conceptually rather than as a computed quantity:
-$\Delta(P)$ is not directly observable, since the uncredited set is by construction
-unrecorded. A practical future proxy would compare, for a sample of productions, the
-number of contributors recorded in a production-management tool against the names
-appearing in those productions' broadcast credits; we propose this as a future
-measurement and do not estimate $|\Delta(P)|$ here.
+For any animator $a \in \Delta(P)$ there is no verifiable, persistent, portable record of
+their contribution to $P$. The definition is conceptual rather than a computed quantity,
+since the uncredited set is by construction unrecorded. A practical proxy would compare,
+for a sample of productions, the contributors a production-management tool records against
+the names in those productions' broadcast credits; we propose that as future work and do
+not estimate $|\Delta(P)|$ here.
 
 An ideal solution should satisfy the following requirements:
 
