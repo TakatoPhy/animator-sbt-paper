@@ -1,9 +1,11 @@
 """
-AnimatorSBT Cost & Scale Simulation
+AnimatorSBT cost and scale simulation.
 
-Simulates annual operating costs for AnimatorSBT deployment
-across the Japanese anime industry using public statistics
-from JAniCA (2023) and NAFCA (2024).
+Models the annual operating cost of issuing contribution certificates across five
+adoption scenarios. Gas comes from gas_measurements.json, which is produced by
+executing the contracts; the workforce parameters come from the Association of
+Japanese Animations and from JAniCA's 2023 and 2026 surveys, and each is sourced in
+the comment beside it.
 """
 
 import json
@@ -30,17 +32,6 @@ import pathlib
 TOTAL_ANIMATORS_ESTIMATE = 5_500  # AJA top-down estimate, drawing roles
 FREELANCE_RATIO_LOW = 0.370      # JAniCA 2026
 FREELANCE_RATIO_HIGH = 0.473     # JAniCA 2023
-
-# TDB 2025: ~300 anime production studios in Japan
-NUM_STUDIOS = 300
-
-# Average TV anime episodes per year: ~300 series * 12 eps = ~3,600
-# Plus films, OVAs, etc. → estimate ~4,000 distinct productions/year
-PRODUCTIONS_PER_YEAR = 4_000
-
-# Average animators per production (key + in-between + coloring)
-# Conservative estimate based on typical TV anime episode
-AVG_ANIMATORS_PER_PRODUCTION = 15
 
 # Average SBTs per animator per year
 # (multiple projects, each generating 1 SBT)
@@ -193,13 +184,18 @@ def main():
     print("\n" + "=" * 80)
     print("Context: Industry Revenue Comparison")
     print("=" * 80)
-    industry_revenue_jpy = 362_100_000_000  # TDB 2025: ¥362.1B
-    industry_revenue_usd = industry_revenue_jpy / 150  # ~$2.4B
-    full_adoption_cost = scenarios[-1]["total_annual_usd"]
-    ratio = full_adoption_cost / industry_revenue_usd * 100
-    print(f"  Industry revenue (2024): ¥{industry_revenue_jpy/1e9:.1f}B (~${industry_revenue_usd/1e9:.2f}B)")
-    print(f"  Full adoption cost:      ${full_adoption_cost:.2f}")
-    print(f"  Ratio:                   {ratio:.6f}% of industry revenue")
+    # Teikoku Databank reports the 2024 production market at 362.1 billion yen. The
+    # USD figure is our own conversion, not TDB's, so the rate is named rather than
+    # implied: 150 JPY/USD, a round figure for the 2024-2026 range. The ratio is
+    # reported in yen as well so it does not depend on the conversion.
+    JPY_PER_USD = 150.0
+    industry_revenue_jpy = 362_100_000_000
+    full_adoption_cost_usd = scenarios[-1]["total_annual_usd"]
+    ratio = full_adoption_cost_usd * JPY_PER_USD / industry_revenue_jpy * 100
+    print(f"  Industry production market (2024, TDB): \u00a5{industry_revenue_jpy/1e9:.1f}B")
+    print(f"  Full adoption cost:      ${full_adoption_cost_usd:.2f}"
+          f"  (\u00a5{full_adoption_cost_usd * JPY_PER_USD:,.0f} at {JPY_PER_USD:.0f} JPY/USD, our conversion)")
+    print(f"  Ratio:                   {ratio:.6f}% of the production market")
 
 
 if __name__ == "__main__":
