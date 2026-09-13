@@ -29,13 +29,17 @@ IPFS_FREE_FILES = 500      # free tier ceiling
 IPFS_PAID_USD_MONTH = 20.0
 
 CERTS_PER_ANIMATOR_YEAR = 6
+REVOCATION_RATE = 0.01     # share of issued certificates later revoked
 
+# Headcounts follow simulation/cost_simulation.py: a base of 5,500 animators in the
+# drawing roles (AJA's top-down estimate) times the share working outside employment,
+# which JAniCA's two most recent waves put at 37.0% (2026) and 47.3% (2023).
 SCENARIOS = [
     ("Pilot\n(50)", 50),
     ("Early\n(500)", 500),
-    ("Moderate\n(1,300)", 1300),
-    ("Full, low\n(2,601)", 2601),
-    ("Full, high\n(3,827)", 3827),
+    ("Moderate\n(1,017)", 1017),
+    ("Full, low\n(2,035)", 2035),
+    ("Full, high\n(2,601)", 2601),
 ]
 
 INK = "#1a1a1a"
@@ -74,7 +78,8 @@ def main() -> None:
     for label, n in SCENARIOS:
         certs = n * CERTS_PER_ANIMATOR_YEAR
         batches = certs / 10.0
-        chain = usd(batches * batch10)
+        revocations = certs * REVOCATION_RATE
+        chain = usd(batches * batch10 + revocations * op["revoke"])
         files = certs
         pin = 0.0 if files <= IPFS_FREE_FILES else IPFS_PAID_USD_MONTH * 12
         labels.append(label)

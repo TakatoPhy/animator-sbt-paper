@@ -27,6 +27,17 @@ that reaches the public names a company.
   \label{fig:cut_record}
 \end{figure*}
 
+That a remedy is wanted is not ours to assert, and we do not have to: it appears in the
+industry's own survey. Asked what should change, a production assistant answering
+JAniCA's 2023 survey proposed a licence issued inside production---by the in-between
+checker for in-betweening, by the character designer or chief animation director for key
+animation---so that a creator's record travels with
+them~\cite{janica2023survey}.\footnote{Free-text answer at p.~102, and individual
+testimony rather than a survey statistic. We cite it because the proposal is structurally
+the one this paper develops, and because it was made from inside production rather than
+by a vendor. In the 2026 wave a finishing inspector puts the complaint in one line: the
+work is done and it is not credited~\cite{janica2026survey}.}
+
 % ----- 3.2 Consequences for Freelance Animators -----
 \subsection{Consequences for Freelance Animators}
 \label{subsec:consequences}
@@ -70,9 +81,6 @@ professional record is one component of animators' weak institutional standing.
 % ----- 3.3 Limitations of Existing Solutions -----
 \subsection{Limitations of Existing Solutions}
 \label{subsec:existing_limitations}
-
-Five recent initiatives have addressed aspects of the freelance animator problem,
-but none fully resolves the contribution invisibility issue:
 
 None of the responses in place produces what is missing.
 \Cref{tab:provenance} classifies them by where their record comes from; here we
@@ -132,30 +140,8 @@ An ideal solution should satisfy the following requirements:
     into existing workflows without requiring additional effort from the animator.
 \end{enumerate}
 
-\Cref{tab:requirements} evaluates existing solutions against these requirements,
-and positions AnimatorSBT (with the qualifications discussed below).
-
-\begin{table*}[ht]
-\centering
-\caption{Evaluation of existing solutions against the five requirements.}
-\label{tab:requirements}
-\footnotesize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}lccccc@{}}
-\toprule
-\textbf{Solution} & \textbf{R1} & \textbf{R2} & \textbf{R3} & \textbf{R4} & \textbf{R5} \\
-\midrule
-Official credits       & --         & \checkmark & \checkmark & --         & \checkmark \\
-Freelance Prot.\ Act   & --         & --         & --         & --         & \checkmark \\
-NAFCA contracts        & $\triangle$    & --         & --         & --         & \checkmark \\
-Community DBs          & $\triangle$    & --         & $\triangle$    & --         & --         \\
-Portfolio platforms     & \checkmark & --         & --         & $\triangle$    & --         \\
-PM tools (Kitsu, etc.)  & $\triangle$    & --         & --         & --         & \checkmark \\
-\midrule
-\textbf{AnimatorSBT}   & \checkmark & $\triangle$ & \checkmark & \checkmark & \checkmark \\
-\bottomrule
-\end{tabular}
-\end{table*}
+Read against these requirements, each mechanism of
+\cref{subsec:existing_limitations} fails a different one, and none fails only R5.
 
 AnimatorSBT is designed to satisfy all five requirements, with one important
 qualification recorded here and revisited in \cref{subsec:requirements_eval}:
@@ -163,7 +149,6 @@ for \textbf{R2 (Verifiability)} it currently provides only \emph{integrity and
 existence} verification (that a claim was recorded, unaltered, at a given time),
 not \emph{authenticity} (that the claimed work was actually performed).
 Authenticity requires the studio co-signing layer we design and implement as a
-reference contract in \cref{subsec:cosigning} but do not yet deploy on-chain or
-operate with an independent studio; hence the $\triangle$ rather
-than a \checkmark. R4 and R5 are satisfied by design but rest on wallet
-abstraction that is not yet built and have not been validated with users.
+reference contract in \cref{subsec:cosigning} but do not yet deploy on chain or
+operate with an independent studio. R4 and R5 are satisfied by design but rest on
+wallet abstraction that is not built, and have not been validated with users.

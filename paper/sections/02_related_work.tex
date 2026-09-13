@@ -5,7 +5,7 @@
 \label{subsec:anime_workflow}
 
 Anime production follows a multi-stage pipeline that typically involves dozens of specialized roles
-distributed across multiple studios~\cite{condry2013soul, animechain2024whitepaper}.
+distributed across multiple studios~\cite{matsunaga2025labor, oki2026survey}.
 A single 24-minute television episode may require on the order of 3{,}000 individual drawings
 and the coordination of key animators (\textit{genga}), in-between animators (\textit{douga}),
 color designers (\textit{shiage}), background artists, compositors, and directors,
@@ -15,15 +15,19 @@ The pipeline is broadly divided into three phases:
 \textbf{pre-production} (planning, scriptwriting, storyboarding, character and background design),
 \textbf{production} (layout, key animation, in-betweening, coloring, background painting),
 and \textbf{post-production} (compositing, editing, sound design).
-Each phase involves handoffs between specialized staff, and it is common practice for studios to
-\textbf{partially or fully outsource} individual episodes or specific tasks to subcontractors~\cite{matsunaga2025labor}.
+Each phase involves handoffs between specialized staff. Subcontracting operates at two
+levels: studios specialising in a single phase take that phase's work from a prime
+contractor~\cite{matsunaga2025labor}, and a studio may also take complete episodes,
+a practice the industry names \textit{gurosu-uke}~\cite{oki2026survey}.
 
-This multi-layered subcontracting structure creates a critical attribution problem.
-When an episode is partially outsourced, individual animators may be credited alongside in-house staff.
-However, when entire episodes are \textit{gross}-subcontracted (\textit{gurosu}),
-only the subcontracting studio---not the individual animators---may appear in the credits.
-In extreme cases, secondary and tertiary subcontractors remain entirely uncredited,
-rendering their contributions invisible to the broader industry.
+This structure creates the attribution problem this paper addresses, because the
+credits follow the contract rather than the work. A trade-press guide to the ending
+credits of a Japanese television episode reports that an episode produced by another
+company is credited to that company as production assistance, and partially outsourced
+work to the assisting companies by name, with individuals from them named only
+sometimes~\cite{cirugeda2016credits}. The credit roll is therefore a curated subset of
+who worked on an episode, and which individuals it resolves to depends on the level at
+which the work was let.
 
 % ----- 2.2 Freelance Animator Labor Conditions -----
 \subsection{Freelance Animator Labor Conditions}
@@ -33,42 +37,68 @@ Japan's anime production market reached a record \textyen 362.1 billion in 2024~
 and the global anime market is projected to grow at a compound annual growth rate of 10.6\%,
 reaching USD~49.6 billion by 2031~\cite{mordor2026anime}.
 Despite this commercial success, the labor conditions of individual creators remain precarious.
-Okeda and Koike~\cite{okeda2011animators} provided the first systematic assessment
-of animators' working conditions based on JAniCA survey data.
+Okeda and Koike~\cite{okeda2011animators} brought the findings of JAniCA's first
+large-scale survey of animators' working conditions into the English-language
+literature.
 
-An exceptionally large share of the anime workforce consists of freelancers.
-The Japan Animation Creators Association (JAniCA) reported that 47.3\% of animation creators
-were self-employed or freelance in 2023~\cite{janica2023survey}, down from 69.6\% in
-2019~\cite{janica2019survey} but still approximately six times the 7.6\% share of
-self-employed workers in the Japanese workforce as a whole~\cite{mic2023labourforce}.
+An exceptionally large share of the anime workforce works outside employment. In the
+Japan Animation Creators Association's surveys, the two response categories that mean
+this, \emph{furiiransu} and self-employed, together account for 69.6\% of respondents
+in the 2019 wave, 47.3\% in 2023 and 37.0\% in
+2026~\cite{janica2019survey,janica2023survey,janica2026survey}.\footnote{None of the
+three is printed as a single number; each is the sum of the same two categories
+(2019: 50.5\% freelance and 19.1\% self-employed of 382 respondents; 2023: 30.8\% and
+16.5\% of 425; 2026: 26.0\% and 11.0\% of 970). Read the decline cautiously. The 2019
+percentages are of all respondents and include a non-response bar, while the later two
+exclude non-responses to the item; the 2026 report states that its conditions differed
+from 2023's; and the share answering that a contract is unnecessary because they are
+employed rises from 17.0\% to 43.8\% between the last two waves, which points to a
+change in who responded and not only to a change in the industry.} Even the most recent
+and lowest figure is roughly five times the share of the Japanese workforce as a whole
+that is self-employed, 5.14~million of 67.13~million employed persons, or
+7.7\%~\cite{mic2023labourforce}.\footnote{The comparison is indicative rather than
+exact. The national figure counts self-employed proprietors and excludes unpaid family
+workers, while JAniCA's is respondents' own description of their employment status.}
 The Nippon Anime \& Film Culture Association (NAFCA) found in its 2024 survey that
-the median monthly working hours for anime industry workers was 225 hours (maximum: 336 hours),
-compared to the national average of 162.3 hours~\cite{nafca2024survey}.
-A further 37.7\% of respondents reported monthly \emph{anime-related} income
-below \textyen 200{,}000 (approximately USD~1{,}300),
-and the median hourly wage was \textyen 1{,}111---barely above
-the national minimum wage average of \textyen 1{,}004
-in effect at the time of the survey (FY2023)~\cite{nafca2024survey}.\footnote{The
-national minimum wage was raised to \textyen 1{,}055 in October 2024 (FY2024).}
+the median monthly working hours for anime industry workers was 225 hours, with a
+maximum of 336, and that 37.7\% of respondents reported monthly \emph{anime-related}
+income below \textyen 200{,}000, approximately USD~1{,}300~\cite{nafca2024survey}.
+The median hourly wage the same survey reports, \textyen 1{,}111, sits barely above
+\textyen 1{,}004, the national weighted average minimum wage for
+FY2023~\cite{mhlw2025minwage}.\footnote{The national weighted average has since risen
+to \textyen 1{,}055 in FY2024 and \textyen 1{,}121 in FY2025~\cite{mhlw2025minwage},
+so the margin over the statutory floor has closed rather than widened.}
+The 225-hour median is about 38\% above the 163.0 hours a month worked on average by
+general full-time employees across all industries in FY2023~\cite{mhlw2024monthly}.
+The two are not measured the same way---the national series is reported by
+establishments for employees, the NAFCA figure is self-reported and includes
+freelancers---so the comparison indicates a gap without quantifying it precisely.
 
-In-between animators (\textit{douga}) earned an average annual income of
-\textyen 2.632 million, while key animators (\textit{genga}) earned \textyen 3.998 million~\cite{janica2023survey}.
-These figures are particularly striking given that a single in-between frame
-is typically compensated at approximately \textyen 200 (less than USD~2),
-and each frame can require over an hour of work.\footnote{The per-frame rate and
-time estimate are drawn from~\cite{ristola2017blood}, a 2017 graduate symposium
-paper rather than a survey instrument, and are cited here illustratively; the income and wage figures
-above are from the official JAniCA and NAFCA surveys.}
+In-between animators (\textit{douga}) reported a mean annual income of
+\textyen 2.632 million and key animators (\textit{genga}) \textyen 3.998 million in the
+2023 wave, and \textyen 2.275 million and \textyen 4.152 million respectively in
+2026~\cite{janica2023survey,janica2026survey}. Piece rates are what produce those
+totals, and no body tabulates them. The figures that circulate come from respondents'
+own free-text answers, which put an in-between drawing at \textyen 220 in the 2023 wave
+and at \textyen 200 in
+2026~\cite{janica2023survey,janica2026survey}.\footnote{Individual testimony rather
+than a survey statistic. We report it because the per-drawing rate is the unit in which
+in-betweening is commissioned, and no organisation publishes it.}
 
-In December 2025, Japan's Fair Trade Commission published an investigation into
-the transaction environment for creators in the anime production industry,
-finding that unilateral price determination without negotiation may constitute a legal violation
-under the Subcontract Act~\cite{jftc2025anime}.\footnote{The survey covers film and
-anime together, with a separate anime volume. The Act was renamed with effect from
-January 2026; the JFTC report already uses the new name.}
-The Freelance Protection Act, which took effect in November 2024,
-introduced new protections for independent contractors,
-but its impact on the anime industry remains to be seen~\cite{meti2025anime}.
+Regulation has moved quickly and in one direction. The Freelance Protection Act took
+effect in November 2024, introducing protections for independent
+contractors~\cite{meti2025anime}. In December 2025 Japan's Fair Trade Commission
+published an investigation into the transaction environment for creators in anime
+production, finding that unilateral price determination without negotiation may
+constitute a violation of the statute governing payment to small and medium-sized
+contractors~\cite{jftc2025anime}.\footnote{The survey covers film and anime together,
+with a separate anime volume. The statute, Act No.~120 of 1956, was renamed with effect
+from January 2026, and the report uses the current name.} In June 2026 the Cabinet
+Office and the Commission issued guidelines for the industry as the policy response to
+that investigation~\cite{jftc2026shishin}. None of it reaches the attribution problem:
+these instruments regulate the terms on which work is commissioned, and
+\cref{subsec:integration} shows that they require a detailed record of the transaction
+while requiring nothing about who is recorded as having done the work.
 
 % ----- 2.3 Soulbound Tokens and Decentralized Identity -----
 \subsection{Soulbound Tokens and Decentralized Identity}
@@ -85,14 +115,13 @@ which become permanently bound to a player upon acquisition~\cite{buterin2022sou
 Since their introduction, SBTs have been explored in three adjacent domains.
 Kakebayashi and Beverley~\cite{kakebayashi2023sbt} provided a comprehensive study of SBT implementations and
 their potential as a social identity layer.
-In healthcare, SBTs have been proposed for privacy-aware medical record authentication,
-enabling interoperable patient data sharing across facilities
-while maintaining decentralized control~\cite{sbt_health2024}.
+In healthcare, Pinna et al.\ report a case study issuing citizen-owned vaccination
+certificates as SBTs, so that the holder rather than the issuing facility keeps the
+credential~\cite{sbt_health2024}.
 The authors of~\cite{sbt_credential_framework2023} developed a framework for privacy-preserving
 credential issuance and verification using SBTs.
-In agriculture, Verma et al.~\cite{verma2025sbt_agriculture} proposed a dual-blockchain model
-integrating soulbound NFTs for farmer identity management and asset validation
-across supply chains.
+In agriculture, Verma et al.~\cite{verma2025sbt_agriculture} proposed a dual-blockchain
+model using soulbound NFTs for farmer identity management.
 The ERC-5192 standard~\cite{daubenschuetz2022erc5192} formalized a minimal interface
 for soulbound NFTs on Ethereum, providing the technical foundation
 for many of these implementations.
@@ -133,9 +162,9 @@ and has not been published as a peer-reviewed or preprint academic paper.
 
 The application of blockchain technology to the creative industries has been examined
 from multiple perspectives.
-The authors of~\cite{blockchain_creative2023} surveyed the state of blockchain in creative industries,
-identifying opportunities in rights management, provenance tracking, and direct
-creator-to-consumer distribution.
+Malik et al.\ survey blockchain in the creative industries, with direct
+creator-to-consumer distribution among the opportunities they
+identify~\cite{blockchain_creative2023}.
 The World Economic Forum highlighted blockchain's potential for transparent
 royalty distribution and intellectual property protection~\cite{wef2017creative}.
 
@@ -148,23 +177,23 @@ payment delays that disproportionately affect freelancers; we note, however,
 that such mechanisms presuppose a trustworthy oracle for ``verified completion''---
 precisely the authenticity problem this paper foregrounds.
 
-The concept of \textbf{Verified Creator Portfolios (VCPs)} has emerged as
-a direct application of blockchain to creative freelancer credentialing.
-Unlike traditional portfolios, which show completed work but cannot prove
-the creator's specific role, constraints, or the authenticity of their contribution,
-blockchain-based credentials can carry verifiable evidence links,
-criteria, and a verification method~\cite{sbt_credentials_digital2024}.
+Credentialing a creative freelancer is where these primitives meet the present
+setting. A portfolio shows finished work but not the holder's role in it, and nobody
+vouches for the claim; the Open Badges specification, aligned to the same
+verifiable-credentials data model, answers that by carrying the criteria a credential
+was awarded against together with links to the evidence~\cite{openbadges3}.
+Peric\`as-Gornals et al.\ add a property that matters wherever a credential can expose
+its holder: in their scheme a recipient can reject a soulbound token, and the protocol
+provides non-repudiation of its reception, so issuance is not
+unilateral~\cite{sbt_credentials_digital2024}.
 
-The Four Pillars research group argued specifically that ``Anime Needs Web3,''
-identifying IP tokenization, creator compensation transparency,
-and fan engagement as key opportunity areas~\cite{fourpillars2025anime}.
-However, their analysis focused on IP-level tokenization (e.g., fractional ownership
-of anime franchises) rather than individual creator-level contribution certification.
-This pattern holds across current anime-and-blockchain ventures: initiatives such as
-Animechain/AIRA,\footnote{\url{https://whitepaper.animechain.ai/}} ANIM.JP, and
-ANIFTY operate at the level of IP rights, fan tokens, collectibles, or
-AI-training-data provenance---none issues a worker-owned, task-level contribution
-credential. The anime-and-web3 space and the worker-credential space remain disjoint.
+Where blockchain has reached anime specifically, it has reached the rights rather
+than the work. The Four Pillars group identifies IP tokenization, compensation
+transparency and fan engagement as the opportunities~\cite{fourpillars2025anime}, and
+the ventures follow that line: Animechain/AIRA, ANIM.JP and ANIFTY operate on IP
+rights, fan tokens, collectibles or AI-training-data provenance, and none issues a
+worker-owned, task-level credential. The anime-and-web3 space and the
+worker-credential space remain disjoint.
 
 % ----- 2.5 Research Gap -----
 \subsection{Research Gap}
@@ -180,24 +209,24 @@ operative variable is jurisdiction---the Guild's exclusive authority to define
 individual authorship of a collective work---and traces how that authority became
 the Guild's central function~\cite{fisk2012screencredit}. The same form reaches
 animation in the United States, where The Animation Guild's agreement requires
-screen credit for the animation, background and layout classifications and names
-a final adjudicator for disputes~\cite{tag2024cba}.
+screen credit for the animation, story, background and layout classifications and
+names a final adjudicator for disputes~\cite{tag2024cba}.
 
-That route is unavailable in Japanese animation, and not for want of trying. The
-route requires three things at once: exclusive craft jurisdiction, a collective
-agreement binding employers to the determination, and a standing arbitration
-apparatus. This is not for want of any history of organising---Toei Animation's
-workforce was unionised from the late 1950s and its disputes are
-documented~\cite{kimura2020toei}---but that organisation never secured
-jurisdiction over crediting, and it did not survive the industry's shift to
-freelance contracting---a transition whose effect on how animators sustain careers
-Nagata and Matsunaga document at
-length~\cite{nagata2022sociology}. The bodies representing Japanese animators today are
-general incorporated associations rather than unions with bargaining
-jurisdiction; performers in the
-same productions, organised as a cooperative, do hold collective agreements,
-which isolates the missing variable as organisational form rather than law or
-custom. Japanese copyright law offers no substitute~\cite{jp_copyright_act}: Article~16 confines
+That route is unavailable in Japanese animation. It requires three things at once:
+exclusive craft jurisdiction, a collective agreement binding employers to the
+determination, and a standing arbitration apparatus. What removed the first of them
+was the move to freelance contracting: a craft cannot hold exclusive jurisdiction over
+work commissioned individually from people who are not its employees. Matsunaga's studio
+ethnography shows what replaced it, which is not collective bargaining but individual
+and studio-mediated coping---veteran animators securing short-term work against the
+risk of an income gap, younger ones relying on the studio to find them work, and
+freelancers thereby subject to a form of organisational control without the protections
+of employment~\cite{matsunaga2023portfolio}.\footnote{Nagata and Matsunaga give the
+book-length treatment of the same transition~\cite{nagata2022sociology}.} The bodies representing Japanese
+animators today are accordingly general incorporated associations rather than unions
+with bargaining jurisdiction, which is why the industry's own survey can document the
+grievance (\cref{subsec:credit_gap}) without any body being in a position to
+adjudicate it. Japanese copyright law offers no substitute~\cite{jp_copyright_act}: Article~16 confines
 authorship of a cinematographic work to those who contribute to its
 \emph{overall} shaping, which excludes artists working cut by cut, and
 Article~19(3) permits the author's name to be omitted where consistent with fair
@@ -238,11 +267,12 @@ Production data (this work) & AnimatorSBT & Studio co-signature & \checkmark & \
 Putting work records on a chain is not a new proposal, and we should say whose it
 was. Sharples and Domingue set out a distributed store of educational and
 professional achievement with a reputation layer above it a decade
-ago~\cite{sharples2016kudos}, and EduCTX carried the idea into a multi-institution
-pilot for academic credit~\cite{turkanovic2018eductx}. Both assume what this
-setting lacks. An accredited university issuing its own credential is an
-institution with standing to attest, and the design problem there is
-interoperability between such institutions rather than the absence of any. What
+ago~\cite{sharples2016kudos}, and EduCTX built a prototype carrying the idea into
+academic credit, with an invitation to other institutions to
+join~\cite{turkanovic2018eductx}. EduCTX assumes what this setting lacks. An
+accredited university issuing its own credential is an institution with standing to
+attest, and the design problem there is interoperability between such institutions
+rather than the absence of any. What
 changes here is not the ledger but where the attestation can originate when no
 accredited issuer exists, which is why the anchor rather than the token is what
 this paper argues about.
@@ -279,5 +309,4 @@ omit, and an unreleased production has no staff roll at all. Self-reported
 records reach every task but carry no attestation. The gap is therefore not an absence of data. Production generates a per-cut,
 per-person trail as a byproduct of getting the work done, and every mechanism in
 the table either fails to reach it or reaches it without anyone standing behind
-what it says. To the best of our knowledge no prior work applies non-transferable
-tokens to that gap.
+what it says.

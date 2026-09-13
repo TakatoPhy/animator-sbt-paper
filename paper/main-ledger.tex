@@ -41,7 +41,9 @@
 Non-Transferable Records Anchored to Accepted Orders in Japanese Animation}
 
 % Ledger house style: author bio + contact as a \thanks footnote.
-% (An optional first \thanks may carry a BTC/BCH/ETH tipping address; omitted here.)
+% An optional first \thanks carries the corresponding author's BTC/BCH/ETH address,
+% which the journal uses as the identity its staff verifies the manuscript-hash
+% signature against. Omitted until acceptance, when a key is designated for it.
 \author{Takato Oki\thanks{T. Oki (oki@tooniq.co.jp) is the founder of TOONIQ LLC, Tokyo, Japan, and a graduate student at Tokyo University of Science, Tokyo, Japan, working on production-management and quality-control tools for the animation industry.}}
 
 \pagestyle{pagemain}
@@ -67,6 +69,13 @@ Non-Transferable Records Anchored to Accepted Orders in Japanese Animation}
 \item Anime production.
 \end{keywords}
 \end{abstract}
+
+% ledger.cls redefines \@fnsymbol with only nine symbols and raises "Counter too
+% large" on the tenth, silently dropping the note's text. Those symbols exist for the
+% author block, which has taken its mark by this point, so the body uses arabic
+% numerals from here and the counter restarts at one.
+\renewcommand{\thefootnote}{\arabic{footnote}}
+\setcounter{footnote}{0}
 
 \section{Introduction}
 \label{sec:introduction}

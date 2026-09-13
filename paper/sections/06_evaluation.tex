@@ -12,19 +12,32 @@ testnet (\cref{tab:gas}; 30~gwei gas price, POL = \$0.22, March 2026 rate).
 
 \subsubsection{Parameters}
 
-The simulation assumes the following industry parameters based on public data:
+The scenarios rest on four industry parameters, and the first needs stating carefully
+because no authoritative headcount of Japanese animators is published. Neither JAniCA
+nor NAFCA extrapolates its respondents to a population, and the Japan Standard
+Industrial Classification's animation-production code is not tabulated separately in
+the public census aggregates. We therefore take the workforce base from the only
+published estimate we located: the Association of Japanese Animations puts domestic
+animation creators at just under 20{,}000, of whom 5{,}500 work in the drawing
+roles---animation director, layout, key animation, in-between check and
+in-betweening~\cite{aja2025creators}. That is AJA's own top-down estimate, derived from
+creator counts in end credits and from the headcount needed to produce the year's
+released minutes at each stage, and AJA notes that in-betweening, finishing and
+backgrounds are also produced by overseas subsidiaries and overseas orders. We use
+5{,}500 as a stated assumption rather than a measurement.
 
-\begin{itemize}
-  \item Total animation creators: $\sim$5{,}500 (JAniCA 2023 survey base)
-  \item Freelance ratio: 47.3\%~\cite{janica2023survey} to 69.6\%~\cite{janica2019survey}. The
-    high-estimate scenario applies the older 2019 ratio to the 2023 creator base
-    as an upper bound; this mixes survey years and should be read as a conservative
-    ceiling, not a current figure.
-  \item Average projects per animator per year: 6
-  \item Batch minting with batch size of 10 (default)
-  \item Revocation rate: 1\% of issued SBTs
-  \item IPFS pinning: Free tier for $\leq$500 files; \$20/month for larger deployments~\cite{pinata2026pricing}
-\end{itemize}
+The freelance share is taken from JAniCA, 47.3\%~\cite{janica2023survey} to
+69.6\%~\cite{janica2019survey}, with the high-estimate scenario applying the older
+ratio to the current base as a ceiling rather than a current figure. Each animator is
+assumed to work on six projects a year, certificates are minted in batches of ten, 1\%
+are revoked, and pinning is charged at the provider's free tier below 500 files and
+\$20 a month above it~\cite{pinata2026pricing}.
+
+The base is the parameter the conclusion is least sensitive to. Cost scales with
+certificates issued, not with the size of the industry, so an error in the headcount
+moves the on-chain column proportionally and leaves the cost per certificate unchanged.
+What falls with scale is the per-animator figure, and it falls because the pinning
+subscription is flat.
 
 \subsubsection{Results}
 
@@ -45,9 +58,9 @@ entered by hand.}
 \midrule
 Pilot (1 studio)   & 50      & 300      & \$0.34  & \$0     & \$0.34   & \$0.007 \\
 Early (10 studios) & 500     & 3{,}000  & \$3.38  & \$240   & \$243.38 & \$0.487 \\
-Moderate (50\%)    & 1{,}300 & 7{,}800  & \$8.78  & \$240   & \$248.78 & \$0.191 \\
-Full (low est.)    & 2{,}601 & 15{,}606 & \$17.56 & \$240   & \$257.56 & \$0.099 \\
-Full (high est.)   & 3{,}827 & 22{,}962 & \$25.83 & \$240   & \$265.83 & \$0.070 \\
+Moderate (50\%)    & 1{,}017 & 6{,}102  & \$6.89  & \$240   & \$246.89 & \$0.243 \\
+Full (low est.)    & 2{,}035 & 12{,}210 & \$13.78 & \$240   & \$253.78 & \$0.125 \\
+Full (high est.)   & 2{,}601 & 15{,}606 & \$17.61 & \$240   & \$257.61 & \$0.099 \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -64,8 +77,8 @@ Full (high est.)   & 3{,}827 & 22{,}962 & \$25.83 & \$240   & \$265.83 & \$0.070
 \end{figure*}
 
 The operating cost is dominated by a flat off-chain subscription rather than by
-the chain. At full adoption the modelled total is \$266 a year, of which \$240 is
-the fixed pinning tier~\cite{pinata2026pricing} and \$26 is on-chain issuance. The
+the chain. In the largest scenario the modelled total is \$257.61 a year, of which \$240 is
+the fixed pinning tier~\cite{pinata2026pricing} and \$17.61 is on-chain issuance. The
 step from the pilot scenario to the early one is caused entirely by crossing the
 provider's free-tier file ceiling, not by any change in blockchain cost. This is
 the result we regard as transferable: a design that anchors credentials on chain
@@ -84,46 +97,27 @@ the barrier, not as a cost of ownership. We do not normalise it against industry
 revenue, since that revenue accrues to production committees and rights holders
 rather than to the animators the system serves.
 
-Because the dollar figures depend on two volatile parameters---gas price and the
-POL/USD rate---\Cref{tab:sensitivity} reports the per-mint cost across a range of
-each, computed from the mint gas of 195{,}423 (\cref{tab:gas}). Even in the most
-adverse cell a single mint costs under \$0.06, so the conclusion that on-chain cost
-is not a barrier survives large swings in both.
-
-\begin{table}[ht]
-\centering
-\caption{Sensitivity of the per-\texttt{mint()} cost (USD) to gas price and the
-POL/USD rate, from the mint gas of 195{,}423. The parameter values are
-hypothetical scenarios rather than observed market rates; the baseline used
-elsewhere in this paper is 30~gwei and \$0.22.}
-\label{tab:sensitivity}
-\footnotesize
-\setlength{\tabcolsep}{6pt}
-\begin{tabular}{@{}lrrr@{}}
-\toprule
-\textbf{Gas price} & \textbf{POL \$0.22} & \textbf{POL \$0.50} & \textbf{POL \$1.00} \\
-\midrule
-30~gwei  & \$0.0013 & \$0.0029 & \$0.0059 \\
-100~gwei & \$0.0043 & \$0.0098 & \$0.0195 \\
-300~gwei & \$0.0129 & \$0.0293 & \$0.0586 \\
-\bottomrule
-\end{tabular}
-\end{table}
+The dollar figures depend on two volatile parameters, the gas price and the POL/USD
+rate, and the conclusion does not. At the baseline of 30~gwei and \$0.22, a mint of
+195{,}423 gas (\cref{tab:gas}) costs \$0.0013. Taking POL to \$1.00 at the same gas
+price gives \$0.0059; raising the gas price tenfold to 300~gwei at the baseline rate
+gives \$0.0129; and the adverse corner of 300~gwei with POL at \$1.00 gives \$0.0586.
+On-chain issuance is not a cost barrier anywhere in that range.
 
 \subsection{Scalability}
 \label{subsec:scalability}
 
-Throughput and storage are not constraints at this scale and we do not dwell on
-them: full adoption implies roughly 22{,}962 certificates a year, about 63
-transactions a day against a network processing millions~\cite{gangwal2023layer2},
-and 11.5~MB of annual metadata. Growth in the market would not change this
-conclusion.
+Throughput and storage are not constraints at this scale and we do not dwell on them:
+the largest scenario implies 15{,}606 certificates a year, which is about 43
+transactions a day and 7.8~MB of annual metadata. Neither figure
+approaches any limit of a general-purpose network, and growth in the market would not
+change that.
 
 One limit does bind, and it is in our own contract rather than the network.
 \texttt{tokensOfOwner()} scans every minted token, so its cost grows with the
 \emph{cumulative} supply rather than the annual flow; at around 100{,}000 tokens
-the call risks exceeding RPC timeout limits, which the projected issuance rate
-reaches within a few years of deployment. We therefore treat the prototype's
+the call risks exceeding RPC timeout limits, which the largest scenario's issuance rate
+reaches in about six years and a partial deployment reaches later but still reaches. We therefore treat the prototype's
 implementation as demonstration-only, and an owner-to-token mapping or an
 off-chain indexer as a launch requirement rather than a later optimisation. We do
 not report gas for the mapping variant, as that would require re-measuring a
@@ -175,10 +169,11 @@ content it points to does not---which is the same off-chain dependency that
 dominates the cost.
 
 Portability is also less automatic than putting a record in the holder's hands
-suggests. Hesse et al.\ find that reputation carried between platforms is
-discounted by those receiving it~\cite{hesse2021portability}, and Kokkodis and
-Ipeirotis measure freelance reputation as only partially transferable even under
-favourable conditions~\cite{kokkodis2016transferability}. Both study scores
+suggests. Hesse et al.\ find that importing a reputation from another platform can help
+or hurt depending on what the ratings say, so the receiving market does not simply
+accept it at face value~\cite{hesse2021portability}, and Kokkodis and Ipeirotis measure
+freelance reputation as only partially transferable even under favourable
+conditions~\cite{kokkodis2016transferability}. Both study scores
 assembled inside one platform, which a certificate anchored to a studio's own
 acceptance is not, so we expect the discount to be smaller here---but we have not
 measured it, and a record being portable in the technical sense is not the same as
@@ -203,16 +198,12 @@ The prototype is on a testnet. Gas transfers faithfully to mainnet because EVM
 execution is identical, but the dollar column does not: testnet POL has no market
 value, so the USD figures apply a fixed gas price and a fixed token price to
 measured gas and exclude mainnet priority and L1 data costs. They are a model.
-\Cref{tab:sensitivity} shows the conclusion survives large moves in both
-parameters, but the specific figures should be read as projections rather than
-observed costs.
+The conclusion survives large moves in both parameters, as the range above shows,
+but the specific figures should be read as projections rather than observed costs.
 
 The evidence hash establishes less than its presence suggests, for the reason set
-out in \cref{subsec:verification}: it is computed over attributes the issuer
-authored and stored alongside them, so it witnesses that nothing changed after
-minting and nothing about correspondence to anything outside the record. The
-serialisation it depends on is now tested; the live pinning path and the
-in-browser recomputation are not.
+out in \cref{subsec:verification}. The serialisation it depends on is now tested;
+the live pinning path and the in-browser recomputation are not.
 
 The prototype's status is not unusual for this class of system. Breckenridge et
 al.\ open by observing that decentralised verifiable credential systems have seen

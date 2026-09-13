@@ -5,7 +5,9 @@
 \label{subsec:stack}
 
 The contract is Solidity 0.8.20 against OpenZeppelin Contracts v4, deployed to
-Polygon PoS for its transaction costs and EVM compatibility. Metadata is
+Polygon PoS for its transaction costs and EVM compatibility; the trade-offs among the
+scaling approaches an EVM deployment can choose between are surveyed by Gangwal
+et al.~\cite{gangwal2023layer2}. Metadata is
 content-addressed on IPFS through a pinning service; the issuance service is a
 Node.js backend using ethers.js and the pinning provider's SDK. The client an
 animator sees is a progressive web application for tracking cuts and deadlines.
@@ -27,31 +29,12 @@ with two key modifications: \textbf{soulbinding} and \textbf{role-based access c
 
 \subsubsection{Soulbinding Mechanism}
 
-Transfer restriction is enforced by overriding the \texttt{\_beforeTokenTransfer}
-hook, which is called on every token movement including minting, transferring, and burning:
-
-\begin{lstlisting}[basicstyle=\footnotesize\ttfamily, frame=single,
-  caption={Soulbinding enforcement via transfer hook.},
-  label={lst:soulbind},
-  morekeywords={function,address,uint256,internal,virtual,override,if,revert,super}]
-function _beforeTokenTransfer(
-  address from, address to,
-  uint256 tokenId, uint256 batchSize
-) internal virtual override {
-  // Allow mint (from==0), block transfers
-  if (from != address(0)
-      && to != address(0)) {
-    revert SoulboundTransferDisabled();
-  }
-  super._beforeTokenTransfer(
-    from, to, tokenId, batchSize
-  );
-}
-\end{lstlisting}
-
-The \texttt{approve()} and \texttt{setApprovalForAll()} functions are likewise
-overridden to revert unconditionally, preventing any approval-based transfer mechanisms.
-This ensures that SBTs cannot be transferred through any ERC-721--compliant interface.
+ERC-721 routes every token movement---mint, transfer and burn---through a single
+internal hook. The contract overrides it and reverts whenever both the source and the
+destination are non-zero addresses, which admits minting and burning and refuses
+everything between them. \texttt{approve()} and \texttt{setApprovalForAll()} revert
+unconditionally, so no approval-based path around the hook remains, and the token is
+non-transferable through any ERC-721--compliant interface.
 
 ERC-5192~\cite{daubenschuetz2022erc5192} solves an adjacent problem: it is a
 signalling interface, letting tooling discover that a token is non-transferable,
@@ -61,38 +44,22 @@ provides both---\texttt{locked()} returning true for every token, the
 \texttt{supportsInterface}---while the v1 contract on Amoy has only the
 enforcement.
 
-\subsubsection{Role-Based Access Control}
+\subsubsection{Roles and External Interface}
 
-The contract defines two roles using OpenZeppelin's \texttt{AccessControl}:
+Access control uses two roles. \texttt{DEFAULT\_ADMIN\_ROLE} grants and revokes the
+issuer role and is held by the system administrator; \texttt{ISSUER\_ROLE} mints and
+revokes certificates and is held by the issuance service's operational wallet. The
+separation means a compromised issuance key can issue and invalidate certificates but
+cannot change who holds either role, which is what leaves the remedy of
+\cref{subsec:trust} available.
 
-\begin{itemize}
-  \item \texttt{DEFAULT\_ADMIN\_ROLE}: Can grant and revoke issuer roles.
-    Held by the system administrator (TOONIQ).
-  \item \texttt{ISSUER\_ROLE}: Can mint new SBTs and revoke existing ones.
-    Assigned to the Issuance Service's operational wallet.
-\end{itemize}
-
-This separation ensures that even if the Issuance Service's key is compromised,
-the attacker cannot modify the access control structure itself.
-
-\subsubsection{Core Functions}
-
-The contract provides the following external functions:
-
-\begin{itemize}
-  \item \texttt{mint(address to, string uri)}: Mints a single SBT with
-    the given IPFS metadata URI. Emits \texttt{SBTMinted} event.
-  \item \texttt{mintBatch(address[] recipients, string[] uris)}: Batch minting
-    for efficiency when issuing certificates to multiple animators
-    upon project completion.
-  \item \texttt{revoke(uint256 tokenId)}: Marks an SBT as invalidated
-    without burning it, preserving the on-chain audit trail.
-    Emits \texttt{SBTRevoked} event.
-  \item \texttt{tokensOfOwner(address owner)}: Returns all token IDs
-    held by a given address (view function for off-chain queries).
-  \item \texttt{isRevoked(uint256 tokenId)}: Returns the revocation status.
-  \item \texttt{issuedAt(uint256 tokenId)}: Returns the issuance timestamp.
-\end{itemize}
+The external interface is small. \texttt{mint} issues one certificate against a
+recipient address and a metadata URI and \texttt{mintBatch} does the same for a list
+of each, which is how certificates are issued at the end of a production.
+\texttt{revoke} marks a certificate invalid without burning it, so that invalidating a
+record does not erase the fact that it existed. \texttt{tokensOfOwner},
+\texttt{isRevoked} and \texttt{issuedAt} are views, letting a verifier resolve an
+address to the certificates it holds and check each one's status and issuance time.
 
 \subsubsection{Gas Cost Analysis}
 
@@ -163,8 +130,8 @@ co-signature---approximately \$0.0019. Batching ten certificates brings the
 per-certificate figure down to \$0.0011. Deployment is a one-time \$0.012.
 On-chain cost is thus negligible at any plausible scale, which is what makes the
 off-chain storage dependency, rather than the chain, the binding constraint
-(\cref{subsec:cost_sim}). A sensitivity analysis over gas prices and POL prices appears
-in \cref{tab:sensitivity}.
+(\cref{subsec:cost_sim}). \Cref{subsec:cost_sim} varies the gas price and the
+token price and finds the conclusion unchanged.
 
 % ----- 5.3 Prototype Implementation -----
 \subsection{Prototype Implementation}
@@ -182,12 +149,9 @@ The \texttt{AnimatorSBT} contract was deployed on the Polygon Amoy testnet
 (block 35{,}058{,}633).\footnote{The deployment transaction and all subsequent
 interactions are publicly verifiable at
 \url{https://amoy.polygonscan.com/address/0x2cC31B9EFBD5dDfB5456EE4c76A0fcBCA5EEE117}.}
-A test suite of 35 unit tests was developed using Hardhat for the deployed v1
-contract, covering deployment, minting, batch minting, soulbinding enforcement,
-revocation, view functions, and access control; all pass. Beyond the v1 contract,
-the repository adds a further 35 tests---17 for the v2 co-signing reference contract
-(\cref{subsec:cosigning}), 7 for the canonical evidence-hash serialisation, 10 for
-the disclosure commitment of \cref{subsec:privacy}, and a local end-to-end issuance test---for 70 passing in total.
+Seventy unit tests pass: 35 against the deployed v1 contract, 17 against the v2
+co-signing reference contract, 7 against the canonical serialisation, 10 against the
+disclosure commitment of \cref{subsec:privacy}, and one local end-to-end issuance run.
 The suite exercises contract mechanics, which are the most standard part of the
 system, and one thing that is not: the evidence hash is computed over a
 recursively key-sorted serialisation, and seven of the tests confirm that it is
@@ -232,8 +196,9 @@ to the stored \texttt{evidence\_hash} field.
 \label{subsubsec:v2}
 
 The authenticity layer of \cref{subsec:cosigning} exists as a reference
-implementation rather than a sketch, validated locally but not deployed on-chain
-and not replacing the v1 contract on Amoy. \texttt{AnimatorSBTV2} adds a studio
+implementation rather than a sketch. It is validated in the local EVM, where
+co-signing, canonical hashing, minting and soulbinding compose correctly; it is not
+deployed on chain and does not replace the v1 contract on Amoy. \texttt{AnimatorSBTV2} adds a studio
 attester role and an idempotent \texttt{coSign} taking the attester from
 \texttt{msg.sender}, together with the views that report who has co-signed and at
 what attestation level, and ERC-5192 \texttt{locked()} signalling. A co-signature
@@ -259,12 +224,6 @@ wallet-provisioning seam that is currently an unconfigured skeleton.
   implementation in the accompanying repository.}
   \label{fig:canonical}
 \end{figure*}
-
-We emphasize what this does and does not establish: it demonstrates that the
-co-signing mechanism, canonical hashing, mint, and soulbinding \emph{compose}
-correctly off-chain and in the local EVM. It does not establish on-chain behavior,
-independent-studio operation, or end-to-end issuance from real application data---all
-of which remain future work (\cref{subsec:eval_limitations}).
 
 % ----- 5.4 Integration with Production Management Client -----
 \subsection{Integration and the Attestation Anchor}
@@ -293,6 +252,31 @@ books record but the credits do not. Reading the design this way also names what
 it inherits: a third entry is only as good as the two it witnesses, so a studio
 that mis-records who did the work produces a faithful certificate of a false
 premise.
+
+The record the anchor needs is one the commissioning party is already obliged to keep.
+Article~7 of the statute governing payment to small and medium-sized contractors
+requires a commissioning party to create and retain for two years a per-transaction
+document recording, among sixteen enumerated items, the content of the work ordered,
+the date delivery was due and the date it was received, the completion date and result
+of any inspection together with the treatment of anything that failed it, and the fee
+with its due date and the date and means of
+payment~\cite{meti2026animeguideline}.\footnote{Act No.~120 of 1956, renamed with
+effect from January 2026; the enumeration is Figure~33 of METI's guideline for this
+industry, at p.~48. The duty attaches to whoever places the order: the guideline states
+that a commission may fall under the Act whatever the commissioning party's own
+position in the subcontracting chain.} That is the accepted order in the state the
+anchor requires, held by the party whose determination a co-signature would record. The
+design does not ask the industry to begin keeping a record. It asks that a record the
+law already compels be made durable in the worker's hands.
+
+The same enumeration shows why the gap it addresses exists. Nothing in the list requires
+the individual creator's name---the counterparty may be recorded by number or code---and
+neither that provision nor the Cabinet Office and Fair Trade Commission's 2026
+guidelines on transactions at anime production sites contain any provision on crediting
+or on moral rights~\cite{meti2026animeguideline,jftc2026shishin}. Regulation of this
+industry has become detailed about the terms on which work is commissioned while saying
+nothing about who is recorded as having done it. The data exists and is retained by
+legal compulsion; what no rule produces is an attribution the worker can carry.
 
 Two consequences follow that a self-reported log does not raise. An accepted order
 can be adjusted afterwards---in Japanese practice through a correcting credit
